@@ -13,7 +13,6 @@
             <i class="fa fa-lock"></i>
           </div>
           <div class="form-group">
-            <span class="text"> --> <a href="/accounts/register/">注册</a> <--- </span>
             <button type="submit" class="btn btn-default" v-on:click="login">登录</button>
           </div>
         </div>
@@ -22,7 +21,7 @@
   </div>
 </template>
 
-<script>
+<script lang="">
   export default {
     data(){
       return {
@@ -31,17 +30,11 @@
       };
     },
     methods: {
-      login: function () {
-        alert(`login: ${this.username} ${this.password}`);
-
-        let err = '';
-
-        if(err == 'missInfo')
-          alert('信息不全');
-        if(err == 'wrongPasswd')
-          alert('密码错误');
-        if(err == 'notFind')
-          alert('找不到该用户');
+      login () {
+        this.$dispatch('submit-login', {
+          username: this.username,
+          password: this.password
+        });
       }
     }
   }
