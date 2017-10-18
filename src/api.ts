@@ -22,9 +22,26 @@ let defaultBasePath = 'http://localhost:8000';
 
 /* tslint:disable:no-unused-variable */
 
+export class Body {
+    'username': string;
+    'password': string;
+    'email': string;
+    'phone': string;
+}
+
+export class Body1 {
+    'path': string;
+    'name': string;
+    'isDir': boolean;
+}
+
+export class ErrorInfo {
+    'info': string;
+}
+
 export class File {
-    'id': number;
-    'directory': boolean;
+    'id': string;
+    'isDir': boolean;
     /**
     * 文件名
     */
@@ -175,9 +192,9 @@ export class FileApi {
     /**
      * 新建空白文件或文件夹
      * @summary Create file or directory
-     * @param body Created file object
+     * @param body
      */
-    public createFile (body: File) : Promise<{ response: http.ClientResponse; body?: any;  }> {
+    public createFile (body: Body1) : Promise<{ response: http.ClientResponse; body?: any;  }> {
         const localVarPath = this.basePath + '/file';
         let queryParameters: any = {};
         let headerParams: any = (<any>Object).assign({}, this.defaultHeaders);
@@ -331,15 +348,11 @@ export class FileApi {
     /**
      * Used for searching files
      * @summary Get file infos by query
-     * @param path File path
-     * @param name File name
+     * @param path File path. Regex.
+     * @param name File name. Regex.
      * @param tags File tags
-     * @param orderby Orderby
-     * @param order ascending / descending
-     * @param page Page number. Begin from 1.
-     * @param pagesize Page size. Default &#x3D; 10.
      */
-    public getFiles (path?: string, name?: string, tags?: Array<string>, orderby?: string, order?: string, page?: number, pagesize?: number) : Promise<{ response: http.ClientResponse; body: Array<File>;  }> {
+    public getFiles (path?: string, name?: string, tags?: Array<string>) : Promise<{ response: http.ClientResponse; body: Array<File>;  }> {
         const localVarPath = this.basePath + '/file';
         let queryParameters: any = {};
         let headerParams: any = (<any>Object).assign({}, this.defaultHeaders);
@@ -356,22 +369,6 @@ export class FileApi {
 
         if (tags !== undefined) {
             queryParameters['tags'] = tags;
-        }
-
-        if (orderby !== undefined) {
-            queryParameters['orderby'] = orderby;
-        }
-
-        if (order !== undefined) {
-            queryParameters['order'] = order;
-        }
-
-        if (page !== undefined) {
-            queryParameters['page'] = page;
-        }
-
-        if (pagesize !== undefined) {
-            queryParameters['pagesize'] = pagesize;
         }
 
         let useFormData = false;
@@ -412,8 +409,9 @@ export class FileApi {
      * 上传文件
      * @summary Upload file
      * @param file The file to upload.
+     * @param path Base path
      */
-    public uploadFile (file?: Buffer) : Promise<{ response: http.ClientResponse; body?: any;  }> {
+    public uploadFile (file?: Buffer, path?: string) : Promise<{ response: http.ClientResponse; body: File;  }> {
         const localVarPath = this.basePath + '/file/upload';
         let queryParameters: any = {};
         let headerParams: any = (<any>Object).assign({}, this.defaultHeaders);
@@ -426,6 +424,10 @@ export class FileApi {
             formParams['file'] = file;
         }
         useFormData = true;
+
+        if (path !== undefined) {
+            formParams['path'] = path;
+        }
 
         let requestOptions: request.Options = {
             method: 'POST',
@@ -445,7 +447,7 @@ export class FileApi {
                 requestOptions.form = formParams;
             }
         }
-        return new Promise<{ response: http.ClientResponse; body?: any;  }>((resolve, reject) => {
+        return new Promise<{ response: http.ClientResponse; body: File;  }>((resolve, reject) => {
             request(requestOptions, (error, response, body) => {
                 if (error) {
                     reject(error);
@@ -812,7 +814,7 @@ export class UserApi {
     /**
      * 管理员用户创建新用户
      * @summary Create user
-     * @param body Created user object
+     * @param body Created user object (Ignore id)
      */
     public createUser (body: User) : Promise<{ response: http.ClientResponse; body?: any;  }> {
         const localVarPath = this.basePath + '/user';
@@ -864,19 +866,19 @@ export class UserApi {
     /**
      * This can only be done by the admin user.
      * @summary Delete user
-     * @param username The name that needs to be deleted
+     * @param id
      */
-    public deleteUser (username: string) : Promise<{ response: http.ClientResponse; body?: any;  }> {
-        const localVarPath = this.basePath + '/user/{username}'
-            .replace('{' + 'username' + '}', String(username));
+    public deleteUser (id: number) : Promise<{ response: http.ClientResponse; body?: any;  }> {
+        const localVarPath = this.basePath + '/user/{id}'
+            .replace('{' + 'id' + '}', String(id));
         let queryParameters: any = {};
         let headerParams: any = (<any>Object).assign({}, this.defaultHeaders);
         let formParams: any = {};
 
 
-        // verify required parameter 'username' is not null or undefined
-        if (username === null || username === undefined) {
-            throw new Error('Required parameter username was null or undefined when calling deleteUser.');
+        // verify required parameter 'id' is not null or undefined
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling deleteUser.');
         }
 
         let useFormData = false;
@@ -971,19 +973,19 @@ export class UserApi {
     /**
      *
      * @summary Get user by user name
-     * @param username The name that needs to be fetched. Use user1 for testing.
+     * @param id
      */
-    public getUserByName (username: string) : Promise<{ response: http.ClientResponse; body: User;  }> {
-        const localVarPath = this.basePath + '/user/{username}'
-            .replace('{' + 'username' + '}', String(username));
+    public getUserByName (id: number) : Promise<{ response: http.ClientResponse; body: User;  }> {
+        const localVarPath = this.basePath + '/user/{id}'
+            .replace('{' + 'id' + '}', String(id));
         let queryParameters: any = {};
         let headerParams: any = (<any>Object).assign({}, this.defaultHeaders);
         let formParams: any = {};
 
 
-        // verify required parameter 'username' is not null or undefined
-        if (username === null || username === undefined) {
-            throw new Error('Required parameter username was null or undefined when calling getUserByName.');
+        // verify required parameter 'id' is not null or undefined
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling getUserByName.');
         }
 
         let useFormData = false;
@@ -1133,9 +1135,9 @@ export class UserApi {
     /**
      * 游客自助注册用户
      * @summary Signup user
-     * @param body 只有部分值是有用的 username password email phone
+     * @param body
      */
-    public signupUser (body: User) : Promise<{ response: http.ClientResponse; body?: any;  }> {
+    public signupUser (body: Body) : Promise<{ response: http.ClientResponse; body?: any;  }> {
         const localVarPath = this.basePath + '/user/signup';
         let queryParameters: any = {};
         let headerParams: any = (<any>Object).assign({}, this.defaultHeaders);
@@ -1185,20 +1187,20 @@ export class UserApi {
     /**
      * This can only be done by the logged in user.
      * @summary Updated user
-     * @param username name that need to be updated
+     * @param id
      * @param body Updated user object
      */
-    public updateUser (username: string, body: User) : Promise<{ response: http.ClientResponse; body?: any;  }> {
-        const localVarPath = this.basePath + '/user/{username}'
-            .replace('{' + 'username' + '}', String(username));
+    public updateUser (id: number, body: User) : Promise<{ response: http.ClientResponse; body?: any;  }> {
+        const localVarPath = this.basePath + '/user/{id}'
+            .replace('{' + 'id' + '}', String(id));
         let queryParameters: any = {};
         let headerParams: any = (<any>Object).assign({}, this.defaultHeaders);
         let formParams: any = {};
 
 
-        // verify required parameter 'username' is not null or undefined
-        if (username === null || username === undefined) {
-            throw new Error('Required parameter username was null or undefined when calling updateUser.');
+        // verify required parameter 'id' is not null or undefined
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling updateUser.');
         }
 
         // verify required parameter 'body' is not null or undefined
