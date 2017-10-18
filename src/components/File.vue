@@ -1,18 +1,23 @@
 <template>
   <div>
-    <Upload action="//jsonplaceholder.typicode.com/posts/">
+    <Upload action="">
       <Button type="ghost" icon="ios-cloud-upload-outline">上传文件</Button>
     </Upload>
+    <FileList>
+
+    </FileList>
   </div>
 </template>
 
-<script lang="">
+<script>
+  import FileList from './FileList.vue'
   export default {
     data(){
       return {
       };
     },
     methods: {
-    }
+    },
+    components: {FileList}
   }
 </script>

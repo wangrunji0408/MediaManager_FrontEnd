@@ -11,20 +11,27 @@ npm install
 # serve with hot reload at localhost:8080
 npm run dev
 
+# lint the Typescript
+npm run lint
+
+# run the tests
+npm test
+
+# run the tests on changes
+npm run test:watch
+
+# run the test suite and generate a coverage report
+npm run coverage
+
+# run the tests on Teamcity
+npm run ci:teamcity
+
+# run the tests on Jenkins
+npm run ci:jenkins
+
 # build for production with minification
 npm run build
 
-# build for production and view the bundle analyzer report
-npm run build --report
-
-# run unit tests
-npm run unit
-
-# run e2e tests
-npm run e2e
-
-# run all tests
-npm test
+# clean the production build
+npm run clean
 ```
-
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
