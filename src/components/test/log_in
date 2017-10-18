@@ -27,17 +27,13 @@
     <img src = "images/avtar.png" />
   </div>
   <form>
-    <div class="form-group">
-    <input type="text" class="text" value="Username" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Username';}" v-model="username">
-    <i class="fa fa-user"></i>
-    </div>
+    <input type="text" class="text" value="Username" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Username';}" >
     <div class="key">
-      <input type="password" value="Password" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Password';}" v-model="password">
-      <i class="fa fa-lock"></i>
+      <input type="password" value="Password" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Password';}">
     </div>
   </form>
   <div class="signin">
-    <input type="submit" value="Login" v-on:click="login">
+    <input type="submit" value="Login" >
   </div>
 </div>
 
