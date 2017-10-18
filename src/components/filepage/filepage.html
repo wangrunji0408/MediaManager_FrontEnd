@@ -1,11 +1,17 @@
-<div>
-  <!-- 这个是左侧导航条。。 -->
-  <b-nav vertical class="w-25">
-    <b-nav-item active>全部文件</b-nav-item>
-    <b-nav-item>共享文件</b-nav-item>
-    <b-nav-item disabled>Disabled</b-nav-item>
-  </b-nav>
+<div class="container-fluid">
+  <div class="row">
 
-  <!-- 右侧文件列表 -->
-  <FileList></FileList>
+    <!-- 左侧导航条 -->
+    <b-nav vertical class="w-25 col-sm-3 col-md-2 sidebar">
+      <b-nav-item active>全部文件</b-nav-item>
+      <b-nav-item>共享文件</b-nav-item>
+      <b-nav-item disabled>Disabled</b-nav-item>
+    </b-nav>
+
+    <!-- 右侧文件列表 -->
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+      <FileList></FileList>
+    </div>
+
+  </div>
 </div>
