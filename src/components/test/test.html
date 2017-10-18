@@ -1,0 +1,15 @@
+<div class="container">
+  <h2>
+    把新写的组件放到这里测试
+  </h2>
+  <!-- 使用 BootstrapVue -->
+  <!-- v-model 用来绑定一个变量 -->
+  <b-form-input v-model="text1"
+                type="text"
+                placeholder="Enter your name"></b-form-input>
+  <!-- {{ }} 用来绑定一个变量 -->
+  <p>Value: {{ text1 }}</p>
+
+  <!--使用 Bootstrap ( bs3- Command+J )-->
+  <button type="button" class="btn btn-default" v-on:click="onClick">ClickMe</button>
+</div>

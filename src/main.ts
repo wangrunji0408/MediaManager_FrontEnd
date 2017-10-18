@@ -12,6 +12,7 @@ import { NavbarComponent } from './components/navbar';
 import { Login } from './components/login';
 import { Signup } from './components/signup';
 import { Demo } from './components/demo';
+import { Test } from './components/test';
 
 // register the plugin
 Vue.use(VueRouter);
@@ -19,6 +20,7 @@ Vue.use(BootstrapVue);
 
 let router = new VueRouter({
   routes: [
+    { path: '/', component: Test },
     { path: '/demo', component: Demo, children: [
       { path: 'home', component: HomeComponent },
       { path: 'about', component: AboutComponent },
