@@ -1,0 +1,44 @@
+<div>
+  <!-- 搜索框 -->
+  <div class="col-md-6">
+    <b-form-fieldset horizontal label="Filter" :label-cols="3">
+      <b-form-input v-model="filter" placeholder="Type to Search" />
+    </b-form-fieldset>
+  </div>
+
+  <!-- 页码栏 -->
+  <div class="row my-1">
+    <div class="col-sm-8">
+      <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" />
+    </div>
+  </div>
+
+  <!-- 文件列表 -->
+  <b-table striped hover
+           :sort-by.sync="sortBy"
+           :sort-desc.sync="sortDesc"
+           :current-page="currentPage"
+           :per-page="perPage"
+           :filter="filter"
+           :items="files"
+           :fields="fields"
+           @filtered="onFiltered"
+  >
+    <template slot="thumbnails">
+      <b-img thumbnail fluid v-bind:src="value" width="50" height="50" alt="Thumbnail"></b-img>
+    </template>
+    <template slot="name">{{value}}</template>
+    <template slot="size">{{value}}</template>
+    <template slot="modifyDate" v-model="modifyDate">{{value}}</template>
+    <template slot="detail" scope="row">
+      <b-btn @click.stop="showDetail(row.item, row.index)"></b-btn>
+    </template>
+  </b-table>
+
+  <!-- 详细信息弹窗 -->
+  <!-- TODO 修复看不见的问题 -->
+  <b-modal id="modal1" @hide="resetModal" ok-only>
+    <h4 class="my-1 py-1" slot="modal-header">Index: {{ modalDetails.index }}</h4>
+    <pre>{{ modalDetails.data }}</pre>
+  </b-modal>
+</div>

@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import BootstrapVue from 'bootstrap-vue';
+import 'bootstrap-vue/dist/bootstrap-vue.css';
 import 'font-awesome/css/font-awesome.min.css';
 
 import './sass/main.scss';
@@ -13,6 +14,7 @@ import { Login } from './components/login';
 import { Signup } from './components/signup';
 import { Demo } from './components/demo';
 import { Test } from './components/test';
+import { FilePage } from './components/filepage';
 
 // register the plugin
 Vue.use(VueRouter);
@@ -28,6 +30,7 @@ let router = new VueRouter({
     ] },
     { path: '/login', component: Login },
     { path: '/signup', component: Signup },
+    { path: '/file', component: FilePage },
   ]
 });
 
