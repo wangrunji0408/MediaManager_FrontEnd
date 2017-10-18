@@ -2,6 +2,9 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import {Link} from '../navbar/link';
 import {Watch} from 'vue-property-decorator';
+import {HomeComponent} from '../home/home';
+import {AboutComponent} from '../about/about';
+import {ListComponent} from '../list/list';
 
 @Component({
   template: require('./demo.html')
@@ -22,3 +25,9 @@ export class Demo extends Vue {
   pathChanged() {
   }
 }
+
+export let DemoRouter = [
+  { path: 'home', component: HomeComponent },
+  { path: 'about', component: AboutComponent },
+  { path: 'list', component: ListComponent }
+];
