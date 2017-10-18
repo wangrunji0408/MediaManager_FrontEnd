@@ -40,7 +40,13 @@ let config = {
       from: 'src/assets',
       to: './assets'
     }, ]),
-  ]
+  ],
+  node: {
+    console: false,
+    fs: 'empty',
+    net: 'empty',
+    tls: 'empty'
+  }
 };
 
 module.exports = config;
