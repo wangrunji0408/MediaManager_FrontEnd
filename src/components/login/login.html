@@ -4,12 +4,7 @@
   <title>Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name = "keywords" content = "Flat Dark Web Login Form Responsive Templates, Iphone Widget Template, Smartphone login forms,Login form, Widget Template, Responsive Templates, a Ipad 404 Templates, Flat Responsive Templates" />
-  <link href = "css/style.css" rel = 'stylesheet' type = 'text/css' />
   <!--webfonts-->
-  <link href = 'http://fonts.useso.com/css?family=PT+Sans:400,700,400italic,700italic|Oswald:400,300,700' rel = 'stylesheet' type = 'text/css'>
-  <link href = 'http://fonts.useso.com/css?family=Exo+2' rel = 'stylesheet' type = 'text/css'>
-  <!--//webfonts-->
-  <script src = "http://ajax.useso.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 </head>
 
 <body>
@@ -24,7 +19,7 @@
   </div>
   <div class = "clear"> </div>
   <div class = "avtar">
-    <img src = "images/avtar.png" />
+    <img src = "../images/avtar.png" />
   </div>
   <form>
     <div class="form-group">
@@ -35,11 +30,13 @@
       <input type="password" value="Password" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Password';}" v-model="password">
       <i class="fa fa-lock"></i>
     </div>
+    <button type="button" class="btn btn-default btn-lg" >
+      <span class="glyphicon glyphicon-star" aria-hidden="true"> Sign up</span>
+    </button>
   </form>
-  <div class="signin">
-    <input type="submit" value="Login" v-on:click="login">
+  <div class="signin" class="checkbos">
+    <input class="checkbox-inline" type="submit" value="Login" v-on:click="login">
   </div>
 </div>
-
 </body>
 </html>
