@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import {FileList} from './filelist';
-import {VueRouter} from 'vue-router/types/router';
 import {Another} from './another/index';
 
 @Component({

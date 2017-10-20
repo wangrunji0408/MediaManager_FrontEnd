@@ -2,6 +2,16 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import {File} from '../../../api';
 
+class FileModel extends File {
+  choice: boolean = false;
+  star: boolean = true;
+
+  renaming: boolean = false;
+  rename() {
+
+  }
+}
+
 @Component({
   template: require('./filelist.html')
 })
@@ -39,8 +49,12 @@ export class FileList extends Vue {
   showDetail (item: File, index: number) {
     this.modalDetails.data = JSON.stringify(item, null, 2);
     this.modalDetails.index = index;
-    alert('123');
-    this.$root.$emit('bv::show::modal', 'modal1');
+    this.$root.$emit('bv::show::modal', 'detail-modal');
+  }
+
+  rename (item: FileModel) {
+    item.renaming = true;
+    alert('rename!');
   }
 
   resetModal() {
@@ -48,7 +62,11 @@ export class FileList extends Vue {
     this.modalDetails.index = '';
   }
 
-  files: File[] = [
+  deleteFile() {
+    // TODO do deleteFile
+  }
+
+  files: FileModel[] = [
     {
       id: 'ID',
       name: 'frontend.avi',
@@ -60,11 +78,17 @@ export class FileList extends Vue {
       size: 1024,
       modifyDate: new Date('2017/1/2'),
       createDate: new Date('2017/1/1'),
-      tags: []
+      tags: [],
+
+      choice: false,
+      star: true,
+      renaming: false,
+      rename() {}
     },
   ];
 
   fields = [
+    {key: 'star', label: ''},
     {key: 'thumbnails', label: ''},
     {key: 'name', sortable: true},
     {key: 'size', sortable: true},
