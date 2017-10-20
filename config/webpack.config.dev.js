@@ -20,20 +20,21 @@ webpackConfig.module.rules = [...webpackConfig.module.rules,
   },
   {
     test: /\.css$/,
-    loader: 'css-loader'
+    loader: ['style-loader', 'css-loader']
   },
+  // {
+  //   test: /\.(html)$/,
+  //   use: {
+  //     loader: 'html-loader'
+  //   }
+  // },
   {
-    test: /\.(jpg|png|gif|eot|svg|ttf|woff|woff2)$/,
-    loader: 'file-loader'
+    test: /\.(ico|jpg|png|gif|eot|svg|ttf|woff|woff2)$/,
+    loader: "file-loader"
   }
 ];
 
 webpackConfig.plugins = [...webpackConfig.plugins,
-  new HtmlWebpackPlugin({
-    inject: true,
-    template: helpers.root('/src/index.html'),
-    favicon: helpers.root('/src/favicon.ico')
-  }),
   new DefinePlugin({
     'process.env': env
   })
@@ -52,3 +53,28 @@ webpackConfig.devServer = {
 };
 
 module.exports = webpackConfig;
+
+var pages = helpers.getEntry(['./src/index.html', './src/pages/**/*.html']);
+
+for (var pathname in pages) {
+  // 配置生成的html文件，定义路径等
+  var conf = {
+    filename: pathname + '.html',
+    template: pages[pathname],   // 模板路径
+    inject: true,              // js插入位置
+    minify: {
+      //removeComments: true,
+      //collapseWhitespace: true,
+      //removeAttributeQuotes: true
+    },
+    // necessary to consistently work with multiple chunks via CommonsChunkPlugin
+    chunksSortMode: 'dependency'
+  };
+
+  if (pathname in module.exports.entry) {
+    conf.chunks = ['manifest', 'vendor', pathname];
+    conf.hash = true;
+  }
+
+  module.exports.plugins.push(new HtmlWebpackPlugin(conf));
+}

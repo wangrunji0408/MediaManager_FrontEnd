@@ -1,9 +1,11 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import {User, UserApi} from '../../api';
+// import './css/style.css';
 
 @Component({
-  template: require('./index.html')
+  el: '#login',
+  template: require('./login.html')
 })
 export class Login extends Vue {
 
@@ -34,3 +36,5 @@ export class Login extends Vue {
 
   }
 }
+
+new Login();

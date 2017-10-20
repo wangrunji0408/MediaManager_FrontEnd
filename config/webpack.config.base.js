@@ -1,12 +1,8 @@
-const helpers = require('./helpers'),
-  CopyWebpackPlugin = require('copy-webpack-plugin');
+const helpers = require('./helpers');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 let config = {
-  entry: {
-    'main': helpers.root('/src/main.ts'),
-    'file': helpers.root('/src/pages/file/main.ts'),
-    'login': helpers.root('/src/pages/login/main.ts'),
-  },
+  entry: helpers.getEntry(['./src/main.ts', './src/pages/**/*.ts']),
   output: {
     path: helpers.root('/dist'),
     filename: 'js/[name].[hash].js'
