@@ -1,15 +1,30 @@
-<div class="container">
-  <h2>
-    把新写的组件放到这里测试
-  </h2>
-  <!-- 使用 BootstrapVue -->
-  <!-- v-model 用来绑定一个变量 -->
-  <b-form-input v-model="text1"
-                type="text"
-                placeholder="Enter your name"></b-form-input>
-  <!-- {{ }} 用来绑定一个变量 -->
-  <p>Value: {{ text1 }}</p>
-
-  <!--使用 Bootstrap ( bs3- Command+J )-->
-  <button type="button" class="btn btn-default" v-on:click="onClick">ClickMe</button>
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th align="left"><i class="fa fa-check" aria-hidden="true">----</i>   name</th>
+      <th align="right">      </th>
+      <th align="right">      </th>
+      <th align="right">size</th>
+      <th align="right">date</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td><li><a href="#"><span class="glyphicon glyphicon-file" aria-hidden="true"> test.pdf</a></li></td>
+      <td><li><a href="#"><span class="glyphicon glyphicon-share" aria-hidden="true"></a></li></td>
+      <td><li><a href="#"><span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"></a></li></td>
+      <td>36kb</td>
+      <td>2017.10.19</td>
+    </tr>
+    <tr>
+      <td><li><a href="#"><span class="glyphicon glyphicon-file" aria-hidden="true"> color.doc</a></li></td>
+      <td><li><a href="#"><span class="glyphicon glyphicon-share" aria-hidden="true"></a></li></td>
+      <td><li><a href="#"><span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"></a></li></td>
+      <td>22kb</td>
+      <td>2017.10.20</td>
+    </tr>
+    </tbody>
+  </table>
 </div>
+
