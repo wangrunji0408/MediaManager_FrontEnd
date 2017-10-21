@@ -1,11 +1,12 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import {UserList} from './userlist';
-import {User} from '../../api';
+import {AddUserBar} from './adduserbar';
+import {GroupApi, User, UserApi, UserGroup} from '../../api';
 
 @Component({
   template: require('./userpage.html'),
-  components: {UserList},
+  components: {UserList, AddUserBar},
 })
 export class UserPage extends Vue {
   users: User[] = [
@@ -33,13 +34,12 @@ export class UserPage extends Vue {
     }
   ];
 
-  groups1 = [
-    {name: 'all', count: this.users.length, query: '*'},
-    {name: 'admin', count: 1},
-    {name: 'group1', count: 1},
+  allGroups: UserGroup[] = [
+    {id: 1, name: 'admin'},
+    {id: 2, name: 'group1'},
   ];
 
-  get groups() {
+  get groupsCount() {
     let dic: { [name: string]: number } = {};
     for (let u of this.users) {
       for (let g of u.groups) {
@@ -56,6 +56,11 @@ export class UserPage extends Vue {
 
   addGroup () {
     alert('addgroup');
+  }
+
+  async getData() {
+    this.users = await new UserApi().getUser();
+    this.allGroups = await new GroupApi().getUserGroups();
   }
 }
 

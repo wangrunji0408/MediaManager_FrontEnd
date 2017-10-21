@@ -25,14 +25,7 @@
       {{row.value}}
     </template>
     <template slot="groups" scope="row">
-      <div class="dropdown">
-        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-          Group<span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" v-for="group in row.item.groups">
-          <li><a href="">{{group.name}}</a></li>
-        </ul>
-      </div>
+      <GroupDropdown :all="allGroups" :selected="row.value"></GroupDropdown>
     </template>
   </b-table>
 
