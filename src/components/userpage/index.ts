@@ -32,6 +32,31 @@ export class UserPage extends Vue {
       'groups': [{id: 2, name: 'group1'}]
     }
   ];
+
+  groups1 = [
+    {name: 'all', count: this.users.length, query: '*'},
+    {name: 'admin', count: 1},
+    {name: 'group1', count: 1},
+  ];
+
+  get groups() {
+    let dic: { [name: string]: number } = {};
+    for (let u of this.users) {
+      for (let g of u.groups) {
+        if(! (g.name in dic) )
+          dic[g.name] = 0;
+        dic[g.name] += 1;
+      }
+    }
+    let ret: any[] = [{name: 'all', count: this.users.length, query: '*'}];
+    for (let name in dic)
+      ret.push({name: name, count: dic[name]});
+    return ret;
+  }
+
+  addGroup () {
+    alert('addgroup');
+  }
 }
 
 export const UserPageRouter = [

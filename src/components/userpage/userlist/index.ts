@@ -10,7 +10,7 @@ export class UserList extends Vue {
 
   get filter() {
     let gf = this.groupFilter;
-    if (gf === '' || gf === 'all')
+    if (gf === '' || gf === '*')
       return '';
     return (user: User) =>
       user.groups.find(g => g.name === gf) != null;

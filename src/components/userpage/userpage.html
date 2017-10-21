@@ -4,17 +4,12 @@
     <!-- 左侧导航条 -->
     <div class="col-sm-3 col-md-2 sidebar">
       <ul class="nav nav-sidebar" class="list-group">
-        <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus" aria-hidden="true"> add group</a></li>
-        <li class="list-group-item">
-          <span class="badge">14</span>
-          <a href="#user/all?group=all">all users</a>
+        <li class="list-group-item" @click="addGroup">
+          <a><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> add group</a>
         </li>
-        <li class="list-group-item">
-          <span class="badge">1</span>
-          <a href="#user/all?group=admin">admin</a>
-        </li>
-        <li class="list-group-item">
-          <a href="#user/all?group=group1">group1</a>
+        <li class="list-group-item" v-for="group in groups">
+          <span class="badge">{{group.count}}</span>
+          <a :href="'#user/?group=' + (group.query? group.query: group.name)">{{group.name}}</a>
         </li>
       </ul>
     </div>
