@@ -1,6 +1,0 @@
-<div class="container">
-  <b-button-group v-for="link in links" v-bind:class="{'active' : $route.path == link.path}">
-    <router-link class="btn btn-default" v-bind:to="link.path">{{link.name}}</router-link>
-  </b-button-group>
-  <router-view></router-view>
-</div>

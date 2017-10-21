@@ -11,7 +11,6 @@ import './sass/main.scss';
 import { NavbarComponent } from './components/navbar';
 import { Login } from './components/login';
 import { Signup } from './components/signup';
-import {Demo, DemoRouter} from './components/demo';
 import { Test } from './components/test';
 import {FilePage, FilePageRouter} from './components/filepage';
 import {UserPage, UserPageRouter} from './components/userpage';
@@ -25,7 +24,6 @@ Vue.use(BootstrapVue);
 let router = new VueRouter({
   routes: [
     { path: '/', component: Test },
-    { path: '/demo', component: Demo, children: DemoRouter },
     { path: '/login', component: Login },
     { path: '/signup', component: Signup },
     { path: '/file', component: FilePage, children: FilePageRouter },
