@@ -2,6 +2,15 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import {User} from '../../../api';
 
+function testString(str: string, pattern: string): boolean {
+  return str.match(pattern) != null;
+}
+
+function inGroup(user: User, group: string): boolean {
+  return !group || group === '*'
+    || user.groups.find(g => g.name === group) != null;
+}
+
 @Component({
   template: require('./userlist.html'),
   props: ['users']
@@ -10,10 +19,9 @@ export class UserList extends Vue {
 
   get filter() {
     let gf = this.groupFilter;
-    if (!gf || gf === '*')
-      return '';
+    let nf = this.nameFilter;
     return (user: User) =>
-      user.groups.find(g => g.name === gf) != null;
+      inGroup(user, gf) && testString(user.username, nf);
   }
 
   sortBy: string = '';
@@ -30,6 +38,7 @@ export class UserList extends Vue {
   get groupFilter() {
     return this.$route.query['group'];
   }
+  nameFilter: string = '';
 
   users: User[];
 
