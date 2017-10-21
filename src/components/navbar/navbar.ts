@@ -19,6 +19,7 @@ export class NavbarComponent extends Vue {
         new Link('Login', '/login'),
         new Link('Signup', '/signup'),
         new Link('File', '/file'),
+        new Link('User', '/user'),
     ];
 
     @Watch('$route.path')

@@ -7,23 +7,22 @@
         <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus" aria-hidden="true"> add group</a></li>
         <li class="list-group-item">
           <span class="badge">14</span>
-          <a href="#">
-            all users
-          </a>
+          <a href="#user/all?group=all">all users</a>
         </li>
         <li class="list-group-item">
           <span class="badge">1</span>
-          <a href="#">
-            admin
-          </a>
+          <a href="#user/all?group=admin">admin</a>
         </li>
-        <li class="list-group-item"><a href="#">ban</a></li>
+        <li class="list-group-item">
+          <a href="#user/all?group=group1">group1</a>
+        </li>
       </ul>
     </div>
 
     <!-- 右侧文件列表 -->
 
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+      <router-view :users="users"></router-view>
     </div>
 
   </div>

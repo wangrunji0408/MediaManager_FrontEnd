@@ -1,4 +1,29 @@
 <div class="table-responsive">
+
+  <p> Group: {{groupFilter}} </p>
+  <!-- 文件列表 -->
+  <!-- TODO 调整列宽 -->
+  <b-table striped hover
+           :sort-by.sync="sortBy"
+           :sort-desc.sync="sortDesc"
+           :current-page="currentPage"
+           :per-page="perPage"
+           :filter="filter"
+           :items="users"
+           :fields="fields"
+           @filtered="onFiltered"
+  >
+    <template slot="icon" scope="row">
+      <b-img thumbnail fluid v-bind:src="row.item.image" width="50" height="50" alt="Thumbnail"></b-img>
+    </template>
+    <template slot="username" scope="row">
+      {{row.value}}
+    </template>
+    <template slot="groups" scope="row">
+      {{row.value}}
+    </template>
+  </b-table>
+
   <table class="table table-striped">
     <thead>
     <tr>

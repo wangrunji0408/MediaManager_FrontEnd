@@ -13,6 +13,8 @@ import { Signup } from './components/signup';
 import {Demo, DemoRouter} from './components/demo';
 import { Test } from './components/test';
 import {FilePage, FilePageRouter} from './components/filepage';
+import {UserPage, UserPageRouter} from './components/userpage';
+
 
 // register the plugin
 Vue.use(VueRouter);
@@ -25,6 +27,7 @@ let router = new VueRouter({
     { path: '/login', component: Login },
     { path: '/signup', component: Signup },
     { path: '/file', component: FilePage, children: FilePageRouter },
+    { path: '/user', component: UserPage, children: UserPageRouter },
   ]
 });
 
