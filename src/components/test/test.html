@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>用户登录</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<form action="login.php" method="post">
+  <div class="mycenter">
+    <div class="mysign">
+      <div class="col-lg-11 text-center text-info">
+        <h2>注册ing</h2>
+      </div>
+      <div class="col-lg-10">
+        <input type="text" class="form-control" name="username" placeholder="账户名" required autofocus/>
+      </div>
+      <div class="col-lg-10"></div>
+      <div class="col-lg-10">
+        <input type="email" class="form-control" placeholder="邮箱" name="email" v-model="email" required>
+      </div>
+      <div class="col-lg-10">
+        <input type="text" class="form-control" placeholder="联系方式" name="phone" v-model="phone" required>
+      </div>
+      <div class="col-lg-10">
+        <button class="btn btn-default" v-on:click="switch_show_password">
+          {{ show_password? '隐藏密码' : '显示密码' }}
+        </button>
+      </div>
+      <div class="col-lg-10">
+        <input type="password" class="form-control" name="password" placeholder="密码" required autofocus/>
+      </div>
+      <div class="col-lg-10"></div>
+      <div class="col-lg-10 mycheckbox checkbox">
+        <input type="checkbox" class="col-lg-1">记住密码</input>
+      </div>
+      <div class="col-lg-10"></div>
+      <div class="col-lg-10">
+        <button type="button" class="btn btn-success col-lg-12">注册</button>
+      </div>
+    </div>
+  </div>
+</form>
+</body>
+</html>

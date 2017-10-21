@@ -1,0 +1,24 @@
+<div class="container-fluid">
+  <div class="row">
+
+    <!-- 左侧导航条 -->
+    <div class="col-sm-3 col-md-2 sidebar">
+      <ul class="nav nav-sidebar" class="list-group">
+        <li class="list-group-item" @click="addGroup">
+          <a><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> add group</a>
+        </li>
+        <li class="list-group-item" v-for="group in groupsCount">
+          <span class="badge">{{group.count}}</span>
+          <a :href="'#user/?group=' + (group.query? group.query: group.name)">{{group.name}}</a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 右侧文件列表 -->
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+      <AddUserBar :allGroups="allGroups"></AddUserBar>
+      <router-view :users="users" :allGroups="allGroups"></router-view>
+    </div>
+
+  </div>
+</div>

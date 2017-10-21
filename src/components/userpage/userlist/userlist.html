@@ -1,0 +1,144 @@
+<div class="table-responsive">
+
+  <!-- 搜索框 -->
+  <div class="col-md-6">
+    <b-form-fieldset horizontal label="Filter" :label-cols="3">
+      <b-form-input v-model="nameFilter" placeholder="Type to Search" />
+    </b-form-fieldset>
+  </div>
+
+  <!-- 文件列表 -->
+  <!-- TODO 调整列宽 -->
+  <b-table striped hover
+           :sort-by.sync="sortBy"
+           :sort-desc.sync="sortDesc"
+           :current-page="currentPage"
+           :per-page="perPage"
+           :filter="filter"
+           :items="users"
+           :fields="fields"
+  >
+    <template slot="icon" scope="row">
+      <b-img thumbnail fluid v-bind:src="row.item.image" width="50" height="50" alt="Thumbnail"></b-img>
+    </template>
+    <template slot="username" scope="row">
+      {{row.value}}
+    </template>
+    <template slot="groups" scope="row">
+      <GroupDropdown :all="allGroups" :selected="row.value"></GroupDropdown>
+    </template>
+  </b-table>
+
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th>      </th>
+      <th align="left">user</th>
+      <th align="right">name</th>
+      <th align="right">code</th>
+      <th align="right">group</th>
+      <th align="right">group_admin</th>
+      <th align="right">quota</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td><li>icon</li></td>
+      <td><li>Sarah</li></td>
+      <td><li>Sarah</li></td>
+      <td><li><a href="#"><span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"></a></li></td>
+      <td><li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+          admin
+          <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a href="#"><i class="fa fa-pencil" aria-hidden="true"></i> 个人</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+        </ul>
+      </li></td>
+      <td><li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+          no group
+          <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a href="#"><i class="fa fa-pencil" aria-hidden="true"></i> 个人</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+        </ul>
+      </li></td>
+      <td><li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+          unlimited
+          <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a href="#"><i class="fa fa-pencil" aria-hidden="true"></i> 个人</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+        </ul>
+      </li></td>
+    </tr>
+    <tr>
+      <td><li>icon</li></td>
+      <td><li>Sarah</li></td>
+      <td><li>Sarah</li></td>
+      <td><li><a href="#"><span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"></a></li></td>
+      <td><li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+          admin
+          <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a href="#"><i class="fa fa-pencil" aria-hidden="true"></i> 个人</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+        </ul>
+      </li></td>
+      <td><li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+          no group
+          <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a href="#"><i class="fa fa-pencil" aria-hidden="true"></i> 个人</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+        </ul>
+      </li></td>
+      <td><li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+          unlimited
+          <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a href="#"><i class="fa fa-pencil" aria-hidden="true"></i> 个人</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"> 个人</a></li>
+        </ul>
+      </li></td>
+    </tr>
+
+    </tbody>
+  </table>
+</div>
