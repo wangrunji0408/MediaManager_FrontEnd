@@ -1,6 +1,7 @@
 const helpers = require('./helpers');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
 
 let config = {
   entry: helpers.getEntry(['./src/main.ts', './src/pages/**/*.ts']),
@@ -57,6 +58,15 @@ let config = {
       from: 'src/assets',
       to: './assets'
     }, ]),
+    new webpack.ProvidePlugin({
+      $: 'jquery',
+      jQuery: 'jquery',
+      'window.jQuery': 'jquery',
+      Popper: ['popper.js', 'default'],
+      // In case you imported plugins individually, you must also require them here:
+      Util: "exports-loader?Util!bootstrap/js/dist/util",
+      Dropdown: "exports-loader?Dropdown!bootstrap/js/dist/dropdown",
+    })
   ],
   node: {
     console: false,
