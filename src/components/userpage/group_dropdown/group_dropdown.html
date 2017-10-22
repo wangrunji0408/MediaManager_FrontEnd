@@ -1,9 +1,5 @@
 <div>
-  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <span class="glyphicon glyphicon-user" aria-hidden="true"></span> Group
-          <span class="caret"></span>
-  </button>
-  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-    <li v-for="group in all"><a href="">{{group.name}}</a></li>
-  </ul>
+  <b-dropdown text="Groups" variant="primary" class="m-md-2">
+    <b-dropdown-item v-for="group in all">{{group.name}}</b-dropdown-item>
+  </b-dropdown>
 </div>
