@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Bootstrap from 'bootstrap';
 import BootstrapVue from 'bootstrap-vue';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
+import './themes/cosmo.min.css';
 import 'font-awesome/css/font-awesome.min.css';
 
 import { NavbarComponent } from './components/navbar';
@@ -15,7 +15,6 @@ import {UserPage, UserPageRouter} from './components/userpage';
 
 // register the plugin
 Vue.use(VueRouter);
-Vue.use(Bootstrap);
 Vue.use(BootstrapVue);
 
 let router = new VueRouter({
