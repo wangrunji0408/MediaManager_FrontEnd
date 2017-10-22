@@ -1,51 +1,34 @@
-<nav class="navbar navbar-default" v-bind:class="{'navbar-inverse' : inverted}">
-    <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-          <a class="navbar-brand" href="#">
-            <span class="active" ></span><!--无法实现缺省打开-->
-            <span class="glyphicon glyphicon-folder-close" aria-hidden="true"></span>
-          </a>
-          <a class="navbar-brand" href="#"><span class="glyphicon glyphicon-picture" aria-hidden="true"></a>
-          <a class="navbar-brand" href="#"><span class="glyphicon glyphicon-flash" aria-hidden="true"></a>
-          <a class="navbar-brand" href="#">vue</a>
-        </div>
+<b-navbar toggleable="md" type="dark" variant="info">
 
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-                <li v-for="link in links" v-bind:class="{'active' : $route.path == link.path}">
-                  <router-link v-bind:to="link.path">{{link.name}}</router-link>
-                </li>
-            </ul>
-          <ul class="nav navbar-nav navbar-right">
+  <b-nav-toggle target="nav_collapse"></b-nav-toggle>
 
-            <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"></a></li>
-            <li><a href="#"><span class="glyphicon glyphicon-bell" aria-hidden="true"></a></li>
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
-                <span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <li><a href="#"><i class="fa fa-pencil" aria-hidden="true"></i> Mine</a></li>
-                <li><a href="#"><i class="fa fa-table" aria-hidden="true"></i> Manage</a></li>
-                <li><a href="#"><i class="fa fa-plus" aria-hidden="true"></i> App</a></li>
-                <li><a href="#"><i class="fa fa-group" aria-hidden="true"></i> User</a></li>
-                <li><a href="#"><i class="fa fa-info-circle" aria-hidden="true"></i> Help</a></li>
-                <li><a href="#"><i class="fa fa-circle-o" aria-hidden="true"></i> Log out</a></li>
-              </ul>
-            </li>
+  <b-navbar-brand href="#">MediaManager</b-navbar-brand>
 
-          </ul>
-          <form class="navbar-form navbar-right">
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Search for...">
-              <span class="input-group-btn">
-                    <button class="btn btn-default" type="button">
-                      <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                    </button>
-                </span>
-          </form>
-        </div>
-    </div>
-</nav>
+  <b-collapse is-nav id="nav_collapse">
+
+    <b-nav is-nav-bar>
+      <b-nav-item href="#/login">Login</b-nav-item>
+      <b-nav-item href="#/signup">Signup</b-nav-item>
+      <b-nav-item href="#/file">File</b-nav-item>
+      <b-nav-item href="#/user">User</b-nav-item>
+    </b-nav>
+
+    <!-- Right aligned nav items -->
+    <b-nav is-nav-bar class="ml-auto">
+      <b-nav-form>
+        <b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>
+        <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
+      </b-nav-form>
+
+      <b-nav-item-dropdown text="Settings" right>
+        <b-dropdown-item href="#">Mine</b-dropdown-item>
+        <b-dropdown-item href="#">Manage</b-dropdown-item>
+        <b-dropdown-item href="#">App</b-dropdown-item>
+        <b-dropdown-item href="#">User</b-dropdown-item>
+        <b-dropdown-item href="#">Help</b-dropdown-item>
+        <b-dropdown-item href="#">Log out</b-dropdown-item>
+      </b-nav-item-dropdown>
+    </b-nav>
+
+  </b-collapse>
+</b-navbar>
