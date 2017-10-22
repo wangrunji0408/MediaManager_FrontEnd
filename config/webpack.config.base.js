@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 
 let config = {
-  entry: helpers.getEntry(['./src/main.ts', './src/pages/**/*.ts']),
+  entry: './src/main.ts',
   output: {
     path: helpers.root('/dist'),
     filename: 'js/[name].[hash].js'
@@ -54,6 +54,11 @@ let config = {
     ],
   },
   plugins: [
+    new HtmlWebpackPlugin({
+      inject: true,
+      template: helpers.root('/src/index.html'),
+      favicon: helpers.root('/src/favicon.ico')
+    }),
     new CopyWebpackPlugin([{
       from: 'src/assets',
       to: './assets'
@@ -69,27 +74,3 @@ let config = {
 
 module.exports = config;
 
-var pages = helpers.getEntry(['./src/index.html', './src/pages/**/*.html']);
-
-for (var pathname in pages) {
-  // 配置生成的html文件，定义路径等
-  var conf = {
-    filename: pathname + '.html',
-    template: pages[pathname],   // 模板路径
-    inject: true,              // js插入位置
-    minify: {
-      //removeComments: true,
-      //collapseWhitespace: true,
-      //removeAttributeQuotes: true
-    },
-    // necessary to consistently work with multiple chunks via CommonsChunkPlugin
-    chunksSortMode: 'dependency'
-  };
-
-  if (pathname in module.exports.entry) {
-    conf.chunks = ['manifest', 'vendor', pathname];
-    conf.hash = true;
-  }
-
-  module.exports.plugins.push(new HtmlWebpackPlugin(conf));
-}

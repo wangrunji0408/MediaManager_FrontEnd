@@ -1,21 +1,26 @@
 import Vue from 'vue';
+
 import VueRouter from 'vue-router';
+Vue.use(VueRouter);
+
+// BootstrapVue
 import BootstrapVue from 'bootstrap-vue';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 import './themes/cosmo.min.css';
 import 'font-awesome/css/font-awesome.min.css';
+Vue.use(BootstrapVue);
+
+// ElementUI
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-default/index.css';
+Vue.use(ElementUI);
 
 import { NavbarComponent } from './components/navbar';
 import { Login } from './components/login';
 import { Signup } from './components/signup';
 import {FilePage, FilePageRouter} from './components/filepage';
 import {UserPage, UserPageRouter} from './components/userpage';
-
-
-// register the plugin
-Vue.use(VueRouter);
-Vue.use(BootstrapVue);
 
 let router = new VueRouter({
   routes: [
