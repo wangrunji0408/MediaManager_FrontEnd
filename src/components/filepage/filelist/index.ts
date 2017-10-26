@@ -5,11 +5,9 @@ import {File, FileApi} from '../../../api';
 class FileModel extends File {
   choice: boolean = false;
   star: boolean = true;
+  oldName: string = '';
 
   renaming: boolean = false;
-  rename() {
-
-  }
 }
 
 function delay(ms: number) {
@@ -78,12 +76,19 @@ export class FileList extends Vue {
 
   rename (item: FileModel) {
     item.renaming = true;
+    item.oldName = item.name;
   }
 
-  rename_done (item: FileModel) {
+  async rename_done (item: FileModel) {
     item.renaming = false;
-    // TODO do rename
-    alert('rename done');
+    try {
+      let rsp = await new FileApi().updateFiles([item]);
+      this.showAlert('重命名成功', 'success');
+    } catch (e) {
+      this.showAlert('重命名失败', 'error');
+      item.name = item.oldName;
+      return;
+    }
   }
 
   resetModal() {
@@ -101,10 +106,11 @@ export class FileList extends Vue {
   async deleteFile(item: FileModel) {
     try {
       await new FileApi().deleteFile(item.id);
+      this.showAlert('删除成功', 'success');
     } catch (e) {
       this.showAlert('删除失败', 'error');
+      return;
     }
-    this.showAlert('删除成功', 'success');
     await this.refreshData();
   }
 
@@ -112,8 +118,8 @@ export class FileList extends Vue {
 
   async refreshData() {
     this.isLoading = true;
-    // TODO refresh data
-    await delay(1000);
+    // TODO 超时判断
+    this.files = await new FileApi().getFiles(this.path);
     this.isLoading = false;
   }
 
@@ -139,7 +145,7 @@ export class FileList extends Vue {
       choice: false,
       star: true,
       renaming: false,
-      rename() {}
+      oldName: '',
     },
   ];
 
