@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import {File} from '../../../api';
+import {File, FileApi} from '../../../api';
 
 class FileModel extends File {
   choice: boolean = false;
@@ -10,6 +10,10 @@ class FileModel extends File {
   rename() {
 
   }
+}
+
+function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 @Component({
@@ -78,6 +82,7 @@ export class FileList extends Vue {
 
   rename_done (item: FileModel) {
     item.renaming = false;
+    // TODO do rename
     alert('rename done');
   }
 
@@ -86,8 +91,35 @@ export class FileList extends Vue {
     this.modalDetails.index = '';
   }
 
-  deleteFile() {
-    // TODO do deleteFile
+  deleteTarget: FileModel;
+
+  delete_ask(item: FileModel) {
+    this.deleteTarget = item;
+    this.$root.$emit('bv::show::modal', 'delete-modal');
+  }
+
+  async deleteFile(item: FileModel) {
+    try {
+      await new FileApi().deleteFile(item.id);
+    } catch (e) {
+      this.showAlert('删除失败', 'error');
+    }
+    this.showAlert('删除成功', 'success');
+    await this.refreshData();
+  }
+
+  isLoading: boolean = false;
+
+  async refreshData() {
+    this.isLoading = true;
+    // TODO refresh data
+    await delay(1000);
+    this.isLoading = false;
+  }
+
+  showAlert(message: string, type: string = 'info') {
+    let thisany: any = this;
+    thisany.$message({message, type});
   }
 
   files: FileModel[] = [

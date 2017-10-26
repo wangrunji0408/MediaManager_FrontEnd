@@ -20,6 +20,7 @@
            :items="files"
            :fields="fields"
            @filtered="onFiltered"
+           v-loading="isLoading"
   >
     <template slot="thumbnails" scope="row">
       <b-img thumbnail fluid v-bind:src="value" width="50" height="50" alt="Thumbnail"></b-img>
@@ -49,7 +50,7 @@
         <b-dropdown-item aria-describedby="download" v-bind:href="row.item.url">
           <i class="fa fa-download" aria-hidden="true"></i>Download
         </b-dropdown-item>
-        <b-dropdown-item aria-describedby="delete">
+        <b-dropdown-item aria-describedby="delete" @click.stop="delete_ask(row.item)">
           <i class="fa fa-trash" aria-hidden="true"></i></i>Delete
         </b-dropdown-item>
       </b-dropdown>
