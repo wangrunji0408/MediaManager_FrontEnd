@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
+import moment from 'moment';
 import {File, FileApi} from '../../../api';
 
 class FileModel extends File {
@@ -63,6 +64,24 @@ export class FileList extends Vue {
 
   }
 
+  fileSizeToString(size: number): string {
+    if (size < 1024)
+      return `${size}KB`;
+    if (size < 1024 * 1024)
+      return `${size / 1024}MB`;
+    if (size < 1024 * 1024 * 1024)
+      return `${size / 1024 / 1024}GB`;
+    return `HUGE`;
+  }
+
+  dateToString(date: Date): string {
+    return moment(date).format('YYYY-MM-DD hh:mm:ss');
+  }
+
+  get selectedFiles(): FileModel[] {
+    return this.files.filter(f => f.choice);
+  }
+
   onFiltered (filteredItems) {
     // Trigger pagination to update the number of buttons/pages due to filtering
     this.currentPage = 1;
@@ -96,19 +115,51 @@ export class FileList extends Vue {
     this.modalDetails.index = '';
   }
 
-  deleteTarget: FileModel;
+  deleteTargets: FileModel[] = [];
 
-  delete_ask(item: FileModel) {
-    this.deleteTarget = item;
+  delete_ask(items: FileModel[]) {
+    this.deleteTargets = items;
     this.$root.$emit('bv::show::modal', 'delete-modal');
   }
 
-  async deleteFile(item: FileModel) {
+  async deleteFiles() {
+    this.ensureSelectedNotEmpty();
     try {
-      await new FileApi().deleteFile(item.id);
+      for (let file of this.deleteTargets) {
+        await new FileApi().deleteFile(file.id);
+      }
       this.showAlert('删除成功', 'success');
     } catch (e) {
       this.showAlert('删除失败', 'error');
+      return;
+    }
+    await this.refreshData();
+  }
+
+  ensureSelectedNotEmpty () {
+    if (this.selectedFiles.length > 0)
+      return;
+      this.showAlert('请先选择文件', 'error');
+    throw 'No selected files.';
+  }
+
+  showPathModal() {
+    this.ensureSelectedNotEmpty();
+    this.$root.$emit('bv::show::modal', 'path-modal');
+  }
+
+  targetPath: string = '/';
+
+  async moveSelected() {
+    this.ensureSelectedNotEmpty();
+    // TODO check invalid path
+    try {
+      let files = this.selectedFiles;
+      files.forEach(f => f.path = this.targetPath);
+      await new FileApi().updateFiles(files);
+      this.showAlert('移动成功', 'success');
+    } catch (e) {
+      this.showAlert('移动失败', 'error');
       return;
     }
     await this.refreshData();
