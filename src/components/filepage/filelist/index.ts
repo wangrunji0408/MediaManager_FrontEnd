@@ -54,7 +54,7 @@ export class FileList extends Vue {
     super();
     // 临时生成一堆文件信息
     for (let i = 0; i < 20; ++i) {
-      let f = Object.create(this.files[0]);
+      let f = JSON.parse(JSON.stringify(this.files[0])); // deep clone
       f.name += i;
       this.files.push(f);
     }
@@ -74,7 +74,11 @@ export class FileList extends Vue {
 
   rename (item: FileModel) {
     item.renaming = true;
-    alert('rename!');
+  }
+
+  rename_done (item: FileModel) {
+    item.renaming = false;
+    alert('rename done');
   }
 
   resetModal() {

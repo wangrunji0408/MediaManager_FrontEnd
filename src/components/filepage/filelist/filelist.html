@@ -26,12 +26,12 @@
     </template>
     <template slot="star" scope="row">
       <input name="choice" type="checkbox" v-bind:checked="row.item.choice"/> <!-- TODO 正确绑定 -->
-      <span v-bind:class="row.item.star? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty'"
-            aria-hidden="true"></span>
+      <span v-bind:class="row.item.star? 'fa fa-star' : 'fa fa-star-half-empty'"></span>
     </template>
     <template slot="name" scope="row">
-      <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-      <b-form-input v-model="row.item.name" type="text" placeholder="File name" v-bind:plaintext="!row.item.naming"></b-form-input> <!-- TODO 绑定编辑名称 -->
+      <span class="fa fa-file" aria-hidden="true"></span>
+      <b-form-input v-model="row.item.name" type="text" placeholder="File name"
+                    :plaintext="!row.item.renaming" @change="rename_done(row.item)"></b-form-input>
     </template>
     <template slot="size" scope="row">{{row.value}}</template>
     <template slot="modifyDate" scope="row">{{row.value}}</template>
