@@ -30,6 +30,26 @@ export class FileList extends Vue {
 
   modalDetails: { index, data } = {index: '', data: ''};
 
+  get path(): string {
+    let value = this.$route.query['path'];
+    return value ? value : '/';
+  }
+
+  get pathItems() {
+    let items = [];
+    let lastPos = 0;
+    for (let i = 1; i < this.path.length; ++i) {
+      if (this.path[i] !== '/')
+        continue;
+      items.push({
+        text: this.path.substring(lastPos + 1, i),
+        href: '#file/all?path=' + this.path.substring(0, i + 1)
+      });
+      lastPos = i;
+    }
+    return items;
+  }
+
   constructor() {
     super();
     // 临时生成一堆文件信息
