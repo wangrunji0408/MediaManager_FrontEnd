@@ -1,13 +1,22 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import {User, UserGroup} from '../../../api';
+import {UserGroup} from '../../../api';
+import Multiselect from 'vue-multiselect';
+import 'vue-multiselect/dist/vue-multiselect.min.css';
+import {Watch} from 'vue-property-decorator';
 
 @Component({
   template: require('./group_dropdown.html'),
-  props: ['all', 'selected']
+  props: ['all', 'value'],
+  components: { Multiselect },
 })
 export class GroupDropdown extends Vue {
 
   all: UserGroup[];
-  selected: UserGroup[];
+  value: UserGroup[];
+
+  @Watch('value')
+  onSelectedChanged() {
+    this.$emit('input', this.value);
+  }
 }

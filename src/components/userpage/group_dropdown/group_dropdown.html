@@ -1,5 +1,10 @@
 <div>
-  <b-dropdown text="Groups" variant="primary" class="m-md-2">
-    <b-dropdown-item v-for="group in all">{{group.name}}</b-dropdown-item>
-  </b-dropdown>
+  <multiselect v-model="value"
+               tag-placeholder="Add this as new tag"
+               placeholder="Search or add a tag"
+               label="name"
+               :options="all"
+               :multiple="true"
+               :taggable="true">
+  </multiselect>
 </div>
