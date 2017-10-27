@@ -10,18 +10,26 @@ import {GroupDropdown} from '../group_dropdown';
 })
 export class AddUserBar extends Vue {
 
-  username: string;
-  password: string;
+  username: string = '';
+  password: string = '';
   allGroups: UserGroup[];
   groups: UserGroup[] = [];
 
   async createUser() {
-    let user = new User();
-    user.username = this.username;
-    user.password = this.password;
-    user.groups = this.groups;
-    alert('create:' + JSON.stringify(user));
-    let rsp = await new UserApi().createUser(user);
-
+    try {
+      if (this.username === '')
+        throw '用户名不能为空';
+      if (this.password === '')
+        throw '密码不能为空';
+      let user = new User();
+      user.username = this.username;
+      user.password = this.password;
+      user.groups = this.groups;
+      alert('create:' + JSON.stringify(user));
+      let rsp = await new UserApi().createUser(user);
+    } catch (e) {
+      (this as any).$message.error(e);
+      return;
+    }
   }
 }

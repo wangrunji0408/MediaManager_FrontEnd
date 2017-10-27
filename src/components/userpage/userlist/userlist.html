@@ -25,7 +25,7 @@
       {{row.value}}
     </template>
     <template slot="groups" scope="row">
-      <GroupDropdown :all="allGroups" :selected="row.item.groups"></GroupDropdown>
+      <GroupDropdown :all="allGroups" v-model="row.item.groups"></GroupDropdown>
     </template>
   </b-table>
 

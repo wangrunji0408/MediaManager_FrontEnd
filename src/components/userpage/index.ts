@@ -3,6 +3,7 @@ import Component from 'vue-class-component';
 import {UserList} from './userlist';
 import {AddUserBar} from './adduserbar';
 import {GroupApi, User, UserApi, UserGroup} from '../../api';
+import {inGroup} from './util';
 
 @Component({
   template: require('./userpage.html'),
@@ -40,17 +41,14 @@ export class UserPage extends Vue {
   ];
 
   get groupsCount() {
-    let dic: { [name: string]: number } = {};
-    for (let u of this.users) {
-      for (let g of u.groups) {
-        if(! (g.name in dic) )
-          dic[g.name] = 0;
-        dic[g.name] += 1;
-      }
-    }
     let ret: any[] = [{name: 'all', count: this.users.length, query: '*'}];
-    for (let name in dic)
-      ret.push({name: name, count: dic[name]});
+    for (let g of this.allGroups) {
+      let count = 0;
+      for (let u of this.users)
+        if (inGroup(u, g.name))
+          count += 1;
+      ret.push({name: g.name, count: count});
+    }
     return ret;
   }
 
