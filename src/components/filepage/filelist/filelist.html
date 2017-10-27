@@ -12,8 +12,9 @@
 
     <!-- 按钮组 -->
     <div class="col-md-5">
-      <b-button variant="danger" @click="delete_ask(selectedFiles)"><i class="fa fa-trash"></i></b-button>
-      <b-button @click="showPathModal"><i class="fa fa-exchange"></i></b-button>
+      <b-button variant="danger" @click="deleteBegin(selectedFiles)"><i class="fa fa-trash"></i></b-button>
+      <b-button @click="moveBegin(selectedFiles)"><i class="fa fa-exchange"></i></b-button>
+      <b-button @click="refreshData()"><i class="fa fa-refresh"></i></b-button>
       <Upload :path="path"></Upload>
     </div>
   </div>
@@ -54,13 +55,13 @@
         <b-dropdown-item aria-describedby="rename" @click.stop="rename(row.item)">
           <i class="fa fa-pencil" aria-hidden="true"></i>Rename
         </b-dropdown-item>
-        <b-dropdown-item aria-describedby="move">
+        <b-dropdown-item aria-describedby="move" @click.stop="moveBegin([row.item])">
           <i class="fa fa-exchange" aria-hidden="true"></i>Move
         </b-dropdown-item>
         <b-dropdown-item aria-describedby="download" v-bind:href="row.item.url">
           <i class="fa fa-download" aria-hidden="true"></i>Download
         </b-dropdown-item>
-        <b-dropdown-item aria-describedby="delete" @click.stop="delete_ask([row.item])">
+        <b-dropdown-item aria-describedby="delete" @click.stop="deleteBegin([row.item])">
           <i class="fa fa-trash" aria-hidden="true"></i></i>Delete
         </b-dropdown-item>
       </b-dropdown>
@@ -87,7 +88,7 @@
   </b-modal>
 
   <!-- 选择路径弹窗 -->
-  <b-modal id="path-modal" title="选择路径" @ok="moveSelected">
+  <b-modal id="move-modal" title="选择路径" @ok="moveSelected">
     <b-form-input v-model="targetPath" type="text" placeholder="Enter target path"></b-form-input>
   </b-modal>
 </div>

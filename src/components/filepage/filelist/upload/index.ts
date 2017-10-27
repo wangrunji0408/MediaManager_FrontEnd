@@ -14,6 +14,8 @@ export class Upload extends Vue {
 
   async uploadFiles() {
     try {
+      if (this.filesToUpload.length === 0)
+        throw '没有选择文件';
       for (let file of this.filesToUpload) {
         let rsp = await new FileApi().uploadFile(file, this.path);
       }

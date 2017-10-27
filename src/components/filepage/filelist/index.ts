@@ -130,17 +130,18 @@ export class FileList extends Vue {
     this.modalDetails.index = '';
   }
 
-  deleteTargets: FileModel[] = [];
+  targetFiles: FileModel[] = [];
 
-  delete_ask(items: FileModel[]) {
-    this.deleteTargets = items;
+  deleteBegin(items: FileModel[]) {
+    this.targetFiles = items;
+    this.ensureTargetNotEmpty();
     this.$root.$emit('bv::show::modal', 'delete-modal');
   }
 
   async deleteFiles() {
-    this.ensureSelectedNotEmpty();
+    this.ensureTargetNotEmpty();
     try {
-      for (let file of this.deleteTargets) {
+      for (let file of this.targetFiles) {
         await new FileApi().deleteFile(file.id);
       }
       this.showAlert('删除成功', 'success');
@@ -151,22 +152,23 @@ export class FileList extends Vue {
     await this.refreshData();
   }
 
-  ensureSelectedNotEmpty () {
-    if (this.selectedFiles.length > 0)
+  ensureTargetNotEmpty () {
+    if (this.targetFiles.length > 0)
       return;
       this.showAlert('请先选择文件', 'error');
     throw 'No selected files.';
   }
 
-  showPathModal() {
-    this.ensureSelectedNotEmpty();
-    this.$root.$emit('bv::show::modal', 'path-modal');
+  moveBegin(items: FileModel[]) {
+    this.targetFiles = items;
+    this.ensureTargetNotEmpty();
+    this.$root.$emit('bv::show::modal', 'move-modal');
   }
 
   targetPath: string = '/';
 
   async moveSelected() {
-    this.ensureSelectedNotEmpty();
+    this.ensureTargetNotEmpty();
     // TODO check invalid path
     try {
       let files = this.selectedFiles;
@@ -185,7 +187,12 @@ export class FileList extends Vue {
   async refreshData() {
     this.isLoading = true;
     // TODO 超时判断
-    this.files = await new FileApi().getFiles(this.path);
+    try {
+      this.files = await new FileApi().getFiles(this.path);
+    } catch (e) {
+      this.showAlert('刷新失败' + e, 'error');
+      throw e;
+    }
     this.isLoading = false;
   }
 
