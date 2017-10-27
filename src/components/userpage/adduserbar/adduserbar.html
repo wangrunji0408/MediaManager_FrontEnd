@@ -1,9 +1,8 @@
 <div class="row">
-  <!--TODO 列间隔-->
   <div class="form-group form-inline">
-    <input type="text" name="name" id="name" class="form-control" placeholder="Username" v-model="username">
-    <input type="password" class="form-control" placeholder="Password" v-model="password">
-    <GroupDropdown :all="allGroups"></GroupDropdown>
-    <button class="btn btn-default" type="button" @click="createUser">Create user</button>
+    <input type="text" name="name" id="name" class="form-control" placeholder="Username" v-model="username" required>
+    <input type="password" class="form-control" placeholder="Password" v-model="password" required>
+    <GroupDropdown :all="allGroups" v-model="groups"></GroupDropdown>
+    <button class="btn btn-primary" type="button" @click="createUser">Create user</button>
   </div>
 </div>

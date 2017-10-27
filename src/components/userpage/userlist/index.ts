@@ -2,15 +2,7 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import {User} from '../../../api';
 import {GroupDropdown} from '../group_dropdown/';
-
-function testString(str: string, pattern: string): boolean {
-  return str.match(pattern) != null;
-}
-
-function inGroup(user: User, group: string): boolean {
-  return !group || group === '*'
-    || user.groups.find(g => g.name === group) != null;
-}
+import {testString, inGroup} from '../util';
 
 @Component({
   template: require('./userlist.html'),

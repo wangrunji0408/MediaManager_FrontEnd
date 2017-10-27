@@ -1,15 +1,18 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import {File} from '../../../api';
+import moment from 'moment';
+import {File, FileApi} from '../../../api';
 
 class FileModel extends File {
   choice: boolean = false;
   star: boolean = true;
+  oldName: string = '';
 
   renaming: boolean = false;
-  rename() {
+}
 
-  }
+function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 @Component({
@@ -30,15 +33,53 @@ export class FileList extends Vue {
 
   modalDetails: { index, data } = {index: '', data: ''};
 
+  get path(): string {
+    let value = this.$route.query['path'];
+    return value ? value : '/';
+  }
+
+  get pathItems() {
+    let items = [];
+    let lastPos = 0;
+    for (let i = 1; i < this.path.length; ++i) {
+      if (this.path[i] !== '/')
+        continue;
+      items.push({
+        text: this.path.substring(lastPos + 1, i),
+        href: '#file/all?path=' + this.path.substring(0, i + 1)
+      });
+      lastPos = i;
+    }
+    return items;
+  }
+
   constructor() {
     super();
     // 临时生成一堆文件信息
     for (let i = 0; i < 20; ++i) {
-      let f = Object.create(this.files[0]);
+      let f = JSON.parse(JSON.stringify(this.files[0])); // deep clone
       f.name += i;
       this.files.push(f);
     }
 
+  }
+
+  fileSizeToString(size: number): string {
+    if (size < 1024)
+      return `${size}KB`;
+    if (size < 1024 * 1024)
+      return `${size / 1024}MB`;
+    if (size < 1024 * 1024 * 1024)
+      return `${size / 1024 / 1024}GB`;
+    return `HUGE`;
+  }
+
+  dateToString(date: Date): string {
+    return moment(date).format('YYYY-MM-DD hh:mm:ss');
+  }
+
+  get selectedFiles(): FileModel[] {
+    return this.files.filter(f => f.choice);
   }
 
   onFiltered (filteredItems) {
@@ -54,7 +95,19 @@ export class FileList extends Vue {
 
   rename (item: FileModel) {
     item.renaming = true;
-    alert('rename!');
+    item.oldName = item.name;
+  }
+
+  async rename_done (item: FileModel) {
+    item.renaming = false;
+    try {
+      let rsp = await new FileApi().updateFiles([item]);
+      this.showAlert('重命名成功', 'success');
+    } catch (e) {
+      this.showAlert('重命名失败', 'error');
+      item.name = item.oldName;
+      return;
+    }
   }
 
   resetModal() {
@@ -62,8 +115,68 @@ export class FileList extends Vue {
     this.modalDetails.index = '';
   }
 
-  deleteFile() {
-    // TODO do deleteFile
+  deleteTargets: FileModel[] = [];
+
+  delete_ask(items: FileModel[]) {
+    this.deleteTargets = items;
+    this.$root.$emit('bv::show::modal', 'delete-modal');
+  }
+
+  async deleteFiles() {
+    this.ensureSelectedNotEmpty();
+    try {
+      for (let file of this.deleteTargets) {
+        await new FileApi().deleteFile(file.id);
+      }
+      this.showAlert('删除成功', 'success');
+    } catch (e) {
+      this.showAlert('删除失败', 'error');
+      return;
+    }
+    await this.refreshData();
+  }
+
+  ensureSelectedNotEmpty () {
+    if (this.selectedFiles.length > 0)
+      return;
+      this.showAlert('请先选择文件', 'error');
+    throw 'No selected files.';
+  }
+
+  showPathModal() {
+    this.ensureSelectedNotEmpty();
+    this.$root.$emit('bv::show::modal', 'path-modal');
+  }
+
+  targetPath: string = '/';
+
+  async moveSelected() {
+    this.ensureSelectedNotEmpty();
+    // TODO check invalid path
+    try {
+      let files = this.selectedFiles;
+      files.forEach(f => f.path = this.targetPath);
+      await new FileApi().updateFiles(files);
+      this.showAlert('移动成功', 'success');
+    } catch (e) {
+      this.showAlert('移动失败', 'error');
+      return;
+    }
+    await this.refreshData();
+  }
+
+  isLoading: boolean = false;
+
+  async refreshData() {
+    this.isLoading = true;
+    // TODO 超时判断
+    this.files = await new FileApi().getFiles(this.path);
+    this.isLoading = false;
+  }
+
+  showAlert(message: string, type: string = 'info') {
+    let thisany: any = this;
+    thisany.$message({message, type});
   }
 
   files: FileModel[] = [
@@ -83,7 +196,7 @@ export class FileList extends Vue {
       choice: false,
       star: true,
       renaming: false,
-      rename() {}
+      oldName: '',
     },
   ];
 
