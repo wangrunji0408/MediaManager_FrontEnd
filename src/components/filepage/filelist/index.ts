@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import moment from 'moment';
 import {File, FileApi} from '../../../api';
+import {Upload} from './upload';
 
 class FileModel extends File {
   choice: boolean = false;
@@ -16,7 +17,8 @@ function delay(ms: number) {
 }
 
 @Component({
-  template: require('./filelist.html')
+  template: require('./filelist.html'),
+  components: {Upload}
 })
 export class FileList extends Vue {
 
@@ -62,6 +64,19 @@ export class FileList extends Vue {
       this.files.push(f);
     }
 
+  }
+
+  filesToUpload: any[] = [];
+
+  async uploadFiles() {
+    try {
+      for (let file of this.filesToUpload) {
+        new FileApi().uploadFile(file, this.path);
+      }
+      this.showAlert('上传文件成功', 'success');
+    } catch (e) {
+      this.showAlert('上传文件失败', 'error');
+    }
   }
 
   fileSizeToString(size: number): string {
@@ -175,8 +190,7 @@ export class FileList extends Vue {
   }
 
   showAlert(message: string, type: string = 'info') {
-    let thisany: any = this;
-    thisany.$message({message, type});
+    (this as any).$message({message, type});
   }
 
   files: FileModel[] = [
