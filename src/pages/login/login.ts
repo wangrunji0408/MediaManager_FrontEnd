@@ -27,8 +27,6 @@ export class Login extends Vue {
 
   async login () {
     try {
-      let rsp = await new UserApi().loginUser(this.username, this.password);
-      this.alert_success(rsp.body);
     } catch (e) {
       this.alert_error(e.toString());
       throw e;

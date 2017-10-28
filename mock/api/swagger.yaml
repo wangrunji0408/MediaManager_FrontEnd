@@ -1,0 +1,658 @@
+---
+swagger: "2.0"
+info:
+  description: ""
+  version: "1.0.0"
+  title: "MediaManager"
+  termsOfService: "http://47.94.142.165:8088/gitlab/PRJ1_PraiseTheSun/MediaManager"
+  contact:
+    email: "wangrunji0408@163.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "localhost:8000"
+basePath: "/"
+tags:
+- name: "user"
+  description: "Operations about user"
+- name: "group"
+  description: "Operations about usergroup"
+- name: "file"
+  description: "Operations about file"
+schemes:
+- "http"
+paths:
+  /user:
+    get:
+      tags:
+      - "user"
+      summary: "Get user by query"
+      description: "搜索用户"
+      operationId: "getUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "query"
+        description: "User name regex"
+        required: false
+        type: "string"
+      - name: "group"
+        in: "query"
+        description: "User group id"
+        required: false
+        type: "integer"
+        format: "int64"
+      responses:
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+        default:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/User"
+      x-swagger-router-controller: "User"
+    post:
+      tags:
+      - "user"
+      summary: "Create user"
+      description: "管理员用户创建新用户"
+      operationId: "createUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Created user object (Ignore id)"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+        default:
+          description: "successful operation"
+      x-swagger-router-controller: "User"
+  /user/signup:
+    post:
+      tags:
+      - "user"
+      summary: "Signup user"
+      description: "游客自助注册用户"
+      operationId: "signupUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/body"
+      responses:
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+        default:
+          description: "successful operation"
+      x-swagger-router-controller: "User"
+  /user/login:
+    get:
+      tags:
+      - "user"
+      summary: "Logs user into the system"
+      description: ""
+      operationId: "loginUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "username"
+        in: "query"
+        description: "The user name for login"
+        required: true
+        type: "string"
+      - name: "password"
+        in: "query"
+        description: "The password for login in clear text"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "string"
+          headers:
+            X-Rate-Limit:
+              type: "integer"
+              format: "int32"
+              description: "calls per hour allowed by the user"
+            X-Expires-After:
+              type: "string"
+              format: "date-time"
+              description: "date in UTC when token expires"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "User"
+  /user/logout:
+    get:
+      tags:
+      - "user"
+      summary: "Logs out current logged in user session"
+      description: ""
+      operationId: "logoutUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters: []
+      responses:
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+        default:
+          description: "successful operation"
+      x-swagger-router-controller: "User"
+  /user/{id}:
+    get:
+      tags:
+      - "user"
+      summary: "Get user by user name"
+      description: ""
+      operationId: "getUserByName"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "integer"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/User"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "User"
+    put:
+      tags:
+      - "user"
+      summary: "Updated user"
+      description: "This can only be done by the logged in user."
+      operationId: "updateUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "integer"
+      - in: "body"
+        name: "body"
+        description: "Updated user object"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "User"
+    delete:
+      tags:
+      - "user"
+      summary: "Delete user"
+      description: "This can only be done by the admin user."
+      operationId: "deleteUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "integer"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "User"
+  /group:
+    get:
+      tags:
+      - "group"
+      summary: "Get all user groups"
+      description: ""
+      operationId: "getUserGroups"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters: []
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/UserGroup"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Group"
+    post:
+      tags:
+      - "group"
+      summary: "Create group"
+      description: "管理员用户创建新用户组"
+      operationId: "createUserGroup"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Created user group"
+        required: true
+        schema:
+          $ref: "#/definitions/UserGroup"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Group"
+  /group/{id}:
+    get:
+      tags:
+      - "group"
+      summary: "Get group by id"
+      description: ""
+      operationId: "getUserGroupById"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/UserGroup"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Group"
+    put:
+      tags:
+      - "group"
+      summary: "Updated group"
+      operationId: "updateUserGroup"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      - in: "body"
+        name: "body"
+        description: "Updated group object"
+        required: true
+        schema:
+          $ref: "#/definitions/UserGroup"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Group"
+    delete:
+      tags:
+      - "group"
+      summary: "Delete user group"
+      description: "删除用户组，同时删除组内用户的标记"
+      operationId: "deleteUserGroup"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Group"
+  /file:
+    get:
+      tags:
+      - "file"
+      summary: "Get file infos by query"
+      description: "Used for searching files"
+      operationId: "getFiles"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "path"
+        in: "query"
+        description: "File path. Regex."
+        required: false
+        type: "string"
+        default: ".*"
+      - name: "name"
+        in: "query"
+        description: "File name. Regex."
+        required: false
+        type: "string"
+        default: ".*"
+      - name: "tags"
+        in: "query"
+        description: "File tags"
+        required: false
+        type: "array"
+        items:
+          type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/File"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "File"
+    post:
+      tags:
+      - "file"
+      summary: "Create file or directory"
+      description: "新建空白文件或文件夹"
+      operationId: "createFile"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/body_1"
+      responses:
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+        default:
+          description: "successful operation"
+      x-swagger-router-controller: "File"
+    patch:
+      tags:
+      - "file"
+      summary: "Do some commands on files."
+      description: "这个接口用于对一些文件进行一些操作。\n 对每个文件， id 属性外 \n 通过提供对应属性的新值来指示进行哪些操作：\n\
+        \ * 重命名 name \n * 移动位置 path \n * 修改标签 tags \n\n 后端需逐条判断是否有值，是否变化，然后进行操作。对其\
+        它属性的修改均无效。\n 若全部操作成功，则返回200。否则返回400，描述每个失败操作。"
+      operationId: "updateFiles"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Updated file object"
+        required: true
+        schema:
+          type: "array"
+          items:
+            $ref: "#/definitions/File"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "File"
+  /file/{id}:
+    get:
+      tags:
+      - "file"
+      summary: "Get file info by Id"
+      description: "Used for searching files"
+      operationId: "getFileById"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "File id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/File"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "File"
+    delete:
+      tags:
+      - "file"
+      summary: "Delete file or directory"
+      description: ""
+      operationId: "deleteFile"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "File id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "File"
+  /file/upload:
+    post:
+      tags:
+      - "file"
+      summary: "Upload file"
+      description: "上传文件"
+      operationId: "uploadFile"
+      consumes:
+      - "multipart/form-data"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "file"
+        in: "formData"
+        description: "The file to upload."
+        required: false
+        type: "file"
+      - name: "path"
+        in: "formData"
+        description: "Base path"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/File"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "File"
+definitions:
+  File:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      isDir:
+        type: "boolean"
+      name:
+        type: "string"
+        description: "文件名"
+      path:
+        type: "string"
+        description: "文件绝对路径，不含文件名"
+      url:
+        type: "string"
+        description: "Download link"
+      md5:
+        type: "string"
+      thumbnails:
+        type: "string"
+        description: "image url"
+      size:
+        type: "integer"
+        format: "int32"
+        description: "in bytes"
+      modifyDate:
+        type: "string"
+        format: "date-time"
+      createDate:
+        type: "string"
+        format: "date-time"
+      tags:
+        type: "array"
+        items:
+          $ref: "#/definitions/FileTag"
+    xml:
+      name: "File"
+  UserGroup:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+    xml:
+      name: "UserGroup"
+  User:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      username:
+        type: "string"
+      password:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      email:
+        type: "string"
+      phone:
+        type: "string"
+      image:
+        type: "string"
+        description: "头像图片地址"
+      groups:
+        type: "array"
+        items:
+          $ref: "#/definitions/UserGroup"
+    xml:
+      name: "User"
+  FileTag:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+      color:
+        type: "string"
+    xml:
+      name: "FileTag"
+  ErrorInfo:
+    type: "object"
+    properties:
+      infos:
+        type: "array"
+        items:
+          type: "string"
+    xml:
+      name: "ErrorInfo"
+  body:
+    type: "object"
+    properties:
+      username:
+        type: "string"
+      password:
+        type: "string"
+      email:
+        type: "string"
+      phone:
+        type: "string"
+  body_1:
+    type: "object"
+    properties:
+      path:
+        type: "string"
+      name:
+        type: "string"
+      isDir:
+        type: "boolean"
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"

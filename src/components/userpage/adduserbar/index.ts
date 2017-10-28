@@ -26,7 +26,7 @@ export class AddUserBar extends Vue {
       user.password = this.password;
       user.groups = this.groups;
       alert('create:' + JSON.stringify(user));
-      let rsp = await new UserApi().createUser(user);
+      let rsp = await new UserApi().createUser({body: user});
     } catch (e) {
       (this as any).$message.error(e);
       return;

@@ -33,9 +33,8 @@ export class Signup extends Vue {
         phone: this.phone,
         email: this.email
       };
-      // let rsp = await new UserApi().signupUser(body);
-      // this.alert_success(rsp.body);
-      this.alert_success('注册成功');
+      let rsp = await new UserApi().signupUser({body});
+      this.alert_success('注册成功' + rsp);
       this.$router.push({path: '/login'});
     } catch (e) {
       this.alert_error(e.toString());

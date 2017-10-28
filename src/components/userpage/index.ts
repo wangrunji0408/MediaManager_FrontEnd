@@ -57,7 +57,7 @@ export class UserPage extends Vue {
   }
 
   async getData() {
-    this.users = await new UserApi().getUser();
+    this.users = await new UserApi().getUser({});
     this.allGroups = await new GroupApi().getUserGroups();
   }
 }

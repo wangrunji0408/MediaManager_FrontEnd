@@ -20,11 +20,16 @@ export class Login extends Vue {
 
   async login () {
     try {
-      // let rsp = await new UserApi().loginUser(this.username, this.password);
-      // this.alert_success(rsp.body);
-      this.alert_success('登陆成功');
+      let rsp = await new UserApi().loginUser({
+          username: this.username,
+          password: this.password
+        });
+      this.alert_success('登陆成功' + rsp);
       this.$store.commit('setToken', 'user');
-      this.$router.push({path: this.$route.query['redirect']});
+      let next = this.$route.query['redirect'];
+      if(next == null)
+        next = '/file';
+      this.$router.push({path: next});
     } catch (e) {
       this.alert_error(e.toString());
       throw e;
