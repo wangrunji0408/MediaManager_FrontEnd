@@ -1,8 +1,12 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import {User} from '../../../api';
+import {GroupApi, User, UserApi, UserGroup} from '../../../api';
 import {GroupDropdown} from '../group_dropdown/';
 import {testString, inGroup} from '../util';
+
+class UserModel extends User {
+  renaming: boolean = false;
+}
 
 @Component({
   template: require('./userlist.html'),
@@ -34,11 +38,21 @@ export class UserList extends Vue {
   }
   nameFilter: string = '';
 
-  users: User[];
+  users: UserModel[];
+  allGroups: UserGroup[];
 
   fields = [
     'icon',
     {key: 'username', sortable: true},
     {key: 'groups'},
   ];
+
+  async fetchData() {
+    let users = await new UserApi().getUser({group: 0});
+    this.users = users.map((u: UserModel) => {
+      u.renaming = false;
+      return u;
+    });
+    this.allGroups = await new GroupApi().getUserGroups();
+  }
 }

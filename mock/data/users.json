@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "firstName": "firstname",
+    "lastName": "lastname",
+    "email": "admin@admin.com",
+    "phone": "13000000000",
+    "image": "???",
+    "groups": [{"id": 1, "name": "admin"}]
+  },
+  {
+    "id": 2,
+    "username": "user2",
+    "firstName": "firstname",
+    "lastName": "lastname",
+    "email": "email",
+    "phone": "phone",
+    "image": "image",
+    "groups": [{"id": 2, "name": "group1"}]
+  },
+  {
+    "id": 3,
+    "username": "user3",
+    "firstName": "firstname",
+    "lastName": "lastname",
+    "email": "email",
+    "phone": "phone",
+    "image": "image",
+    "groups": [{"id": 1, "name": "admin"}, {"id": 2, "name": "group1"}]
+  }
+]
