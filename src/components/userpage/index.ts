@@ -10,6 +10,12 @@ import {inGroup} from './util';
   components: {UserList, AddUserBar},
 })
 export class UserPage extends Vue {
+
+  constructor() {
+    super();
+    this.fetchData();
+  }
+
   users: User[] = [];
   allGroups: UserGroup[] = [];
 

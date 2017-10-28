@@ -30,13 +30,18 @@
       <b-img thumbnail fluid v-bind:src="row.item.image" width="50" height="50" alt="Thumbnail"></b-img>
     </template>
     <template slot="username" scope="row">
-      <span class="fa fa-user" aria-hidden="true"></span>
-      <b-form-input v-model="row.item.username" type="text" placeholder="User name"
-                    :plaintext="!row.item.renaming" @change="rename_done(row.item)"></b-form-input>
+      <i class="fa fa-user"></i>
+      {{row.item.username}}
+      <i class="fa fa-pencil-square-o" @click="rename(row.item)"></i>
     </template>
     <template slot="groups" scope="row">
       <GroupDropdown :all="allGroups" v-model="row.item.groups"></GroupDropdown>
     </template>
   </b-table>
+
+  <!-- 重命名弹窗 -->
+  <b-modal id="rename-modal" title="重命名" @ok="renameDone" @show="newName = ''">
+    <b-form-input v-model="newName" type="text" placeholder="新用户名"></b-form-input>
+  </b-modal>
 
 </div>
