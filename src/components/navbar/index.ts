@@ -5,4 +5,9 @@ import { Component } from 'vue-property-decorator';
   template: require('./navbar.html')
 })
 export class NavbarComponent extends Vue {
+
+  logout() {
+    this.$store.commit('logout');
+    this.$router.push({path: '/login'});
+  }
 }

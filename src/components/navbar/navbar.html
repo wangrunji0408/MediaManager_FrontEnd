@@ -7,8 +7,6 @@
   <b-collapse is-nav id="nav_collapse">
 
     <b-nav is-nav-bar>
-      <b-nav-item href="#/login">Login</b-nav-item>
-      <b-nav-item href="#/signup">Signup</b-nav-item>
       <b-nav-item href="#/file">File</b-nav-item>
       <b-nav-item href="#/user">User</b-nav-item>
     </b-nav>
@@ -26,7 +24,7 @@
         <b-dropdown-item href="#">App</b-dropdown-item>
         <b-dropdown-item href="#">User</b-dropdown-item>
         <b-dropdown-item href="#">Help</b-dropdown-item>
-        <b-dropdown-item href="#">Log out</b-dropdown-item>
+        <b-dropdown-item @click="logout">Log out</b-dropdown-item>
       </b-nav-item-dropdown>
     </b-nav>
 

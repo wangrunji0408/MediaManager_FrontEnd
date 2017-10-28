@@ -17,17 +17,12 @@ export class Signup extends Vue {
     this.show_password = !this.show_password;
   }
 
-  alert_type: string = '';
-  info: string = '';
-
   alert_success (info: string) {
-    this.alert_type = 'success';
-    this.info = info;
+    (this as any).$message({message: info, type: 'success'});
   }
 
   alert_error (info: string) {
-    this.alert_type = 'danger';
-    this.info = info;
+    (this as any).$message.error(info);
   }
 
   async signup () {
@@ -38,9 +33,10 @@ export class Signup extends Vue {
         phone: this.phone,
         email: this.email
       };
-      let rsp = await new UserApi().signupUser(body);
-      this.alert_success(rsp.body);
-      window.location.href = '#/login';
+      // let rsp = await new UserApi().signupUser(body);
+      // this.alert_success(rsp.body);
+      this.alert_success('注册成功');
+      this.$router.push({path: '/login'});
     } catch (e) {
       this.alert_error(e.toString());
       throw e;
