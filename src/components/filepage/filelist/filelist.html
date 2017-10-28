@@ -33,7 +33,7 @@
            v-loading="isLoading"
   >
     <template slot="thumbnails" scope="row">
-      <b-img thumbnail fluid v-bind:src="value" width="50" height="50" alt="Thumbnail"></b-img>
+      <b-img thumbnail fluid v-bind:src="row.item.thumbnails" width="50" height="50" alt="Thumbnail"></b-img>
     </template>
     <template slot="star" scope="row">
       <b-form-checkbox v-model="row.item.choice">

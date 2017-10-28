@@ -46,13 +46,4 @@ export class UserList extends Vue {
     {key: 'username', sortable: true},
     {key: 'groups'},
   ];
-
-  async fetchData() {
-    let users = await new UserApi().getUser({group: 0});
-    this.users = users.map((u: UserModel) => {
-      u.renaming = false;
-      return u;
-    });
-    this.allGroups = await new GroupApi().getUserGroups();
-  }
 }

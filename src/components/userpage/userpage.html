@@ -4,7 +4,10 @@
     <!-- 左侧导航条 -->
     <div class="col-sm-3 col-md-2">
       <b-list-group>
-        <b-list-group-item @click="addGroup">Add Group</b-list-group-item>
+        <b-list-group-item @click="addGroup">
+          <b-form-input v-model="newGroupName" type="text" placeholder="Group Name"
+                        :plaintext="!addingNewGroup" @change="addGroupDone"></b-form-input>
+        </b-list-group-item>
         <b-list-group-item v-for="group in groupsCount">
           <a :href="'#user/?group=' + (group.query? group.query: group.name)">{{group.name}}</a>
           <span class="badge">{{group.count}}</span>
@@ -15,7 +18,7 @@
     <!-- 右侧文件列表 -->
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
       <AddUserBar :allGroups="allGroups"></AddUserBar>
-      <router-view :users="users" :allGroups="allGroups"></router-view>
+      <router-view :users="users" :allGroups="allGroups" v-on:fetch="fetchData"></router-view>
     </div>
 
   </div>

@@ -6,7 +6,7 @@
     "lastName": "lastname",
     "email": "admin@admin.com",
     "phone": "13000000000",
-    "image": "???",
+    "image": "https://lorempixel.com/250/250/technics/4/",
     "groups": [{"id": 1, "name": "admin"}]
   },
   {
@@ -16,7 +16,7 @@
     "lastName": "lastname",
     "email": "email",
     "phone": "phone",
-    "image": "image",
+    "image": "https://lorempixel.com/250/250/technics/5/",
     "groups": [{"id": 2, "name": "group1"}]
   },
   {
@@ -26,7 +26,7 @@
     "lastName": "lastname",
     "email": "email",
     "phone": "phone",
-    "image": "image",
+    "image": "https://lorempixel.com/250/250/technics/6/",
     "groups": [{"id": 1, "name": "admin"}, {"id": 2, "name": "group1"}]
   }
 ]

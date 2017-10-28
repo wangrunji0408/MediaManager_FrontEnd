@@ -11,7 +11,7 @@
     <!-- 按钮组 -->
     <div class="col-md-4">
       <b-button variant="danger" @click="deleteBegin(selectedFiles)"><i class="fa fa-trash"></i></b-button>
-      <b-button @click="fetchData"><i class="fa fa-refresh"></i></b-button>
+      <b-button @click="$emit('fetch')"><i class="fa fa-refresh"></i></b-button>
     </div>
   </div>
 

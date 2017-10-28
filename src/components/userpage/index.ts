@@ -10,35 +10,8 @@ import {inGroup} from './util';
   components: {UserList, AddUserBar},
 })
 export class UserPage extends Vue {
-  users: User[] = [
-    {
-      'id': 1,
-      'username': 'admin',
-      'password': '',
-      'firstName': 'firstname',
-      'lastName': 'lastname',
-      'email': 'email',
-      'phone': 'phone',
-      'image': 'image',
-      'groups': [{id: 1, name: 'admin'}]
-    },
-    {
-      'id': 2,
-      'username': 'user2',
-      'password': '',
-      'firstName': 'firstname',
-      'lastName': 'lastname',
-      'email': 'email',
-      'phone': 'phone',
-      'image': 'image',
-      'groups': [{id: 2, name: 'group1'}]
-    }
-  ];
-
-  allGroups: UserGroup[] = [
-    {id: 1, name: 'admin'},
-    {id: 2, name: 'group1'},
-  ];
+  users: User[] = [];
+  allGroups: UserGroup[] = [];
 
   get groupsCount() {
     let ret: any[] = [{name: 'all', count: this.users.length, query: '*'}];
@@ -52,12 +25,33 @@ export class UserPage extends Vue {
     return ret;
   }
 
+  newGroupName: string = 'Add Group';
+  addingNewGroup: boolean = false;
+
   addGroup () {
-    alert('addgroup');
+    this.addingNewGroup = true;
+    this.newGroupName = '';
   }
 
-  async getData() {
-    this.users = await new UserApi().getUser({});
+  async addGroupDone () {
+    let newName = this.newGroupName;
+    this.addingNewGroup = false;
+    this.newGroupName = 'Add Group';
+    try {
+      let rsp = await new GroupApi().createUserGroup({body: {
+        id: 0,
+        name: this.newGroupName
+      }});
+      (this as any).$message({message: '新建用户组成功', type: 'success'});
+    } catch (e) {
+      (this as any).$message.error('新建用户组失败');
+      return;
+    }
+    await this.fetchData();
+  }
+
+  async fetchData() {
+    this.users = await new UserApi().getUser({group: 0});
     this.allGroups = await new GroupApi().getUserGroups();
   }
 }
