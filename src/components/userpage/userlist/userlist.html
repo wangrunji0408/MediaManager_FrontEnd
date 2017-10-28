@@ -10,7 +10,7 @@
 
     <!-- 按钮组 -->
     <div class="col-md-4">
-      <b-button variant="danger" @click="deleteBegin(selectedFiles)"><i class="fa fa-trash"></i></b-button>
+      <b-button variant="danger" @click="deleteBegin(selectedUsers)"><i class="fa fa-trash"></i></b-button>
       <b-button @click="$emit('fetch')"><i class="fa fa-refresh"></i></b-button>
     </div>
   </div>
@@ -26,6 +26,12 @@
            :items="users"
            :fields="fields"
   >
+    <template slot="HEAD_select" scope="row">
+      <b-form-checkbox v-model="selectAll"></b-form-checkbox>
+    </template>
+    <template slot="select" scope="row">
+      <b-form-checkbox v-model="row.item.selected"></b-form-checkbox>
+    </template>
     <template slot="icon" scope="row">
       <b-img thumbnail fluid v-bind:src="row.item.image" width="50" height="50" alt="Thumbnail"></b-img>
     </template>
@@ -42,6 +48,11 @@
   <!-- 重命名弹窗 -->
   <b-modal id="rename-modal" title="重命名" @ok="renameDone" @show="newName = ''">
     <b-form-input v-model="newName" type="text" placeholder="新用户名"></b-form-input>
+  </b-modal>
+
+  <!-- 确认删除弹窗 -->
+  <b-modal id="delete-modal" size="sm" title="Are you sure to delete?" @ok="deleteUsers">
+    <p v-for="user in targetUsers">{{user.username}}</p>
   </b-modal>
 
 </div>
