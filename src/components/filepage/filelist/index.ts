@@ -2,13 +2,11 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import moment from 'moment';
 import {File, FileApi} from '../../../api';
-import {Upload} from './upload';
 
 class FileModel extends File {
   choice: boolean = false;
   star: boolean = true;
   oldName: string = '';
-
   renaming: boolean = false;
 }
 
@@ -18,7 +16,6 @@ function delay(ms: number) {
 
 @Component({
   template: require('./filelist.html'),
-  components: {Upload}
 })
 export class FileList extends Vue {
 
@@ -57,25 +54,22 @@ export class FileList extends Vue {
 
   constructor() {
     super();
-    // 临时生成一堆文件信息
-    for (let i = 0; i < 20; ++i) {
-      let f = JSON.parse(JSON.stringify(this.files[0])); // deep clone
-      f.name += i;
-      this.files.push(f);
-    }
-
+    this.fetchData();
   }
 
   filesToUpload: any[] = [];
 
   async uploadFiles() {
     try {
+      if (this.filesToUpload.length === 0)
+        throw '没有选择文件';
       for (let file of this.filesToUpload) {
-        new FileApi().uploadFile(file, this.path);
+        let rsp = await new FileApi().uploadFile(file, this.path);
       }
       this.showAlert('上传文件成功', 'success');
     } catch (e) {
-      this.showAlert('上传文件失败', 'error');
+      this.showAlert('上传文件失败 ' + e, 'error');
+      throw e;
     }
   }
 
@@ -149,7 +143,7 @@ export class FileList extends Vue {
       this.showAlert('删除失败', 'error');
       return;
     }
-    await this.refreshData();
+    await this.fetchData();
   }
 
   ensureTargetNotEmpty () {
@@ -179,12 +173,12 @@ export class FileList extends Vue {
       this.showAlert('移动失败', 'error');
       return;
     }
-    await this.refreshData();
+    await this.fetchData();
   }
 
   isLoading: boolean = false;
 
-  async refreshData() {
+  async fetchData() {
     this.isLoading = true;
     // TODO 超时判断
     try {
@@ -208,29 +202,35 @@ export class FileList extends Vue {
     (this as any).$message({message, type});
   }
 
-  files: FileModel[] = [
-    {
-      id: 'ID',
-      name: 'frontend.avi',
-      path: '/',
-      isDir: false,
-      url: '',
-      md5: 'MD5',
-      thumbnails: 'https://lorempixel.com/250/250/technics/4/',
-      size: 1024,
-      modifyDate: new Date('2017/1/2'),
-      createDate: new Date('2017/1/1'),
-      tags: [],
+  // TODO 实现全部选中/取消选中
+  selectAll: boolean = true;
+  switchSelectAll() {
+    this.selectAll = !this.selectAll;
+    this.files.forEach(f => f.choice = this.selectAll);
+  }
 
-      choice: false,
-      star: true,
-      renaming: false,
-      oldName: '',
-    },
-  ];
+  newDirName: string = '';
+  async createDir() {
+    try {
+      let rsp = await new FileApi().createFile({body: {
+        path: this.path,
+        name: this.newDirName,
+        isDir: true
+      }});
+      this.showAlert('新建文件夹成功', 'success');
+    } catch (e) {
+      this.showAlert('新建文件夹失败 ' + e, 'error');
+    } finally {
+      this.newDirName = '';
+    }
+    await this.fetchData();
+  }
+
+  files: FileModel[] = [];
 
   fields = [
-    {key: 'star', label: ''},
+    'select',
+    // 'star',
     {key: 'thumbnails', label: ''},
     {key: 'name', sortable: true},
     {key: 'size', sortable: true},

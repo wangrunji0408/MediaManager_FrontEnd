@@ -14,8 +14,9 @@
     <div class="col-md-5">
       <b-button variant="danger" @click="deleteBegin(selectedFiles)"><i class="fa fa-trash"></i></b-button>
       <b-button @click="moveBegin(selectedFiles)"><i class="fa fa-exchange"></i></b-button>
-      <b-button @click="refreshData()"><i class="fa fa-refresh"></i></b-button>
-      <Upload :path="path"></Upload>
+      <b-button @click="fetchData"><i class="fa fa-refresh"></i></b-button>
+      <b-button v-b-modal.upload-modal><i class="fa fa-upload"></i></b-button>
+      <b-button v-b-modal.dir-modal><i class="fa fa-folder-o"></i></b-button>
     </div>
   </div>
 
@@ -32,11 +33,16 @@
            @filtered="onFiltered"
            v-loading="isLoading"
   >
+    <template slot="HEAD_select" scope="row">
+      <b-form-checkbox v-model="selectAll"></b-form-checkbox>
+    </template>
+    <template slot="select" scope="row">
+      <b-form-checkbox v-model="row.item.choice"></b-form-checkbox>
+    </template>
     <template slot="thumbnails" scope="row">
       <b-img thumbnail fluid v-bind:src="row.item.thumbnails" width="50" height="50" alt="Thumbnail"></b-img>
     </template>
     <template slot="star" scope="row">
-      <b-form-checkbox v-model="row.item.choice">
       <span v-bind:class="row.item.star? 'fa fa-star' : 'fa fa-star-o'"
             @click.stop="row.item.star = !row.item.star"></span>
     </template>
@@ -90,5 +96,15 @@
   <!-- 选择路径弹窗 -->
   <b-modal id="move-modal" title="选择路径" @ok="moveSelected">
     <b-form-input v-model="targetPath" type="text" placeholder="Enter target path"></b-form-input>
+  </b-modal>
+
+  <!-- 上传弹窗 -->
+  <b-modal id="upload-modal" title="上传文件" @ok="uploadFiles">
+    <b-form-file v-model="filesToUpload" multiple></b-form-file>
+  </b-modal>
+
+  <!-- 新文件夹弹窗 -->
+  <b-modal id="dir-modal" title="新建文件夹" @ok="createDir">
+    <b-form-input v-model="newDirName" type="text" placeholder="新文件夹名称"></b-form-input>
   </b-modal>
 </div>
