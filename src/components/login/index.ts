@@ -27,7 +27,7 @@ export class Login extends Vue {
       this.alert_success('登陆成功' + rsp);
       this.$store.commit('setToken', 'user');
       let next = this.$route.query['redirect'];
-      if(next == null)
+      if (next == null)
         next = '/file';
       this.$router.push({path: next});
     } catch (e) {

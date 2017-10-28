@@ -5,11 +5,11 @@ import {File, FileApi} from '../../../api';
 import {Upload} from './upload';
 
 class FileModel extends File {
-  choice?: boolean = false;
-  star?: boolean = true;
-  oldName?: string = '';
+  choice: boolean = false;
+  star: boolean = true;
+  oldName: string = '';
 
-  renaming?: boolean = false;
+  renaming: boolean = false;
 }
 
 function delay(ms: number) {
@@ -188,7 +188,15 @@ export class FileList extends Vue {
     this.isLoading = true;
     // TODO 超时判断
     try {
-      this.files = await new FileApi().getFiles({path: this.path});
+      let files = await new FileApi().getFiles({path: this.path});
+      this.files = files.map(f => {
+        let ff = f as FileModel;  // 扩展为子类，补全属性
+        ff.choice = false;
+        ff.oldName = '';
+        ff.renaming = false;
+        ff.star = false;
+        return ff;
+      });
     } catch (e) {
       this.showAlert('刷新失败' + e, 'error');
       throw e;

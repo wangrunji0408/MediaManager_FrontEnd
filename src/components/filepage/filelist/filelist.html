@@ -84,7 +84,7 @@
 
   <!-- 确认删除弹窗 -->
   <b-modal id="delete-modal" size="sm" title="Are you sure to delete?" @ok="deleteFiles">
-    <p v-for="file in deleteTargets">{{file.name}}</p>
+    <p v-for="file in targetFiles">{{file.name}}</p>
   </b-modal>
 
   <!-- 选择路径弹窗 -->

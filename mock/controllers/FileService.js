@@ -68,23 +68,7 @@ exports.getFiles = function(args, res, next) {
    * returns List
    **/
   var examples = {};
-  examples['application/json'] = [ {
-  "path" : "aeiou",
-  "size" : 0,
-  "modifyDate" : "2000-01-23T04:56:07.000+00:00",
-  "name" : "aeiou",
-  "id" : "aeiou",
-  "thumbnails" : "aeiou",
-  "url" : "aeiou",
-  "isDir" : true,
-  "md5" : "aeiou",
-  "createDate" : "2000-01-23T04:56:07.000+00:00",
-  "tags" : [ {
-    "color" : "aeiou",
-    "name" : "aeiou",
-    "id" : 6
-  } ]
-} ];
+  examples['application/json'] = require('../data/files.json');
   if (Object.keys(examples).length > 0) {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));
