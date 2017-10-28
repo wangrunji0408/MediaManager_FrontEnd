@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import moment from 'moment';
 import {File, FileApi} from '../../../api';
+import {UploadStatus} from '../../upload_status';
 
 class FileModel extends File {
   choice: boolean = false;
@@ -16,6 +17,7 @@ function delay(ms: number) {
 
 @Component({
   template: require('./filelist.html'),
+  components: {UploadStatus}
 })
 export class FileList extends Vue {
 
@@ -220,8 +222,6 @@ export class FileList extends Vue {
       this.showAlert('新建文件夹成功', 'success');
     } catch (e) {
       this.showAlert('新建文件夹失败 ' + e, 'error');
-    } finally {
-      this.newDirName = '';
     }
     await this.fetchData();
   }

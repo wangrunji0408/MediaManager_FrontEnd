@@ -2,6 +2,8 @@
   <!-- 路径 -->
   <b-breadcrumb :items="pathItems"/>
 
+  <UploadStatus></UploadStatus>
+
   <div class="row">
     <!-- 搜索框 -->
     <div class="col-md-5">
@@ -75,9 +77,8 @@
   </b-table>
 
   <!-- 页码栏 -->
-  <!-- TODO 居中 -->
-  <div class="row my-1">
-    <div class="col-sm-8">
+  <div class="row">
+    <div class="offset-md-4 col-md-3">
       <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" />
     </div>
   </div>
@@ -104,7 +105,7 @@
   </b-modal>
 
   <!-- 新文件夹弹窗 -->
-  <b-modal id="dir-modal" title="新建文件夹" @ok="createDir">
+  <b-modal id="dir-modal" title="新建文件夹" @ok="createDir" @show="newDirName = ''">
     <b-form-input v-model="newDirName" type="text" placeholder="新文件夹名称"></b-form-input>
   </b-modal>
 </div>

@@ -1,0 +1,29 @@
+<div id="myContainer">
+  <div class="my-3">
+    <!-- our triggering (target) element -->
+    <b-btn id="exPopoverReactive1"
+           :disabled="disabled"
+           variant="primary"
+           ref="button">
+      上传状态
+    </b-btn>
+  </div>
+
+  <!-- Our popover title and content render container -->
+  <!-- We use placement 'auto' so popover fits in the best spot on viewport -->
+  <!-- We specify the same container as teh trigger button, so that popover is close to button in tab sequence -->
+  <b-popover target="exPopoverReactive1"
+             triggers="click"
+             placement="auto"
+             container="myContainer"
+             ref="popover"
+             @show="onShow"
+             @shown="onShown"
+             @hidden="onHidden">
+    <el-upload
+      action="https://jsonplaceholder.typicode.com/posts/"
+      :on-change="handleChange"
+      :file-list="fileList">
+    </el-upload>
+  </b-popover>
+</div>
