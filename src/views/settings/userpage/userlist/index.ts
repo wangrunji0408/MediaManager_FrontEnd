@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import {GroupApi, User, UserApi, UserGroup} from '../../../api';
-import {GroupDropdown} from '../group_dropdown/';
+import {GroupApi, User, UserApi, UserGroup} from '../../../../api';
+import {GroupDropdown} from '../../../../components/group_dropdown';
 import {testString, inGroup} from '../util';
 
 class UserModel extends User {

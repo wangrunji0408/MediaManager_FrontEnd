@@ -1,0 +1,10 @@
+<div class="container-fluid">
+  <AddUserBar :allGroups="allGroups"></AddUserBar>
+  <div class="row">
+    <div class="form-group form-inline">
+      <input type="text" name="name" id="name" class="form-control" placeholder="GroupName" required>
+      <button class="btn btn-primary" type="button">Create Group</button>
+    </div>
+  </div>
+  <router-view :users="users" :allGroups="allGroups" v-on:fetch="fetchData"></router-view>
+</div>

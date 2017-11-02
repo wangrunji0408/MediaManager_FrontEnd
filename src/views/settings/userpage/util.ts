@@ -1,4 +1,4 @@
-import {User} from '../../api';
+import {User} from '../../../api';
 
 export function testString(str: string, pattern: string): boolean {
   return str.match(pattern) != null;

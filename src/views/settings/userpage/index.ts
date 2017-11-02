@@ -2,8 +2,9 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import {UserList} from './userlist';
 import {AddUserBar} from './adduserbar';
-import {GroupApi, User, UserApi, UserGroup} from '../../api';
+import {GroupApi, User, UserApi, UserGroup} from '../../../api';
 import {inGroup} from './util';
+import VueRouter from 'vue-router';
 
 @Component({
   template: require('./userpage.html'),
@@ -62,7 +63,7 @@ export class UserPage extends Vue {
   }
 }
 
-export const UserPageRouter = [
+export const UserPageRoute = [
     { path: '', component: UserList },
     { path: 'all', component: UserList}
 ];

@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import {User, UserApi, UserGroup} from '../../../api';
-import {GroupDropdown} from '../group_dropdown';
+import {User, UserApi, UserGroup} from '../../../../api';
+import {GroupDropdown} from '../../../../components/group_dropdown';
 
 @Component({
   template: require('./adduserbar.html'),

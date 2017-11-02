@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import moment from 'moment';
 import {File, FileApi} from '../../../api';
-import {UploadStatus} from '../../upload_status';
+import {UploadStatus} from '../../../components/upload_status';
 
 class FileModel extends File {
   choice: boolean = false;

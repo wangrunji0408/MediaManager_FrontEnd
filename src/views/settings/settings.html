@@ -1,0 +1,26 @@
+<el-container>
+  <el-aside>
+    <el-menu
+      class="el-menu-vertical-demo"
+      router>
+      <el-submenu index="1">
+        <template slot="title">
+          <i class="el-icon-location"></i>
+          <span>个人设置</span>
+        </template>
+        <el-menu-item index="/settings/self">个人信息</el-menu-item>
+      </el-submenu>
+      <el-submenu index="2">
+        <template slot="title">
+          <i class="el-icon-menu"></i>
+          <span>管理员设置</span>
+        </template>
+        <el-menu-item index="/settings/user">用户管理</el-menu-item>
+      </el-submenu>
+    </el-menu>
+  </el-aside>
+  <el-main>
+    <router-view></router-view>
+  </el-main>
+</el-container>
+

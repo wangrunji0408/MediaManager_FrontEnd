@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import {UserGroup} from '../../../api';
+import {UserGroup} from '../../api';
 import Multiselect from 'vue-multiselect';
 import 'vue-multiselect/dist/vue-multiselect.min.css';
 import {Watch} from 'vue-property-decorator';

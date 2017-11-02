@@ -21,21 +21,19 @@ import Vuex from 'vuex';
 Vue.use(Vuex);
 
 // Views
-import { NavbarComponent } from './components/navbar';
-import { Login } from './components/login';
-import { Signup } from './components/signup';
-import {FilePage, FilePageRouter} from './components/filepage';
-import {UserPage, UserPageRouter} from './components/userpage';
+import { NavbarComponent } from './views/navbar';
+import { Login } from './views/login';
+import { Signup } from './views/signup';
+import {FilePage, FilePageRouter} from './views/filepage';
+import {Settings, SettingsRoute} from './views/settings/index';
 
 let router = new VueRouter({
   routes: [
     { path: '/', component: Login },
     { path: '/login', component: Login },
     { path: '/signup', component: Signup },
+    { path: '/settings', component: Settings, children: SettingsRoute },
     { path: '/file', component: FilePage, children: FilePageRouter,
-      meta: {requireAuth: true, },
-    },
-    { path: '/user', component: UserPage, children: UserPageRouter,
       meta: {requireAuth: true, },
     },
   ]
