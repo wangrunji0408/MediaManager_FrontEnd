@@ -8,6 +8,7 @@ import './style.css';
 })
 export class SelfPage extends Vue {
   user: User = {
+    id: 123,
     username: 'Username',
     password: 'Password',
     firstName: 'Firstname',
@@ -16,7 +17,9 @@ export class SelfPage extends Vue {
     phone: '13000000000'
   };
 
-  uploadImageUrl: string = ''; // TODO 上传头像地址
+  get uploadImageUrl(): string {
+    return new UserApi().basePath + `/user/${this.user.id}/avatar`;
+  }
   imageUrl: string = '';
   beforeImageUpload() {
     this.$message.info('beforeImageUpload');
