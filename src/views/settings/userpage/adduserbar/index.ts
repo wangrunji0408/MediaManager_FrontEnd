@@ -17,18 +17,15 @@ export class AddUserBar extends Vue {
 
   async createUser() {
     try {
-      if (this.username === '')
-        throw '用户名不能为空';
-      if (this.password === '')
-        throw '密码不能为空';
       let user = new User();
       user.username = this.username;
       user.password = this.password;
       user.groups = this.groups;
-      alert('create:' + JSON.stringify(user));
       let rsp = await new UserApi().createUser({body: user});
+      this.$message.success('创建用户成功');
+      this.$emit('fetch');
     } catch (e) {
-      (this as any).$message.error(e);
+      this.$message.error('创建用户失败' + e);
       return;
     }
   }

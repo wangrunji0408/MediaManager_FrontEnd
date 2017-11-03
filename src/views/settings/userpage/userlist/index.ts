@@ -56,7 +56,8 @@ export class UserList extends Vue {
     'select',
     'icon',
     {key: 'username', sortable: true},
-    {key: 'groups'},
+    'password',
+    'groups',
   ];
 
   ////////// Rename //////////
@@ -112,4 +113,28 @@ export class UserList extends Vue {
     }
     await this.$emit('fetch');
   }
+
+  ////////// Change Password //////////
+
+  target: User;
+  newPassword: string = '';
+
+  changePassword(item: User) {
+    this.target = item;
+    this.$root.$emit('bv::show::modal', 'password-modal');
+  }
+
+  async changePasswordDone() {
+    let item = this.target;
+    item.password = this.newPassword;
+    try {
+      let rsp = await new UserApi().updateUser({id: item.id, body: item});
+      this.$message.success('修改密码成功');
+    } catch (e) {
+      this.$message.error('修改密码失败');
+      return;
+    }
+    await this.$emit('fetch');
+  }
+
 }
