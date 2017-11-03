@@ -304,6 +304,35 @@ paths:
           description: "error"
           schema:
             $ref: '#/definitions/ErrorInfo'
+  /user/{id}/password:
+    post:
+      tags:
+      - "user"
+      summary: "Change user password"
+      operationId: "changeUserPassword"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "integer"
+      - name: "oldPassword"
+        in: "formData"
+        required: true
+        type: "string"
+      - name: "newPassword"
+        in: "formData"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "error"
+          schema:
+            $ref: '#/definitions/ErrorInfo'
   /group:
     post:
       tags:

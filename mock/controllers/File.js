@@ -12,6 +12,10 @@ module.exports.deleteFile = function deleteFile (req, res, next) {
   File.deleteFile(req.swagger.params, res, next);
 };
 
+module.exports.downloadFile = function downloadFile (req, res, next) {
+  File.downloadFile(req.swagger.params, res, next);
+};
+
 module.exports.getFileById = function getFileById (req, res, next) {
   File.getFileById(req.swagger.params, res, next);
 };

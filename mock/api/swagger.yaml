@@ -19,6 +19,8 @@ tags:
   description: "Operations about usergroup"
 - name: "file"
   description: "Operations about file"
+- name: "social"
+  description: "Operations about social"
 schemes:
 - "http"
 paths:
@@ -84,7 +86,7 @@ paths:
     post:
       tags:
       - "user"
-      summary: "Signup user"
+      summary: "Signup user. Return a token."
       description: "游客自助注册用户"
       operationId: "signupUser"
       produces:
@@ -103,12 +105,15 @@ paths:
             $ref: "#/definitions/ErrorInfo"
         default:
           description: "successful operation"
+          schema:
+            type: "string"
+            description: "Token"
       x-swagger-router-controller: "User"
   /user/login:
-    get:
+    post:
       tags:
       - "user"
-      summary: "Logs user into the system"
+      summary: "Logs user into the system. Return a token."
       description: ""
       operationId: "loginUser"
       produces:
@@ -130,6 +135,7 @@ paths:
           description: "successful operation"
           schema:
             type: "string"
+            description: "Token"
           headers:
             X-Rate-Limit:
               type: "integer"
@@ -191,7 +197,7 @@ paths:
     put:
       tags:
       - "user"
-      summary: "Updated user"
+      summary: "Update user"
       description: "This can only be done by the logged in user."
       operationId: "updateUser"
       produces:
@@ -230,6 +236,87 @@ paths:
         in: "path"
         required: true
         type: "integer"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "User"
+  /user/{id}/avatar:
+    get:
+      tags:
+      - "user"
+      summary: "Get user avatar image"
+      operationId: "getUserAvatar"
+      produces:
+      - "image/jpeg"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "integer"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "file"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "User"
+    post:
+      tags:
+      - "user"
+      summary: "Upload user avatar image"
+      operationId: "uploadUserAvatar"
+      consumes:
+      - "multipart/form-data"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "integer"
+      - name: "file"
+        in: "formData"
+        description: "The image to upload."
+        required: false
+        type: "file"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "User"
+  /user/{id}/password:
+    post:
+      tags:
+      - "user"
+      summary: "Change user password"
+      operationId: "changeUserPassword"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "integer"
+      - name: "oldPassword"
+        in: "formData"
+        required: true
+        type: "string"
+      - name: "newPassword"
+        in: "formData"
+        required: true
+        type: "string"
       responses:
         200:
           description: "successful operation"
@@ -537,6 +624,255 @@ paths:
           schema:
             $ref: "#/definitions/ErrorInfo"
       x-swagger-router-controller: "File"
+  /file/download/{id}:
+    get:
+      tags:
+      - "file"
+      summary: "Download file"
+      operationId: "downloadFile"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "File id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "File"
+  /comment:
+    get:
+      tags:
+      - "social"
+      summary: "Get all comments about the file"
+      operationId: "getFileComments"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "fileID"
+        in: "query"
+        description: "File id"
+        required: true
+        type: "string"
+      - name: "type"
+        in: "query"
+        description: "Comment type"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Comment"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Social"
+    post:
+      tags:
+      - "social"
+      summary: "Post new comment about the file"
+      operationId: "postComment"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/Comment"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Comment"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Social"
+  /comment/{id}:
+    delete:
+      tags:
+      - "social"
+      summary: "Delete the comment"
+      operationId: "deleteComment"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Comment id"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Social"
+  /user/{id}/follower:
+    get:
+      tags:
+      - "social"
+      summary: "Get all followers of the user"
+      operationId: "getUserFollower"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "integer"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              type: "integer"
+              format: "int64"
+              description: "UserIDs"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Social"
+  /user/{id}/following:
+    get:
+      tags:
+      - "social"
+      summary: "Get all followings of the user"
+      operationId: "getUserFollowing"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "integer"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              type: "integer"
+              format: "int64"
+              description: "UserIDs"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Social"
+  /user/{id}/following/{othersID}:
+    post:
+      tags:
+      - "social"
+      summary: "Follow another user"
+      operationId: "followUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "integer"
+      - name: "othersID"
+        in: "path"
+        required: true
+        type: "integer"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Social"
+    delete:
+      tags:
+      - "social"
+      summary: "Unfollow another user"
+      operationId: "unfollowUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "integer"
+      - name: "othersID"
+        in: "path"
+        required: true
+        type: "integer"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Social"
+  /event:
+    get:
+      tags:
+      - "social"
+      summary: "Get all events of the user after a given time"
+      operationId: "getUserEvents"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "userID"
+        in: "query"
+        required: true
+        type: "integer"
+      - name: "afterTime"
+        in: "query"
+        description: "Use last login time for default."
+        required: false
+        type: "string"
+        format: "date-time"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Event"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Social"
+securityDefinitions:
+  APIKeyHeader:
+    type: "apiKey"
+    name: "Authorization"
+    in: "header"
 definitions:
   File:
     type: "object"
@@ -624,6 +960,44 @@ definitions:
         type: "string"
     xml:
       name: "FileTag"
+  Comment:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      fileID:
+        type: "string"
+      userID:
+        type: "integer"
+        format: "int64"
+      date:
+        type: "string"
+        format: "date-time"
+      type:
+        type: "string"
+        enum:
+        - "star"
+        - "score"
+        - "comment"
+      star:
+        type: "boolean"
+      score:
+        type: "integer"
+        description: "1-5"
+      comment:
+        type: "string"
+    xml:
+      name: "Comment"
+  Event:
+    type: "object"
+    properties:
+      date:
+        type: "string"
+        format: "date-time"
+      content:
+        type: "string"
+        description: "For now, just describe events in plain string ..."
   ErrorInfo:
     type: "object"
     properties:

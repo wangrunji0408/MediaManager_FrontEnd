@@ -1418,6 +1418,45 @@ export const SocialApiFactory = function (fetch?: FetchAPI, basePath?: string) {
  */
 export const UserApiFetchParamCreator = {
     /**
+     *
+     * @summary Change user password
+     * @param id
+     * @param oldPassword
+     * @param newPassword
+     */
+    changeUserPassword(params: {  'id': number; 'oldPassword': string; 'newPassword': string; }, options?: any): FetchArgs {
+        // verify required parameter "id" is set
+        if (params['id'] == null) {
+            throw new Error('Missing required parameter id when calling changeUserPassword');
+        }
+        // verify required parameter "oldPassword" is set
+        if (params['oldPassword'] == null) {
+            throw new Error('Missing required parameter oldPassword when calling changeUserPassword');
+        }
+        // verify required parameter "newPassword" is set
+        if (params['newPassword'] == null) {
+            throw new Error('Missing required parameter newPassword when calling changeUserPassword');
+        }
+        const baseUrl = `/user/{id}/password`
+            .replace(`{${'id'}}`, `${ params['id'] }`);
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'POST' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        contentTypeHeader = { 'Content-Type': 'application/x-www-form-urlencoded' };
+        fetchOptions.body = querystring.stringify({
+            'oldPassword': params['oldPassword'],
+            'newPassword': params['newPassword'],
+        });
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+    /**
      * 管理员用户创建新用户
      * @summary Create user
      * @param body Created user object (Ignore id)
@@ -1686,6 +1725,25 @@ export const UserApiFetchParamCreator = {
  */
 export const UserApiFp = {
     /**
+     *
+     * @summary Change user password
+     * @param id
+     * @param oldPassword
+     * @param newPassword
+     */
+    changeUserPassword(params: { 'id': number; 'oldPassword': string; 'newPassword': string;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+        const fetchArgs = UserApiFetchParamCreator.changeUserPassword(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+    /**
      * 管理员用户创建新用户
      * @summary Create user
      * @param body Created user object (Ignore id)
@@ -1865,6 +1923,16 @@ export const UserApiFp = {
  */
 export class UserApi extends BaseAPI {
     /**
+     *
+     * @summary Change user password
+     * @param id
+     * @param oldPassword
+     * @param newPassword
+     */
+    changeUserPassword(params: {  'id': number; 'oldPassword': string; 'newPassword': string; }, options?: any) {
+        return UserApiFp.changeUserPassword(params, options)(this.fetch, this.basePath);
+    }
+    /**
      * 管理员用户创建新用户
      * @summary Create user
      * @param body Created user object (Ignore id)
@@ -1954,6 +2022,16 @@ export class UserApi extends BaseAPI {
  */
 export const UserApiFactory = function (fetch?: FetchAPI, basePath?: string) {
     return {
+        /**
+         *
+         * @summary Change user password
+         * @param id
+         * @param oldPassword
+         * @param newPassword
+         */
+        changeUserPassword(params: {  'id': number; 'oldPassword': string; 'newPassword': string; }, options?: any) {
+            return UserApiFp.changeUserPassword(params, options)(fetch, basePath);
+        },
         /**
          * 管理员用户创建新用户
          * @summary Create user

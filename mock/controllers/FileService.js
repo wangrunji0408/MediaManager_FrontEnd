@@ -19,7 +19,16 @@ exports.deleteFile = function(args, res, next) {
    * id String File id
    * no response value expected for this operation
    **/
-  console.log('delete file  ....');
+  res.end();
+}
+
+exports.downloadFile = function(args, res, next) {
+  /**
+   * Download file
+   *
+   * id String File id
+   * no response value expected for this operation
+   **/
   res.end();
 }
 
