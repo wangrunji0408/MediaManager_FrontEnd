@@ -1,5 +1,18 @@
 'use strict';
 
+exports.changeUserPassword = function(args, res, next) {
+  /**
+   * Change user password
+   *
+   * id Integer
+   * oldPassword String
+   * newPassword String
+   * no response value expected for this operation
+   **/
+  console.log('Change User Password');
+  res.end();
+}
+
 exports.createUser = function(args, res, next) {
   /**
    * Create user
@@ -74,7 +87,7 @@ exports.getUserByName = function(args, res, next) {
 
 exports.loginUser = function(args, res, next) {
   /**
-   * Logs user into the system
+   * Logs user into the system. Return a token.
    *
    *
    * username String The user name for login
@@ -103,22 +116,40 @@ exports.logoutUser = function(args, res, next) {
 
 exports.signupUser = function(args, res, next) {
   /**
-   * Signup user
+   * Signup user. Return a token.
    * 游客自助注册用户
    *
    * body Body
+   * returns String
+   **/
+  var examples = {};
+  examples['application/json'] = "aeiou";
+  if (Object.keys(examples).length > 0) {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));
+  } else {
+    res.end();
+  }
+}
+
+exports.updateUser = function(args, res, next) {
+  /**
+   * Update user
+   * This can only be done by the logged in user.
+   *
+   * id Integer
+   * body User Updated user object
    * no response value expected for this operation
    **/
   res.end();
 }
 
-exports.updateUser = function(args, res, next) {
+exports.uploadUserAvatar = function(args, res, next) {
   /**
-   * Updated user
-   * This can only be done by the logged in user.
+   * Upload user avatar image
    *
    * id Integer
-   * body User Updated user object
+   * file File The image to upload. (optional)
    * no response value expected for this operation
    **/
   res.end();

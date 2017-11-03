@@ -49,18 +49,36 @@ export class Body1 {
     'isDir'?: boolean;
 }
 
-export class Body2 {
-    'id'?: string;
-    'name'?: string;
-    'path'?: string;
+export class Comment {
+    'id'?: number;
+    'fileID'?: string;
+    'userID'?: number;
+    'date'?: Date;
+    'type'?: CommentTypeEnum;
+    'star'?: boolean;
+    /**
+     * 1-5
+     */
+    'score'?: number;
+    'comment'?: string;
 }
 
+export type CommentTypeEnum = 'star' | 'score' | 'comment';
 export class ErrorInfo {
     'infos'?: Array<string>;
 }
 
+export class Event {
+    'date'?: Date;
+    /**
+     * For now, just describe events in plain string ...
+     */
+    'content'?: string;
+}
+
 export class File {
     'id'?: string;
+    'ownerID'?: number;
     'isDir'?: boolean;
     /**
      * 文件名
@@ -112,6 +130,10 @@ export class User {
 export class UserGroup {
     'id'?: number;
     'name'?: string;
+    /**
+     * like: #FF9900
+     */
+    'color'?: string;
 }
 
 
@@ -161,6 +183,30 @@ export const FileApiFetchParamCreator = {
             .replace(`{${'id'}}`, `${ params['id'] }`);
         let urlObj = url.parse(baseUrl, true);
         let fetchOptions: RequestInit = assign({}, { method: 'DELETE' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+    /**
+     *
+     * @summary Download file
+     * @param id File id
+     */
+    downloadFile(params: {  'id': string; }, options?: any): FetchArgs {
+        // verify required parameter "id" is set
+        if (params['id'] == null) {
+            throw new Error('Missing required parameter id when calling downloadFile');
+        }
+        const baseUrl = `/file/download/{id}`
+            .replace(`{${'id'}}`, `${ params['id'] }`);
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'GET' }, options);
 
         let contentTypeHeader: Dictionary<string> = {};
         if (contentTypeHeader) {
@@ -222,11 +268,11 @@ export const FileApiFetchParamCreator = {
         };
     },
     /**
-     * 这个接口用于对一些文件进行一些操作。  对每个文件，除了id属性外，通过提供对应属性的新值来指示进行哪些操作：  * 重命名 name   * 移动位置 path   * 修改标签 tags    后端需逐条判断是否有值，是否变化，然后进行操作。对其它属性的修改均无效。  若全部操作成功，则返回200。否则返回400，描述每个失败操作。
+     * 这个接口用于对一些文件进行一些操作。  对每个文件， id 属性外   通过提供对应属性的新值来指示进行哪些操作：  * 重命名 name   * 移动位置 path   * 修改标签 tags    后端需逐条判断是否有值，是否变化，然后进行操作。对其它属性的修改均无效。  若全部操作成功，则返回200。否则返回400，描述每个失败操作。
      * @summary Do some commands on files.
      * @param body Updated file object
      */
-    updateFiles(params: {  'body': Array<Body2>; }, options?: any): FetchArgs {
+    updateFiles(params: {  'body': Array<File>; }, options?: any): FetchArgs {
         // verify required parameter "body" is set
         if (params['body'] == null) {
             throw new Error('Missing required parameter body when calling updateFiles');
@@ -314,6 +360,23 @@ export const FileApiFp = {
         };
     },
     /**
+     *
+     * @summary Download file
+     * @param id File id
+     */
+    downloadFile(params: { 'id': string;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+        const fetchArgs = FileApiFetchParamCreator.downloadFile(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+    /**
      * Used for searching files
      * @summary Get file info by Id
      * @param id File id
@@ -350,11 +413,11 @@ export const FileApiFp = {
         };
     },
     /**
-     * 这个接口用于对一些文件进行一些操作。  对每个文件，除了id属性外，通过提供对应属性的新值来指示进行哪些操作：  * 重命名 name   * 移动位置 path   * 修改标签 tags    后端需逐条判断是否有值，是否变化，然后进行操作。对其它属性的修改均无效。  若全部操作成功，则返回200。否则返回400，描述每个失败操作。
+     * 这个接口用于对一些文件进行一些操作。  对每个文件， id 属性外   通过提供对应属性的新值来指示进行哪些操作：  * 重命名 name   * 移动位置 path   * 修改标签 tags    后端需逐条判断是否有值，是否变化，然后进行操作。对其它属性的修改均无效。  若全部操作成功，则返回200。否则返回400，描述每个失败操作。
      * @summary Do some commands on files.
      * @param body Updated file object
      */
-    updateFiles(params: { 'body': Array<Body2>;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+    updateFiles(params: { 'body': Array<File>;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
         const fetchArgs = FileApiFetchParamCreator.updateFiles(params, options);
         return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
             return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
@@ -407,6 +470,14 @@ export class FileApi extends BaseAPI {
         return FileApiFp.deleteFile(params, options)(this.fetch, this.basePath);
     }
     /**
+     *
+     * @summary Download file
+     * @param id File id
+     */
+    downloadFile(params: {  'id': string; }, options?: any) {
+        return FileApiFp.downloadFile(params, options)(this.fetch, this.basePath);
+    }
+    /**
      * Used for searching files
      * @summary Get file info by Id
      * @param id File id
@@ -425,11 +496,11 @@ export class FileApi extends BaseAPI {
         return FileApiFp.getFiles(params, options)(this.fetch, this.basePath);
     }
     /**
-     * 这个接口用于对一些文件进行一些操作。  对每个文件，除了id属性外，通过提供对应属性的新值来指示进行哪些操作：  * 重命名 name   * 移动位置 path   * 修改标签 tags    后端需逐条判断是否有值，是否变化，然后进行操作。对其它属性的修改均无效。  若全部操作成功，则返回200。否则返回400，描述每个失败操作。
+     * 这个接口用于对一些文件进行一些操作。  对每个文件， id 属性外   通过提供对应属性的新值来指示进行哪些操作：  * 重命名 name   * 移动位置 path   * 修改标签 tags    后端需逐条判断是否有值，是否变化，然后进行操作。对其它属性的修改均无效。  若全部操作成功，则返回200。否则返回400，描述每个失败操作。
      * @summary Do some commands on files.
      * @param body Updated file object
      */
-    updateFiles(params: {  'body': Array<Body2>; }, options?: any) {
+    updateFiles(params: {  'body': Array<File>; }, options?: any) {
         return FileApiFp.updateFiles(params, options)(this.fetch, this.basePath);
     }
     /**
@@ -465,6 +536,14 @@ export const FileApiFactory = function (fetch?: FetchAPI, basePath?: string) {
             return FileApiFp.deleteFile(params, options)(fetch, basePath);
         },
         /**
+         *
+         * @summary Download file
+         * @param id File id
+         */
+        downloadFile(params: {  'id': string; }, options?: any) {
+            return FileApiFp.downloadFile(params, options)(fetch, basePath);
+        },
+        /**
          * Used for searching files
          * @summary Get file info by Id
          * @param id File id
@@ -483,11 +562,11 @@ export const FileApiFactory = function (fetch?: FetchAPI, basePath?: string) {
             return FileApiFp.getFiles(params, options)(fetch, basePath);
         },
         /**
-         * 这个接口用于对一些文件进行一些操作。  对每个文件，除了id属性外，通过提供对应属性的新值来指示进行哪些操作：  * 重命名 name   * 移动位置 path   * 修改标签 tags    后端需逐条判断是否有值，是否变化，然后进行操作。对其它属性的修改均无效。  若全部操作成功，则返回200。否则返回400，描述每个失败操作。
+         * 这个接口用于对一些文件进行一些操作。  对每个文件， id 属性外   通过提供对应属性的新值来指示进行哪些操作：  * 重命名 name   * 移动位置 path   * 修改标签 tags    后端需逐条判断是否有值，是否变化，然后进行操作。对其它属性的修改均无效。  若全部操作成功，则返回200。否则返回400，描述每个失败操作。
          * @summary Do some commands on files.
          * @param body Updated file object
          */
-        updateFiles(params: {  'body': Array<Body2>; }, options?: any) {
+        updateFiles(params: {  'body': Array<File>; }, options?: any) {
             return FileApiFp.updateFiles(params, options)(fetch, basePath);
         },
         /**
@@ -602,7 +681,7 @@ export const GroupApiFetchParamCreator = {
     },
     /**
      *
-     * @summary Updated group
+     * @summary Update group
      * @param id
      * @param body Updated group object
      */
@@ -708,7 +787,7 @@ export const GroupApiFp = {
     },
     /**
      *
-     * @summary Updated group
+     * @summary Update group
      * @param id
      * @param body Updated group object
      */
@@ -763,7 +842,7 @@ export class GroupApi extends BaseAPI {
     }
     /**
      *
-     * @summary Updated group
+     * @summary Update group
      * @param id
      * @param body Updated group object
      */
@@ -810,7 +889,7 @@ export const GroupApiFactory = function (fetch?: FetchAPI, basePath?: string) {
         },
         /**
          *
-         * @summary Updated group
+         * @summary Update group
          * @param id
          * @param body Updated group object
          */
@@ -822,9 +901,566 @@ export const GroupApiFactory = function (fetch?: FetchAPI, basePath?: string) {
 
 
 /**
+ * SocialApi - fetch parameter creator
+ */
+export const SocialApiFetchParamCreator = {
+    /**
+     *
+     * @summary Delete the comment
+     * @param id Comment id
+     */
+    deleteComment(params: {  'id': number; }, options?: any): FetchArgs {
+        // verify required parameter "id" is set
+        if (params['id'] == null) {
+            throw new Error('Missing required parameter id when calling deleteComment');
+        }
+        const baseUrl = `/comment/{id}`
+            .replace(`{${'id'}}`, `${ params['id'] }`);
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'DELETE' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+    /**
+     *
+     * @summary Follow another user
+     * @param id
+     * @param othersID
+     */
+    followUser(params: {  'id': number; 'othersID': number; }, options?: any): FetchArgs {
+        // verify required parameter "id" is set
+        if (params['id'] == null) {
+            throw new Error('Missing required parameter id when calling followUser');
+        }
+        // verify required parameter "othersID" is set
+        if (params['othersID'] == null) {
+            throw new Error('Missing required parameter othersID when calling followUser');
+        }
+        const baseUrl = `/user/{id}/following/{othersID}`
+            .replace(`{${'id'}}`, `${ params['id'] }`)
+            .replace(`{${'othersID'}}`, `${ params['othersID'] }`);
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'POST' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+    /**
+     *
+     * @summary Get all comments about the file
+     * @param fileID File id
+     * @param type Comment type
+     */
+    getFileComments(params: {  'fileID': string; 'type'?: string; }, options?: any): FetchArgs {
+        // verify required parameter "fileID" is set
+        if (params['fileID'] == null) {
+            throw new Error('Missing required parameter fileID when calling getFileComments');
+        }
+        const baseUrl = `/comment`;
+        let urlObj = url.parse(baseUrl, true);
+        urlObj.query = assign({}, urlObj.query, {
+            'fileID': params['fileID'],
+            'type': params['type'],
+        });
+        let fetchOptions: RequestInit = assign({}, { method: 'GET' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+    /**
+     *
+     * @summary Get all events of the user after a given time
+     * @param userID
+     * @param afterTime Use last login time for default.
+     */
+    getUserEvents(params: {  'userID': number; 'afterTime'?: Date; }, options?: any): FetchArgs {
+        // verify required parameter "userID" is set
+        if (params['userID'] == null) {
+            throw new Error('Missing required parameter userID when calling getUserEvents');
+        }
+        const baseUrl = `/event`;
+        let urlObj = url.parse(baseUrl, true);
+        urlObj.query = assign({}, urlObj.query, {
+            'userID': params['userID'],
+            'afterTime': params['afterTime'],
+        });
+        let fetchOptions: RequestInit = assign({}, { method: 'GET' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+    /**
+     *
+     * @summary Get all followers of the user
+     * @param id
+     */
+    getUserFollower(params: {  'id': number; }, options?: any): FetchArgs {
+        // verify required parameter "id" is set
+        if (params['id'] == null) {
+            throw new Error('Missing required parameter id when calling getUserFollower');
+        }
+        const baseUrl = `/user/{id}/follower`
+            .replace(`{${'id'}}`, `${ params['id'] }`);
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'GET' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+    /**
+     *
+     * @summary Get all followings of the user
+     * @param id
+     */
+    getUserFollowing(params: {  'id': number; }, options?: any): FetchArgs {
+        // verify required parameter "id" is set
+        if (params['id'] == null) {
+            throw new Error('Missing required parameter id when calling getUserFollowing');
+        }
+        const baseUrl = `/user/{id}/following`
+            .replace(`{${'id'}}`, `${ params['id'] }`);
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'GET' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+    /**
+     *
+     * @summary Post new comment about the file
+     * @param body
+     */
+    postComment(params: {  'body': Comment; }, options?: any): FetchArgs {
+        // verify required parameter "body" is set
+        if (params['body'] == null) {
+            throw new Error('Missing required parameter body when calling postComment');
+        }
+        const baseUrl = `/comment`;
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'POST' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        contentTypeHeader = { 'Content-Type': 'application/json' };
+        if (params['body']) {
+            fetchOptions.body = JSON.stringify(params['body'] || {});
+        }
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+    /**
+     *
+     * @summary Unfollow another user
+     * @param id
+     * @param othersID
+     */
+    unfollowUser(params: {  'id': number; 'othersID': number; }, options?: any): FetchArgs {
+        // verify required parameter "id" is set
+        if (params['id'] == null) {
+            throw new Error('Missing required parameter id when calling unfollowUser');
+        }
+        // verify required parameter "othersID" is set
+        if (params['othersID'] == null) {
+            throw new Error('Missing required parameter othersID when calling unfollowUser');
+        }
+        const baseUrl = `/user/{id}/following/{othersID}`
+            .replace(`{${'id'}}`, `${ params['id'] }`)
+            .replace(`{${'othersID'}}`, `${ params['othersID'] }`);
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'DELETE' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+};
+
+/**
+ * SocialApi - functional programming interface
+ */
+export const SocialApiFp = {
+    /**
+     *
+     * @summary Delete the comment
+     * @param id Comment id
+     */
+    deleteComment(params: { 'id': number;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+        const fetchArgs = SocialApiFetchParamCreator.deleteComment(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+    /**
+     *
+     * @summary Follow another user
+     * @param id
+     * @param othersID
+     */
+    followUser(params: { 'id': number; 'othersID': number;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+        const fetchArgs = SocialApiFetchParamCreator.followUser(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+    /**
+     *
+     * @summary Get all comments about the file
+     * @param fileID File id
+     * @param type Comment type
+     */
+    getFileComments(params: { 'fileID': string; 'type'?: string;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Comment>> {
+        const fetchArgs = SocialApiFetchParamCreator.getFileComments(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json();
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+    /**
+     *
+     * @summary Get all events of the user after a given time
+     * @param userID
+     * @param afterTime Use last login time for default.
+     */
+    getUserEvents(params: { 'userID': number; 'afterTime'?: Date;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Event>> {
+        const fetchArgs = SocialApiFetchParamCreator.getUserEvents(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json();
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+    /**
+     *
+     * @summary Get all followers of the user
+     * @param id
+     */
+    getUserFollower(params: { 'id': number;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<number>> {
+        const fetchArgs = SocialApiFetchParamCreator.getUserFollower(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json();
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+    /**
+     *
+     * @summary Get all followings of the user
+     * @param id
+     */
+    getUserFollowing(params: { 'id': number;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<number>> {
+        const fetchArgs = SocialApiFetchParamCreator.getUserFollowing(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json();
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+    /**
+     *
+     * @summary Post new comment about the file
+     * @param body
+     */
+    postComment(params: { 'body': Comment;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Comment>> {
+        const fetchArgs = SocialApiFetchParamCreator.postComment(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json();
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+    /**
+     *
+     * @summary Unfollow another user
+     * @param id
+     * @param othersID
+     */
+    unfollowUser(params: { 'id': number; 'othersID': number;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+        const fetchArgs = SocialApiFetchParamCreator.unfollowUser(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+};
+
+/**
+ * SocialApi - object-oriented interface
+ */
+export class SocialApi extends BaseAPI {
+    /**
+     *
+     * @summary Delete the comment
+     * @param id Comment id
+     */
+    deleteComment(params: {  'id': number; }, options?: any) {
+        return SocialApiFp.deleteComment(params, options)(this.fetch, this.basePath);
+    }
+    /**
+     *
+     * @summary Follow another user
+     * @param id
+     * @param othersID
+     */
+    followUser(params: {  'id': number; 'othersID': number; }, options?: any) {
+        return SocialApiFp.followUser(params, options)(this.fetch, this.basePath);
+    }
+    /**
+     *
+     * @summary Get all comments about the file
+     * @param fileID File id
+     * @param type Comment type
+     */
+    getFileComments(params: {  'fileID': string; 'type'?: string; }, options?: any) {
+        return SocialApiFp.getFileComments(params, options)(this.fetch, this.basePath);
+    }
+    /**
+     *
+     * @summary Get all events of the user after a given time
+     * @param userID
+     * @param afterTime Use last login time for default.
+     */
+    getUserEvents(params: {  'userID': number; 'afterTime'?: Date; }, options?: any) {
+        return SocialApiFp.getUserEvents(params, options)(this.fetch, this.basePath);
+    }
+    /**
+     *
+     * @summary Get all followers of the user
+     * @param id
+     */
+    getUserFollower(params: {  'id': number; }, options?: any) {
+        return SocialApiFp.getUserFollower(params, options)(this.fetch, this.basePath);
+    }
+    /**
+     *
+     * @summary Get all followings of the user
+     * @param id
+     */
+    getUserFollowing(params: {  'id': number; }, options?: any) {
+        return SocialApiFp.getUserFollowing(params, options)(this.fetch, this.basePath);
+    }
+    /**
+     *
+     * @summary Post new comment about the file
+     * @param body
+     */
+    postComment(params: {  'body': Comment; }, options?: any) {
+        return SocialApiFp.postComment(params, options)(this.fetch, this.basePath);
+    }
+    /**
+     *
+     * @summary Unfollow another user
+     * @param id
+     * @param othersID
+     */
+    unfollowUser(params: {  'id': number; 'othersID': number; }, options?: any) {
+        return SocialApiFp.unfollowUser(params, options)(this.fetch, this.basePath);
+    }
+}
+
+/**
+ * SocialApi - factory interface
+ */
+export const SocialApiFactory = function (fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         *
+         * @summary Delete the comment
+         * @param id Comment id
+         */
+        deleteComment(params: {  'id': number; }, options?: any) {
+            return SocialApiFp.deleteComment(params, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @summary Follow another user
+         * @param id
+         * @param othersID
+         */
+        followUser(params: {  'id': number; 'othersID': number; }, options?: any) {
+            return SocialApiFp.followUser(params, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @summary Get all comments about the file
+         * @param fileID File id
+         * @param type Comment type
+         */
+        getFileComments(params: {  'fileID': string; 'type'?: string; }, options?: any) {
+            return SocialApiFp.getFileComments(params, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @summary Get all events of the user after a given time
+         * @param userID
+         * @param afterTime Use last login time for default.
+         */
+        getUserEvents(params: {  'userID': number; 'afterTime'?: Date; }, options?: any) {
+            return SocialApiFp.getUserEvents(params, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @summary Get all followers of the user
+         * @param id
+         */
+        getUserFollower(params: {  'id': number; }, options?: any) {
+            return SocialApiFp.getUserFollower(params, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @summary Get all followings of the user
+         * @param id
+         */
+        getUserFollowing(params: {  'id': number; }, options?: any) {
+            return SocialApiFp.getUserFollowing(params, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @summary Post new comment about the file
+         * @param body
+         */
+        postComment(params: {  'body': Comment; }, options?: any) {
+            return SocialApiFp.postComment(params, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @summary Unfollow another user
+         * @param id
+         * @param othersID
+         */
+        unfollowUser(params: {  'id': number; 'othersID': number; }, options?: any) {
+            return SocialApiFp.unfollowUser(params, options)(fetch, basePath);
+        },
+    };
+};
+
+
+/**
  * UserApi - fetch parameter creator
  */
 export const UserApiFetchParamCreator = {
+    /**
+     *
+     * @summary Change user password
+     * @param id
+     * @param oldPassword
+     * @param newPassword
+     */
+    changeUserPassword(params: {  'id': number; 'oldPassword': string; 'newPassword': string; }, options?: any): FetchArgs {
+        // verify required parameter "id" is set
+        if (params['id'] == null) {
+            throw new Error('Missing required parameter id when calling changeUserPassword');
+        }
+        // verify required parameter "oldPassword" is set
+        if (params['oldPassword'] == null) {
+            throw new Error('Missing required parameter oldPassword when calling changeUserPassword');
+        }
+        // verify required parameter "newPassword" is set
+        if (params['newPassword'] == null) {
+            throw new Error('Missing required parameter newPassword when calling changeUserPassword');
+        }
+        const baseUrl = `/user/{id}/password`
+            .replace(`{${'id'}}`, `${ params['id'] }`);
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'POST' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        contentTypeHeader = { 'Content-Type': 'application/x-www-form-urlencoded' };
+        fetchOptions.body = querystring.stringify({
+            'oldPassword': params['oldPassword'],
+            'newPassword': params['newPassword'],
+        });
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
     /**
      * 管理员用户创建新用户
      * @summary Create user
@@ -902,7 +1538,31 @@ export const UserApiFetchParamCreator = {
     },
     /**
      *
-     * @summary Get user by user name
+     * @summary Get user avatar image
+     * @param id
+     */
+    getUserAvatar(params: {  'id': number; }, options?: any): FetchArgs {
+        // verify required parameter "id" is set
+        if (params['id'] == null) {
+            throw new Error('Missing required parameter id when calling getUserAvatar');
+        }
+        const baseUrl = `/user/{id}/avatar`
+            .replace(`{${'id'}}`, `${ params['id'] }`);
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'GET' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+    /**
+     *
+     * @summary Get user by ID
      * @param id
      */
     getUserByName(params: {  'id': number; }, options?: any): FetchArgs {
@@ -926,7 +1586,7 @@ export const UserApiFetchParamCreator = {
     },
     /**
      *
-     * @summary Logs user into the system
+     * @summary Logs user into the system. Return a token.
      * @param username The user name for login
      * @param password The password for login in clear text
      */
@@ -945,7 +1605,7 @@ export const UserApiFetchParamCreator = {
             'username': params['username'],
             'password': params['password'],
         });
-        let fetchOptions: RequestInit = assign({}, { method: 'GET' }, options);
+        let fetchOptions: RequestInit = assign({}, { method: 'POST' }, options);
 
         let contentTypeHeader: Dictionary<string> = {};
         if (contentTypeHeader) {
@@ -976,7 +1636,7 @@ export const UserApiFetchParamCreator = {
     },
     /**
      * 游客自助注册用户
-     * @summary Signup user
+     * @summary Signup user. Return a token.
      * @param body
      */
     signupUser(params: {  'body': Body; }, options?: any): FetchArgs {
@@ -1003,7 +1663,7 @@ export const UserApiFetchParamCreator = {
     },
     /**
      * This can only be done by the logged in user.
-     * @summary Updated user
+     * @summary Update user
      * @param id
      * @param body Updated user object
      */
@@ -1034,12 +1694,60 @@ export const UserApiFetchParamCreator = {
             options: fetchOptions,
         };
     },
+    /**
+     *
+     * @summary Upload user avatar image
+     * @param id
+     * @param file The image to upload.
+     */
+    uploadUserAvatar(params: {  'id': number; 'file'?: any; }, options?: any): FetchArgs {
+        // verify required parameter "id" is set
+        if (params['id'] == null) {
+            throw new Error('Missing required parameter id when calling uploadUserAvatar');
+        }
+        const baseUrl = `/user/{id}/avatar`
+            .replace(`{${'id'}}`, `${ params['id'] }`);
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'POST' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        contentTypeHeader = { 'Content-Type': 'application/x-www-form-urlencoded' };
+        fetchOptions.body = querystring.stringify({
+            'file': params['file'],
+        });
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
 };
 
 /**
  * UserApi - functional programming interface
  */
 export const UserApiFp = {
+    /**
+     *
+     * @summary Change user password
+     * @param id
+     * @param oldPassword
+     * @param newPassword
+     */
+    changeUserPassword(params: { 'id': number; 'oldPassword': string; 'newPassword': string;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+        const fetchArgs = UserApiFetchParamCreator.changeUserPassword(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
     /**
      * 管理员用户创建新用户
      * @summary Create user
@@ -1094,7 +1802,24 @@ export const UserApiFp = {
     },
     /**
      *
-     * @summary Get user by user name
+     * @summary Get user avatar image
+     * @param id
+     */
+    getUserAvatar(params: { 'id': number;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+        const fetchArgs = UserApiFetchParamCreator.getUserAvatar(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json();
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+    /**
+     *
+     * @summary Get user by ID
      * @param id
      */
     getUserByName(params: { 'id': number;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<User> {
@@ -1111,7 +1836,7 @@ export const UserApiFp = {
     },
     /**
      *
-     * @summary Logs user into the system
+     * @summary Logs user into the system. Return a token.
      * @param username The user name for login
      * @param password The password for login in clear text
      */
@@ -1145,11 +1870,29 @@ export const UserApiFp = {
     },
     /**
      * 游客自助注册用户
-     * @summary Signup user
+     * @summary Signup user. Return a token.
      * @param body
      */
-    signupUser(params: { 'body': Body;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+    signupUser(params: { 'body': Body;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<string> {
         const fetchArgs = UserApiFetchParamCreator.signupUser(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json();
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+    /**
+     * This can only be done by the logged in user.
+     * @summary Update user
+     * @param id
+     * @param body Updated user object
+     */
+    updateUser(params: { 'id': number; 'body': User;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+        const fetchArgs = UserApiFetchParamCreator.updateUser(params, options);
         return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
             return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -1161,13 +1904,13 @@ export const UserApiFp = {
         };
     },
     /**
-     * This can only be done by the logged in user.
-     * @summary Updated user
+     *
+     * @summary Upload user avatar image
      * @param id
-     * @param body Updated user object
+     * @param file The image to upload.
      */
-    updateUser(params: { 'id': number; 'body': User;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
-        const fetchArgs = UserApiFetchParamCreator.updateUser(params, options);
+    uploadUserAvatar(params: { 'id': number; 'file'?: any;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+        const fetchArgs = UserApiFetchParamCreator.uploadUserAvatar(params, options);
         return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
             return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -1184,6 +1927,16 @@ export const UserApiFp = {
  * UserApi - object-oriented interface
  */
 export class UserApi extends BaseAPI {
+    /**
+     *
+     * @summary Change user password
+     * @param id
+     * @param oldPassword
+     * @param newPassword
+     */
+    changeUserPassword(params: {  'id': number; 'oldPassword': string; 'newPassword': string; }, options?: any) {
+        return UserApiFp.changeUserPassword(params, options)(this.fetch, this.basePath);
+    }
     /**
      * 管理员用户创建新用户
      * @summary Create user
@@ -1211,7 +1964,15 @@ export class UserApi extends BaseAPI {
     }
     /**
      *
-     * @summary Get user by user name
+     * @summary Get user avatar image
+     * @param id
+     */
+    getUserAvatar(params: {  'id': number; }, options?: any) {
+        return UserApiFp.getUserAvatar(params, options)(this.fetch, this.basePath);
+    }
+    /**
+     *
+     * @summary Get user by ID
      * @param id
      */
     getUserByName(params: {  'id': number; }, options?: any) {
@@ -1219,7 +1980,7 @@ export class UserApi extends BaseAPI {
     }
     /**
      *
-     * @summary Logs user into the system
+     * @summary Logs user into the system. Return a token.
      * @param username The user name for login
      * @param password The password for login in clear text
      */
@@ -1235,7 +1996,7 @@ export class UserApi extends BaseAPI {
     }
     /**
      * 游客自助注册用户
-     * @summary Signup user
+     * @summary Signup user. Return a token.
      * @param body
      */
     signupUser(params: {  'body': Body; }, options?: any) {
@@ -1243,12 +2004,21 @@ export class UserApi extends BaseAPI {
     }
     /**
      * This can only be done by the logged in user.
-     * @summary Updated user
+     * @summary Update user
      * @param id
      * @param body Updated user object
      */
     updateUser(params: {  'id': number; 'body': User; }, options?: any) {
         return UserApiFp.updateUser(params, options)(this.fetch, this.basePath);
+    }
+    /**
+     *
+     * @summary Upload user avatar image
+     * @param id
+     * @param file The image to upload.
+     */
+    uploadUserAvatar(params: {  'id': number; 'file'?: any; }, options?: any) {
+        return UserApiFp.uploadUserAvatar(params, options)(this.fetch, this.basePath);
     }
 }
 
@@ -1257,6 +2027,16 @@ export class UserApi extends BaseAPI {
  */
 export const UserApiFactory = function (fetch?: FetchAPI, basePath?: string) {
     return {
+        /**
+         *
+         * @summary Change user password
+         * @param id
+         * @param oldPassword
+         * @param newPassword
+         */
+        changeUserPassword(params: {  'id': number; 'oldPassword': string; 'newPassword': string; }, options?: any) {
+            return UserApiFp.changeUserPassword(params, options)(fetch, basePath);
+        },
         /**
          * 管理员用户创建新用户
          * @summary Create user
@@ -1284,7 +2064,15 @@ export const UserApiFactory = function (fetch?: FetchAPI, basePath?: string) {
         },
         /**
          *
-         * @summary Get user by user name
+         * @summary Get user avatar image
+         * @param id
+         */
+        getUserAvatar(params: {  'id': number; }, options?: any) {
+            return UserApiFp.getUserAvatar(params, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @summary Get user by ID
          * @param id
          */
         getUserByName(params: {  'id': number; }, options?: any) {
@@ -1292,7 +2080,7 @@ export const UserApiFactory = function (fetch?: FetchAPI, basePath?: string) {
         },
         /**
          *
-         * @summary Logs user into the system
+         * @summary Logs user into the system. Return a token.
          * @param username The user name for login
          * @param password The password for login in clear text
          */
@@ -1308,7 +2096,7 @@ export const UserApiFactory = function (fetch?: FetchAPI, basePath?: string) {
         },
         /**
          * 游客自助注册用户
-         * @summary Signup user
+         * @summary Signup user. Return a token.
          * @param body
          */
         signupUser(params: {  'body': Body; }, options?: any) {
@@ -1316,12 +2104,21 @@ export const UserApiFactory = function (fetch?: FetchAPI, basePath?: string) {
         },
         /**
          * This can only be done by the logged in user.
-         * @summary Updated user
+         * @summary Update user
          * @param id
          * @param body Updated user object
          */
         updateUser(params: {  'id': number; 'body': User; }, options?: any) {
             return UserApiFp.updateUser(params, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @summary Upload user avatar image
+         * @param id
+         * @param file The image to upload.
+         */
+        uploadUserAvatar(params: {  'id': number; 'file'?: any; }, options?: any) {
+            return UserApiFp.uploadUserAvatar(params, options)(fetch, basePath);
         },
     };
 };
