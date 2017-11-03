@@ -30,17 +30,21 @@
   </b-form>
 
   <!-- 修改密码弹窗 -->
-  <b-modal id="password-modal" title="修改密码" hide-footer>
+  <b-modal ref="password_modal" id="password-modal" title="修改密码" hide-footer @show="onPasswordModalShow">
     <b-form @submit="onSubmitPassword">
 
       <b-form-group label="旧密码" label-for="oldpwInput1">
         <b-form-input id="oldpwInput1" :type="passwordInputType" v-model="oldPassword1"></b-form-input>
       </b-form-group>
-      <b-form-group label="旧密码" label-for="oldpwInput2">
-        <b-form-input id="oldpwInput2" :type="passwordInputType" v-model="oldPassword2"></b-form-input>
+      <b-form-group label="旧密码" label-for="oldpwInput2" :description="oldPasswordError">
+        <b-form-input id="oldpwInput2" :type="passwordInputType" v-model="oldPassword2"
+                      :state="oldPasswordState"
+        ></b-form-input>
       </b-form-group>
-      <b-form-group label="新密码" label-for="newpwInput">
-        <b-form-input id="newpwInput" :type="passwordInputType" v-model="newPassword"></b-form-input>
+      <b-form-group label="新密码" label-for="newpwInput" :description="newPasswordError">
+        <b-form-input id="newpwInput" :type="passwordInputType" v-model="newPassword"
+                      :state="newPasswordState"
+        ></b-form-input>
       </b-form-group>
 
       <b-button type="submit" variant="primary">确定</b-button>
