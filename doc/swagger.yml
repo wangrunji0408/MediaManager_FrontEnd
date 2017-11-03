@@ -36,6 +36,11 @@ securityDefinitions:
     type: apiKey
     in: header
     name: Authorization
+  basicAuth:
+    type: basic
+security:
+  - APIKeyHeader: []
+  - basicAuth: []
 paths:
   /user:
     post:
@@ -98,6 +103,7 @@ paths:
       summary: "Signup user. Return a token."
       description: "游客自助注册用户"
       operationId: "signupUser"
+      security: []
       produces:
       - "application/xml"
       - "application/json"
@@ -133,6 +139,7 @@ paths:
       summary: "Logs user into the system. Return a token."
       description: ""
       operationId: "loginUser"
+      security: []
       produces:
       - "application/xml"
       - "application/json"
@@ -188,7 +195,7 @@ paths:
     get:
       tags:
       - "user"
-      summary: "Get user by user name"
+      summary: "Get user by ID"
       description: ""
       operationId: "getUserByName"
       produces:
@@ -313,6 +320,8 @@ paths:
       produces:
       - "application/xml"
       - "application/json"
+      consumes:
+      - "application/x-www-form-urlencoded"
       parameters:
       - name: "id"
         in: "path"
@@ -405,7 +414,7 @@ paths:
     put:
       tags:
       - "group"
-      summary: "Updated group"
+      summary: "Update group"
       operationId: "updateUserGroup"
       produces:
       - "application/xml"
@@ -893,6 +902,9 @@ definitions:
     properties:
       id:
         type: "string"
+      ownerID:
+        type: "integer"
+        format: "int64"
       isDir:
         type: "boolean"
       name:
@@ -933,6 +945,10 @@ definitions:
         format: "int64"
       name:
         type: "string"
+      color:
+        type: "string"
+        format: "color"
+        description: "like: #FF9900"
     xml:
       name: "UserGroup"
   User:
@@ -972,6 +988,7 @@ definitions:
         type: "string"
       color:
         type: "string"
+        format: "color"
     xml:
       name: "FileTag"
   Comment:

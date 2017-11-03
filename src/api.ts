@@ -78,6 +78,7 @@ export class Event {
 
 export class File {
     'id'?: string;
+    'ownerID'?: number;
     'isDir'?: boolean;
     /**
      * 文件名
@@ -129,6 +130,10 @@ export class User {
 export class UserGroup {
     'id'?: number;
     'name'?: string;
+    /**
+     * like: #FF9900
+     */
+    'color'?: string;
 }
 
 
@@ -676,7 +681,7 @@ export const GroupApiFetchParamCreator = {
     },
     /**
      *
-     * @summary Updated group
+     * @summary Update group
      * @param id
      * @param body Updated group object
      */
@@ -782,7 +787,7 @@ export const GroupApiFp = {
     },
     /**
      *
-     * @summary Updated group
+     * @summary Update group
      * @param id
      * @param body Updated group object
      */
@@ -837,7 +842,7 @@ export class GroupApi extends BaseAPI {
     }
     /**
      *
-     * @summary Updated group
+     * @summary Update group
      * @param id
      * @param body Updated group object
      */
@@ -884,7 +889,7 @@ export const GroupApiFactory = function (fetch?: FetchAPI, basePath?: string) {
         },
         /**
          *
-         * @summary Updated group
+         * @summary Update group
          * @param id
          * @param body Updated group object
          */
@@ -1557,7 +1562,7 @@ export const UserApiFetchParamCreator = {
     },
     /**
      *
-     * @summary Get user by user name
+     * @summary Get user by ID
      * @param id
      */
     getUserByName(params: {  'id': number; }, options?: any): FetchArgs {
@@ -1814,7 +1819,7 @@ export const UserApiFp = {
     },
     /**
      *
-     * @summary Get user by user name
+     * @summary Get user by ID
      * @param id
      */
     getUserByName(params: { 'id': number;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<User> {
@@ -1967,7 +1972,7 @@ export class UserApi extends BaseAPI {
     }
     /**
      *
-     * @summary Get user by user name
+     * @summary Get user by ID
      * @param id
      */
     getUserByName(params: {  'id': number; }, options?: any) {
@@ -2067,7 +2072,7 @@ export const UserApiFactory = function (fetch?: FetchAPI, basePath?: string) {
         },
         /**
          *
-         * @summary Get user by user name
+         * @summary Get user by ID
          * @param id
          */
         getUserByName(params: {  'id': number; }, options?: any) {
