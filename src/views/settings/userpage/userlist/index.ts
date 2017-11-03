@@ -1,8 +1,8 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import {GroupApi, User, UserApi, UserGroup} from '../../../../api';
+import {User, UserApi, UserGroup} from '../../../../api';
 import {GroupDropdown} from '../../../../components/group_dropdown';
-import {testString, inGroup} from '../util';
+import {testString, inGroups} from '../util';
 
 class UserModel extends User {
   renaming: boolean = false;
@@ -20,9 +20,11 @@ export class UserList extends Vue {
 
   get filter() {
     let gf = this.groupFilter;
+    if (gf.length === 0)    // null is all
+      gf = this.allGroups;
     let nf = this.nameFilter;
     return (user: User) =>
-      inGroup(user, gf) && testString(user.username, nf);
+      inGroups(user, gf) && testString(user.username, nf);
   }
 
   sortBy: string = '';
@@ -36,10 +38,10 @@ export class UserList extends Vue {
 
   modalDetails: { index, data } = {index: '', data: ''};
 
-  get groupFilter() {
-    return this.$route.query['group'];
-  }
+  groupFilter: UserGroup[] = [];
   nameFilter: string = '';
+
+  selectAll: boolean = false;
 
   ////////// Data //////////
 

@@ -1,4 +1,4 @@
-import {User} from '../../../api';
+import {User, UserGroup} from '../../../api';
 
 export function testString(str: string, pattern: string): boolean {
   return str.match(pattern) != null;
@@ -7,4 +7,11 @@ export function testString(str: string, pattern: string): boolean {
 export function inGroup(user: User, group: string): boolean {
   return !group || group === '*'
     || user.groups.find(g => g.name === group) != null;
+}
+
+export function inGroups(user: User, groups: UserGroup[]): boolean {
+  for (let group of groups)
+    if (user.groups.find(g => g.id === group.id) != null)
+      return true;
+  return false;
 }
