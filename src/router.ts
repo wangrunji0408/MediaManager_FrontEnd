@@ -25,7 +25,7 @@ let router = new VueRouter({
 router.beforeEach((to, from, next) => {
   // if (to.meta.requireAuth) {  // 判断该路由是否需要登录权限
   if (to.path !== '/login' && to.path !== '/signup') {
-    if (store.state.token) {  // 通过vuex state获取当前的token是否存在
+    if (store.state.authOpt) {  // 通过vuex state获取当前的token是否存在
       next();
     }
     else {

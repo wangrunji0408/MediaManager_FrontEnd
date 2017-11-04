@@ -6,12 +6,7 @@ import {router} from './router';
 // http request 拦截器
 axios.interceptors.request.use(
   config => {
-    if (store.state.authType === 'basic' && store.state.basicAuthToken != null) {
-      config.headers.Authorization = `Basic ${store.state.basicAuthToken}`;
-    } else if (store.state.authType === 'token' && store.state.token != null) {
-      // 判断是否存在token，如果存在的话，则每个http header都加上token
-      config.headers.Authorization = `Token ${store.state.token}`;
-    }
+    config.headers.Authorization = store.state.authOpt;
     return config;
   },
   err => {

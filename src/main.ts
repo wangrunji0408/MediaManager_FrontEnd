@@ -20,6 +20,8 @@ import { NavbarComponent } from './views/navbar';
 import {store} from './store';
 import {router} from './router';
 
+store.commit('recoverAuth');
+
 new Vue({
   el: '#app-main',
   store,

@@ -35,7 +35,7 @@ export class BaseAPI {
         this.basePath = basePath;
         this.fetch = (url: string, init?: any): Promise<any> => {
           // Add auth header
-          return fetch(url, assign(init, store.state.opt));
+          return fetch(url, assign(init, store.state.authOpt));
         };
     }
 }

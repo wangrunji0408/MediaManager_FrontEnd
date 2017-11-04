@@ -10,6 +10,8 @@ export function inGroup(user: User, group: string): boolean {
 }
 
 export function inGroups(user: User, groups: UserGroup[]): boolean {
+  if (groups.length === 0)
+    return true;
   for (let group of groups)
     if (user.groups.find(g => g.id === group.id) != null)
       return true;
