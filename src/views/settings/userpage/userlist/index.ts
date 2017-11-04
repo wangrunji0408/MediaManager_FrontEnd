@@ -71,14 +71,7 @@ export class UserList extends Vue {
   async renameDone() {
     let item = this.renameTarget;
     item.username = this.newName;
-    try {
-      let rsp = await new UserApi().updateUser({id: item.id, body: item});
-      (this as any).$message({message: '重命名成功', type: 'success'});
-    } catch (e) {
-      (this as any).$message({message: '重命名失败', type: 'error'});
-      return;
-    }
-    await this.$emit('fetch');
+    await this.updateUser(item);
   }
 
   ////////// Delete //////////
@@ -125,14 +118,32 @@ export class UserList extends Vue {
   async changePasswordDone() {
     let item = this.target;
     item.password = this.newPassword;
+    await this.updateUser(item);
+  }
+
+  ////////// Update User //////////
+
+  async updateUser(user: User) {
     try {
-      let rsp = await new UserApi().updateUser({id: item.id, body: item});
-      this.$message.success('修改密码成功');
+      let rsp = await new UserApi().updateUser({id: user.id, body: user});
+      this.$message.success('修改信息成功');
     } catch (e) {
-      this.$message.error('修改密码失败');
+      this.$message.error('修改信息失败');
       return;
     }
-    await this.$emit('fetch');
+    this.$emit('fetch');
+  }
+
+  async updateAll() {
+    try {
+      for (let user of this.users)
+        await new UserApi().updateUser({id: user.id, body: user});
+      this.$message.success('修改信息成功');
+    } catch (e) {
+      this.$message.error('修改信息失败');
+      return;
+    }
+    this.$emit('fetch');
   }
 
 }
