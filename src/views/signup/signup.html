@@ -1,0 +1,32 @@
+<div class="container">
+  <div class="row">
+    <div class="offset-md-3 col-md-6">
+      <!--TODO 批量设置style-->
+      <div class="input-group">
+        <span class="input-group-addon" style="width: 40px"><i class="fa fa-user"></i></span>
+        <input type="text" class="form-control" placeholder="用户名" name="username" v-model="username" required>
+      </div>
+      <div class="input-group">
+        <span class="input-group-addon" style="width: 40px"><i class="fa fa-envelope"></i></span>
+        <input type="email" class="form-control" placeholder="邮箱" name="email" v-model="email" required>
+      </div>
+      <div class="input-group">
+        <span class="input-group-addon" style="width: 40px"><i class="fa fa-phone"></i></span>
+        <input type="text" class="form-control" placeholder="联系方式" name="phone" v-model="phone" required>
+      </div>
+      <div class="input-group">
+        <span class="input-group-addon" style="width: 40px"><i class="fa fa-lock"></i></span>
+        <input v-bind:type=" show_password? 'text': 'password' " class="form-control" placeholder="密  码" name="password" v-model="password" required>
+        <span class="input-group-btn">
+          <button class="btn btn-primary" v-on:click="switch_show_password">
+            {{ show_password? '隐藏密码' : '显示密码' }}
+          </button>
+        </span>
+      </div>
+      <hr>
+      <div class="input-group">
+        <button type="submit" class="btn btn-success btn-block" @click="signup">注册</button>
+      </div>
+    </div>
+  </div>
+</div>

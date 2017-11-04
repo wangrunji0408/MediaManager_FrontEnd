@@ -1,0 +1,22 @@
+<div class="container">
+  <div class="row">
+    <div class="offset-md-4 col-md-4">
+      <div class="input-group input-group-lg">
+        <span class="input-group-addon"><i class="fa fa-user"></i></span>
+        <input type="text" class="form-control" placeholder="用户名" name="username" v-model="username">
+      </div>
+      <div class="input-group input-group-lg">
+        <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+        <input type="password" class="form-control" placeholder="密  码" name="password" v-model="password">
+      </div>
+      <hr>
+      <div class="input-group input-group-lg">
+        <button type="submit" class="btn btn-primary btn-block" @click="login">登录</button>
+      </div>
+      <hr>
+      <div class="input-group input-group-lg">
+        <b-button type="submit" class="btn btn-info btn-block" to="/signup">去注册</b-button>
+      </div>
+    </div>
+  </div>
+</div>

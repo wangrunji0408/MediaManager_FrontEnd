@@ -1,11 +1,4 @@
-# WebAPI 描述文件
-
-# 打开在线编辑器 https://editor.swagger.io/
-# 把全文复制到左侧编辑器中
-
-# Author: 王润基
-# Created: 2017.10.15
-
+---
 swagger: "2.0"
 info:
   description: ""
@@ -30,19 +23,41 @@ tags:
   description: "Operations about social"
 schemes:
 - "http"
-securityDefinitions:
-  # Authorization: Token ...
-  APIKeyHeader:
-    type: apiKey
-    in: header
-    name: Authorization
-  basicAuth:
-    type: basic
-security:
-  - APIKeyHeader: []
-  - basicAuth: []
 paths:
   /user:
+    get:
+      tags:
+      - "user"
+      summary: "Get user by query"
+      description: "搜索用户"
+      operationId: "getUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "query"
+        description: "User name regex"
+        required: false
+        type: "string"
+      - name: "group"
+        in: "query"
+        description: "User group id"
+        required: false
+        type: "integer"
+        format: "int64"
+      responses:
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+        default:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/User"
+      x-swagger-router-controller: "User"
     post:
       tags:
       - "user"
@@ -60,42 +75,13 @@ paths:
         schema:
           $ref: "#/definitions/User"
       responses:
-        default:
-          description: "successful operation"
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
-    get:
-      tags:
-      - "user"
-      summary: "Get user by query"
-      description: "搜索用户"
-      operationId: "getUser"
-      produces:
-      - "application/xml"
-      - "application/json"
-      parameters:
-      - name: "name"
-        in: "query"
-        description: "User name regex"
-        type: "string"
-      - name: "group"
-        in: "query"
-        description: "User group id"
-        type: "integer"
-        format: "int64"
-      responses:
+            $ref: "#/definitions/ErrorInfo"
         default:
           description: "successful operation"
-          schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/User"
-        400:
-          description: "error"
-          schema:
-            $ref: '#/definitions/ErrorInfo'
+      x-swagger-router-controller: "User"
   /user/signup:
     post:
       tags:
@@ -103,7 +89,6 @@ paths:
       summary: "Signup user. Return a token."
       description: "游客自助注册用户"
       operationId: "signupUser"
-      security: []
       produces:
       - "application/xml"
       - "application/json"
@@ -112,26 +97,18 @@ paths:
         name: "body"
         required: true
         schema:
-          type: "object"
-          properties:
-            username:
-              type: "string"
-            password:
-              type: "string"
-            email:
-              type: "string"
-            phone:
-              type: "string"
+          $ref: "#/definitions/body"
       responses:
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
         default:
           description: "successful operation"
           schema:
             type: "string"
             description: "Token"
-        400:
-          description: "error"
-          schema:
-            $ref: '#/definitions/ErrorInfo'
+      x-swagger-router-controller: "User"
   /user/login:
     post:
       tags:
@@ -139,20 +116,17 @@ paths:
       summary: "Logs user into the system. Return a token."
       description: ""
       operationId: "loginUser"
-      security: []
       produces:
       - "application/xml"
       - "application/json"
-      consumes:
-      - "application/x-www-form-urlencoded"
       parameters:
       - name: "username"
-        in: "formData"
+        in: "query"
         description: "The user name for login"
         required: true
         type: "string"
       - name: "password"
-        in: "formData"
+        in: "query"
         description: "The password for login in clear text"
         required: true
         type: "string"
@@ -174,7 +148,8 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "User"
   /user/logout:
     get:
       tags:
@@ -187,17 +162,18 @@ paths:
       - "application/json"
       parameters: []
       responses:
-        default:
-          description: "successful operation"
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+        default:
+          description: "successful operation"
+      x-swagger-router-controller: "User"
   /user/{id}:
     get:
       tags:
       - "user"
-      summary: "Get user by ID"
+      summary: "Get user by user name"
       description: ""
       operationId: "getUserByName"
       produces:
@@ -216,7 +192,8 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "User"
     put:
       tags:
       - "user"
@@ -243,7 +220,8 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "User"
     delete:
       tags:
       - "user"
@@ -264,7 +242,8 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "User"
   /user/{id}/avatar:
     get:
       tags:
@@ -282,37 +261,40 @@ paths:
         200:
           description: "successful operation"
           schema:
-            type: file
+            type: "file"
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "User"
     post:
       tags:
       - "user"
       summary: "Upload user avatar image"
       operationId: "uploadUserAvatar"
+      consumes:
+      - "multipart/form-data"
       produces:
       - "application/xml"
       - "application/json"
-      consumes:
-      - "multipart/form-data"
       parameters:
       - name: "id"
         in: "path"
         required: true
         type: "integer"
-      - in: formData
-        name: file
-        type: file
-        description: The image to upload.
+      - name: "file"
+        in: "formData"
+        description: "The image to upload."
+        required: false
+        type: "file"
       responses:
         200:
           description: "successful operation"
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "User"
   /user/{id}/password:
     post:
       tags:
@@ -322,8 +304,6 @@ paths:
       produces:
       - "application/xml"
       - "application/json"
-      consumes:
-      - "application/x-www-form-urlencoded"
       parameters:
       - name: "id"
         in: "path"
@@ -343,8 +323,31 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "User"
   /group:
+    get:
+      tags:
+      - "group"
+      summary: "Get all user groups"
+      description: ""
+      operationId: "getUserGroups"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters: []
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/UserGroup"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Group"
     post:
       tags:
       - "group"
@@ -367,27 +370,8 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
-    get:
-      tags:
-      - "group"
-      summary: "Get all user groups"
-      description: ""
-      operationId: "getUserGroups"
-      produces:
-      - "application/xml"
-      - "application/json"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/UserGroup"
-        400:
-          description: "error"
-          schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Group"
   /group/{id}:
     get:
       tags:
@@ -412,11 +396,12 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Group"
     put:
       tags:
       - "group"
-      summary: "Update group"
+      summary: "Updated group"
       operationId: "updateUserGroup"
       produces:
       - "application/xml"
@@ -439,7 +424,8 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Group"
     delete:
       tags:
       - "group"
@@ -461,8 +447,50 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Group"
   /file:
+    get:
+      tags:
+      - "file"
+      summary: "Get file infos by query"
+      description: "Used for searching files"
+      operationId: "getFiles"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "path"
+        in: "query"
+        description: "File path. Regex."
+        required: false
+        type: "string"
+        default: ".*"
+      - name: "name"
+        in: "query"
+        description: "File name. Regex."
+        required: false
+        type: "string"
+        default: ".*"
+      - name: "tags"
+        in: "query"
+        description: "File tags"
+        required: false
+        type: "array"
+        items:
+          type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/File"
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "File"
     post:
       tags:
       - "file"
@@ -477,96 +505,22 @@ paths:
         name: "body"
         required: true
         schema:
-          type: "object"
-          properties:
-            path:
-              type: "string"
-            name:
-              type: "string"
-            isDir:
-              type: "boolean"
+          $ref: "#/definitions/body_1"
       responses:
+        400:
+          description: "error"
+          schema:
+            $ref: "#/definitions/ErrorInfo"
         default:
           description: "successful operation"
-        400:
-          description: "error"
-          schema:
-            $ref: '#/definitions/ErrorInfo'
-    get:
-      tags:
-      - "file"
-      summary: "Get file infos by query"
-      description: "Used for searching files"
-      operationId: "getFiles"
-      produces:
-      - "application/xml"
-      - "application/json"
-      parameters:
-      - name: "path"
-        in: "query"
-        description: "File path. Regex."
-        type: "string"
-        default: ".*"
-      - name: "name"
-        in: "query"
-        description: "File name. Regex."
-        type: "string"
-        default: ".*"
-      - name: "tags"
-        in: "query"
-        description: "File tags"
-        type: "array"
-        items:
-          type: "string"
-      # 暂时不实现排序和分页
-      # - name: "orderby"
-      #   in: "query"
-      #   description: "Orderby = name / size / modifyDate"
-      #   type: "string"
-      #   enum:
-      #   - "name"
-      #   - "modifyDate"
-      # - name: "order"
-      #   in: "query"
-      #   description: "ascending / descending"
-      #   type: "string"
-      #   enum:
-      #   - "ascending"
-      #   - "descending"
-      #   default: "ascending"
-      # - name: "page"
-      #   in: "query"
-      #   description: "Page number. Begin from 1."
-      #   type: "integer"
-      # - name: "pagesize"
-      #   in: "query"
-      #   description: "Page size. Default = 10."
-      #   type: "integer"
-      #   default: 10
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/File"
-        400:
-          description: "error"
-          schema:
-            $ref: '#/definitions/ErrorInfo'
+      x-swagger-router-controller: "File"
     patch:
       tags:
       - "file"
       summary: "Do some commands on files."
-      description:
-        "这个接口用于对一些文件进行一些操作。\n
-        对每个文件， id 属性外 \n
-        通过提供对应属性的新值来指示进行哪些操作：\n
-        * 重命名 name \n
-        * 移动位置 path \n
-        * 修改标签 tags \n\n
-        后端需逐条判断是否有值，是否变化，然后进行操作。对其它属性的修改均无效。\n
-        若全部操作成功，则返回200。否则返回400，描述每个失败操作。"
+      description: "这个接口用于对一些文件进行一些操作。\n 对每个文件， id 属性外 \n 通过提供对应属性的新值来指示进行哪些操作：\n\
+        \ * 重命名 name \n * 移动位置 path \n * 修改标签 tags \n\n 后端需逐条判断是否有值，是否变化，然后进行操作。对其\
+        它属性的修改均无效。\n 若全部操作成功，则返回200。否则返回400，描述每个失败操作。"
       operationId: "updateFiles"
       produces:
       - "application/xml"
@@ -586,7 +540,8 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "File"
   /file/{id}:
     get:
       tags:
@@ -600,8 +555,8 @@ paths:
       parameters:
       - name: "id"
         in: "path"
-        required: true
         description: "File id"
+        required: true
         type: "string"
       responses:
         200:
@@ -611,7 +566,8 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "File"
     delete:
       tags:
       - "file"
@@ -624,8 +580,8 @@ paths:
       parameters:
       - name: "id"
         in: "path"
-        required: true
         description: "File id"
+        required: true
         type: "string"
       responses:
         200:
@@ -633,7 +589,8 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "File"
   /file/upload:
     post:
       tags:
@@ -641,20 +598,22 @@ paths:
       summary: "Upload file"
       description: "上传文件"
       operationId: "uploadFile"
+      consumes:
+      - "multipart/form-data"
       produces:
       - "application/xml"
       - "application/json"
-      consumes:
-      - "multipart/form-data"
       parameters:
-      - in: formData
-        name: file
-        type: file
-        description: The file to upload.
-      - in: formData
-        name: path
-        type: string
-        description: Base path
+      - name: "file"
+        in: "formData"
+        description: "The file to upload."
+        required: false
+        type: "file"
+      - name: "path"
+        in: "formData"
+        description: "Base path"
+        required: false
+        type: "string"
       responses:
         200:
           description: "successful operation"
@@ -663,7 +622,8 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "File"
   /file/download/{id}:
     get:
       tags:
@@ -676,8 +636,8 @@ paths:
       parameters:
       - name: "id"
         in: "path"
-        required: true
         description: "File id"
+        required: true
         type: "string"
       responses:
         200:
@@ -685,7 +645,8 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "File"
   /comment:
     get:
       tags:
@@ -698,12 +659,13 @@ paths:
       parameters:
       - name: "fileID"
         in: "query"
-        required: true
         description: "File id"
+        required: true
         type: "string"
       - name: "type"
         in: "query"
         description: "Comment type"
+        required: false
         type: "string"
       responses:
         200:
@@ -711,11 +673,12 @@ paths:
           schema:
             type: "array"
             items:
-              $ref: '#/definitions/Comment'
+              $ref: "#/definitions/Comment"
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Social"
     post:
       tags:
       - "social"
@@ -729,18 +692,19 @@ paths:
         name: "body"
         required: true
         schema:
-          $ref: '#/definitions/Comment'
+          $ref: "#/definitions/Comment"
       responses:
         200:
           description: "successful operation"
           schema:
             type: "array"
             items:
-              $ref: '#/definitions/Comment'
+              $ref: "#/definitions/Comment"
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Social"
   /comment/{id}:
     delete:
       tags:
@@ -753,8 +717,8 @@ paths:
       parameters:
       - name: "id"
         in: "path"
-        required: true
         description: "Comment id"
+        required: true
         type: "integer"
         format: "int64"
       responses:
@@ -763,7 +727,8 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Social"
   /user/{id}/follower:
     get:
       tags:
@@ -790,7 +755,8 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Social"
   /user/{id}/following:
     get:
       tags:
@@ -817,7 +783,8 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Social"
   /user/{id}/following/{othersID}:
     post:
       tags:
@@ -842,7 +809,8 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Social"
     delete:
       tags:
       - "social"
@@ -866,7 +834,8 @@ paths:
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Social"
   /event:
     get:
       tags:
@@ -883,30 +852,33 @@ paths:
         type: "integer"
       - name: "afterTime"
         in: "query"
+        description: "Use last login time for default."
+        required: false
         type: "string"
         format: "date-time"
-        description: "Use last login time for default."
       responses:
         200:
           description: "successful operation"
           schema:
             type: "array"
             items:
-              $ref: '#/definitions/Event'
+              $ref: "#/definitions/Event"
         400:
           description: "error"
           schema:
-            $ref: '#/definitions/ErrorInfo'
-
+            $ref: "#/definitions/ErrorInfo"
+      x-swagger-router-controller: "Social"
+securityDefinitions:
+  APIKeyHeader:
+    type: "apiKey"
+    name: "Authorization"
+    in: "header"
 definitions:
   File:
     type: "object"
     properties:
       id:
         type: "string"
-      ownerID:
-        type: "integer"
-        format: "int64"
       isDir:
         type: "boolean"
       name:
@@ -947,10 +919,6 @@ definitions:
         format: "int64"
       name:
         type: "string"
-      color:
-        type: "string"
-        format: "color"
-        description: "like: #FF9900"
     xml:
       name: "UserGroup"
   User:
@@ -990,7 +958,6 @@ definitions:
         type: "string"
       color:
         type: "string"
-        format: "color"
     xml:
       name: "FileTag"
   Comment:
@@ -1034,10 +1001,32 @@ definitions:
   ErrorInfo:
     type: "object"
     properties:
-      info:
-        type: "string"
+      infos:
+        type: "array"
+        items:
+          type: "string"
     xml:
       name: "ErrorInfo"
+  body:
+    type: "object"
+    properties:
+      username:
+        type: "string"
+      password:
+        type: "string"
+      email:
+        type: "string"
+      phone:
+        type: "string"
+  body_1:
+    type: "object"
+    properties:
+      path:
+        type: "string"
+      name:
+        type: "string"
+      isDir:
+        type: "boolean"
 externalDocs:
   description: "Find out more about Swagger"
   url: "http://swagger.io"

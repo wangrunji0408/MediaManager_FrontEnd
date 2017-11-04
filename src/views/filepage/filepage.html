@@ -1,0 +1,25 @@
+<div class="container-fluid">
+  <div class="row">
+
+    <!-- 左侧导航条 -->
+    <div class="col-sm-3 col-md-2">
+      <b-list-group>
+        <b-list-group-item href="#/file/all"active>All Files</b-list-group-item>
+        <b-list-group-item href="#/file/recent">Recent</b-list-group-item>
+        <b-list-group-item href="#/file/collection">Collection</b-list-group-item>
+        <b-list-group-item href="#/file/recent">Received Shares</b-list-group-item>
+        <b-list-group-item href="#/file/recent">URLs</b-list-group-item>
+        <b-list-group-item href="#/file/recent">Your Shares</b-list-group-item>
+        <b-list-group-item href="#/file/recent">Tags</b-list-group-item>
+        <b-list-group-item href="#/file/recent">Trash Can</b-list-group-item>
+      </b-list-group>
+    </div>
+
+    <!-- 右侧文件列表 -->
+
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+      <router-view></router-view>
+    </div>
+
+  </div>
+</div>

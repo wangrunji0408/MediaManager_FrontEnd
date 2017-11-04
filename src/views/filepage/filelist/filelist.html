@@ -1,0 +1,128 @@
+<div>
+  <!-- 路径 -->
+  <b-breadcrumb :items="pathItems"/>
+
+  <UploadStatus></UploadStatus>
+
+  <div class="row">
+    <!-- 搜索框 -->
+    <div class="col-md-5">
+      <b-form-fieldset horizontal label="Filter" :label-cols="3">
+        <b-form-input v-model="filter" placeholder="Type to Search" />
+      </b-form-fieldset>
+    </div>
+
+    <!-- 按钮组 -->
+    <div class="col-md-5">
+      <b-button variant="danger" @click="deleteBegin(selectedFiles)"><i class="fa fa-trash"></i></b-button>
+      <b-button @click="moveBegin(selectedFiles)"><i class="fa fa-exchange"></i></b-button>
+      <b-button @click="fetchData"><i class="fa fa-refresh"></i></b-button>
+      <b-button v-b-modal.upload-modal><i class="fa fa-upload"></i></b-button>
+      <b-button v-b-modal.dir-modal><i class="fa fa-folder-o"></i></b-button>
+      <b-button v-b-modal.newfile-modal><i class="fa fa-file"></i></b-button>
+    </div>
+  </div>
+
+  <!-- 文件列表 -->
+  <!-- TODO 调整列宽 -->
+  <b-table striped hover
+           :sort-by.sync="sortBy"
+           :sort-desc.sync="sortDesc"
+           :current-page="currentPage"
+           :per-page="perPage"
+           :filter="filter"
+           :items="files"
+           :fields="fields"
+           @filtered="onFiltered"
+           v-loading="isLoading"
+  >
+    <template slot="HEAD_select" scope="row">
+      <b-form-checkbox v-model="selectAll"></b-form-checkbox>
+    </template>
+    <template slot="select" scope="row">
+      <b-form-checkbox v-model="row.item.choice"></b-form-checkbox>
+    </template>
+    <template slot="thumbnails" scope="row">
+      <b-img thumbnail fluid v-bind:src="row.item.thumbnails" width="50" height="50" alt="Thumbnail"></b-img>
+    </template>
+    <template slot="star" scope="row">
+      <span :class="row.item.star? 'fa fa-star' : 'fa fa-star-o'"
+            @click.stop="row.item.star = !row.item.star"></span>
+    </template>
+    <template slot="name" scope="row">
+      <i class="fa fa-file" v-if="!row.item.isDir" @click="open(row.item)"></i>
+      <i class="fa fa-folder" v-if="row.item.isDir" @click="open(row.item)"></i>
+      <b-form-input v-model="row.item.name" type="text" placeholder="File name"
+                    :plaintext="!row.item.renaming" @change="rename_done(row.item)"></b-form-input>
+    </template>
+    <template slot="size" scope="row">{{fileSizeToString(row.value)}}</template>
+    <template slot="modifyDate" scope="row">{{dateToString(row.value)}}</template>
+    <template slot="detail" scope="row">
+      <b-dropdown id="ddown1" text="..." variant="primary" class="m-md-2">
+        <b-dropdown-item aria-describedby="details" @click.stop="showDetail(row.item, row.index)">
+          <i class="fa fa-info-circle" aria-hidden="true"></i>Details
+        </b-dropdown-item>
+        <b-dropdown-item aria-describedby="rename" @click.stop="rename(row.item)">
+          <i class="fa fa-pencil" aria-hidden="true"></i>Rename
+        </b-dropdown-item>
+        <b-dropdown-item aria-describedby="move" @click.stop="moveBegin([row.item])">
+          <i class="fa fa-exchange" aria-hidden="true"></i>Move
+        </b-dropdown-item>
+        <b-dropdown-item aria-describedby="download" v-bind:href="row.item.url">
+          <i class="fa fa-download" aria-hidden="true"></i>Download
+        </b-dropdown-item>
+        <b-dropdown-item aria-describedby="delete" @click.stop="deleteBegin([row.item])">
+          <i class="fa fa-trash" aria-hidden="true"></i></i>Delete
+        </b-dropdown-item>
+      </b-dropdown>
+    </template>
+  </b-table>
+
+  <!-- 页码栏 -->
+  <div class="row">
+    <div class="offset-md-4 col-md-3">
+      <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" />
+    </div>
+  </div>
+
+  <!-- 详细信息弹窗 -->
+  <b-modal id="detail-modal" @hide="resetModal" ok-only>
+    <h4 class="my-1 py-1" slot="modal-header">Index: {{ modalDetails.index }}</h4>
+    <pre>{{ modalDetails.data }}</pre>
+  </b-modal>
+
+  <!-- 确认删除弹窗 -->
+  <b-modal id="delete-modal" size="sm" title="Are you sure to delete?" @ok="deleteFiles">
+    <p v-for="file in targetFiles">{{file.name}}</p>
+  </b-modal>
+
+  <!-- 选择路径弹窗 -->
+  <b-modal id="move-modal" title="选择路径" @ok="moveSelected">
+    <b-form-input v-model="targetPath" type="text" placeholder="Enter target path"></b-form-input>
+  </b-modal>
+
+  <!-- 上传弹窗 -->
+  <b-modal id="upload-modal" title="上传文件" @ok="uploadFiles">
+    <b-form-file v-model="filesToUpload" multiple></b-form-file>
+  </b-modal>
+
+  <!-- 新文件夹弹窗 -->
+  <b-modal id="dir-modal" title="新建文件夹" @ok="createDir" @show="newDirName = ''">
+    <b-form-input v-model="newDirName" type="text" placeholder="新文件夹名称"></b-form-input>
+  </b-modal>
+
+  <!-- 新文件弹窗 -->
+  <b-modal id="newfile-modal" title="新建空白文件" @ok="createFile" @show="newFileName = ''">
+    <b-form-input v-model="newFileName" type="text" placeholder="新文件名称"></b-form-input>
+  </b-modal>
+
+  <!-- 预览弹窗 -->
+  <b-modal id="preview-modal" title="预览">
+    <video v-if="isVideo" controls id="video" style="width: 100%; height: 100%;">
+      <source src="http://www.w3school.com.cn/example/html5/mov_bbb.mp4">
+    </video>
+    <b-img v-if="isImage" src="https://lorempixel.com/1024/400/" style="width: 100%; height: 100%;"></b-img>
+    <b-form-textarea v-if="isText" placeholder="Empty" :rows="3" :max-rows="6"></b-form-textarea>
+  </b-modal>
+
+</div>

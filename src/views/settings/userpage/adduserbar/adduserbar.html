@@ -1,0 +1,17 @@
+<b-form inline @submit="createUser">
+  <b-form-group>
+    <b-form-input v-model="username" type="text" placeholder="用户名" required></b-form-input>
+  </b-form-group>
+  <b-form-group>
+    <b-form-input v-model="password" type="text" placeholder="密码" required></b-form-input>
+  </b-form-group>
+  <b-form-group>
+    <b-form-input v-model="email" type="email" placeholder="Email" required></b-form-input>
+  </b-form-group>
+  <b-form-group>
+    <GroupDropdown class="form-inline" :all="allGroups" v-model="groups"></GroupDropdown>
+  </b-form-group>
+  <b-form-group>
+    <b-btn type="submit" variant="primary">创建用户</b-btn>
+  </b-form-group>
+</b-form>

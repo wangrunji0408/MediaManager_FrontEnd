@@ -1,0 +1,15 @@
+<div class="container-fluid">
+  <!-- 创建用户 -->
+  <AddUserBar :allGroups="allGroups" v-on:fetch="fetchData"></AddUserBar>
+
+  <!-- 创建用户组 -->
+  <b-form inline @submit="addGroup">
+    <b-form-group>
+      <b-form-input v-model="newGroupName" type="text" placeholder="用户组名" required></b-form-input>
+      <b-btn type="submit" variant="primary">创建用户组</b-btn>
+    </b-form-group>
+  </b-form>
+
+  <!-- 用户列表 -->
+  <UserList :users="users" :allGroups="allGroups" v-on:fetch="fetchData"></UserList>
+</div>
