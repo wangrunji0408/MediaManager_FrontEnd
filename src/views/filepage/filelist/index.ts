@@ -12,6 +12,19 @@ class FileModel extends File {
   renaming: boolean = false;
 }
 
+function isVideo(file: File): boolean {
+  if (file == null)  return false;
+  return file.name.endsWith('.avi');
+}
+function isImage(file: File): boolean {
+  if (file == null)  return false;
+  return file.name.endsWith('.jpg');
+}
+function isText(file: File): boolean {
+  if (file == null)  return false;
+  return file.name.endsWith('.txt');
+}
+
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -242,12 +255,41 @@ export class FileList extends Vue {
     await this.fetchData();
   }
 
+  newFileName: string = '';
+  async createFile() {
+    try {
+      let rsp = await new FileApi().createFile({body: {
+        path: this.path,
+        name: this.newFileName,
+        isDir: false
+      }});
+      this.showAlert('新建文件成功', 'success');
+    } catch (e) {
+      await this.handleError(e, '新建文件');
+    }
+    await this.fetchData();
+  }
+
   open(item: FileModel) {
     if (item.isDir) {
       let nextPath = item.path + item.name + '/';
       this.$router.push('/file/all?path=' + nextPath);
+    } else {
+      this.targetFile = item;
+      this.$root.$emit('bv::show::modal', 'preview-modal');
     }
   }
+
+  get isVideo() {
+    return isVideo(this.targetFile);
+  }
+  get isImage() {
+    return isImage(this.targetFile);
+  }
+  get isText() {
+    return isText(this.targetFile);
+  }
+  targetFile: FileModel = null;
 
   files: FileModel[] = [];
 
