@@ -3,9 +3,13 @@
   <div class="row">
     <!-- 搜索框 -->
     <div class="col-md-5">
-      <b-form-fieldset horizontal label="Filter" :label-cols="3">
-        <b-form-input v-model="nameFilter" placeholder="Type to Search" />
+      <b-form-fieldset horizontal label="筛选" :label-cols="3">
+        <b-form-input v-model="nameFilter" placeholder="筛选名称" />
       </b-form-fieldset>
+    </div>
+
+    <div class="col-md-3">
+      <GroupDropdown :all="allGroups" v-model="groupFilter"></GroupDropdown>
     </div>
 
     <!-- 按钮组 -->
@@ -17,7 +21,7 @@
 
   <!-- 用户列表 -->
   <!-- TODO 调整列宽 -->
-  <b-table striped hover
+  <b-table striped bordered hover
            :sort-by.sync="sortBy"
            :sort-desc.sync="sortDesc"
            :current-page="currentPage"
@@ -40,6 +44,11 @@
       {{row.item.username}}
       <i class="fa fa-pencil-square-o" @click="rename(row.item)"></i>
     </template>
+    <template slot="password" scope="row">
+      <i class="fa fa-lock"></i>
+      {{row.item.password}}
+      <i class="fa fa-pencil-square-o" @click="changePassword(row.item)"></i>
+    </template>
     <template slot="groups" scope="row">
       <GroupDropdown :all="allGroups" v-model="row.item.groups"></GroupDropdown>
     </template>
@@ -53,6 +62,11 @@
   <!-- 确认删除弹窗 -->
   <b-modal id="delete-modal" size="sm" title="Are you sure to delete?" @ok="deleteUsers">
     <p v-for="user in targetUsers">{{user.username}}</p>
+  </b-modal>
+
+  <!-- 重置密码弹窗 -->
+  <b-modal id="password-modal" title="修改密码" @ok="changePasswordDone" @show="newPassword = ''">
+    <b-form-input v-model="newPassword" type="text" placeholder="新密码"></b-form-input>
   </b-modal>
 
 </div>
