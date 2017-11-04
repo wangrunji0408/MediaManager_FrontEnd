@@ -37,7 +37,7 @@ export class Login extends Vue {
     } catch (e) {
       if (e instanceof Response) {
         let error: ErrorInfo = await e.json();
-        this.$message.error('登录失败: ' + error.infos[0]);
+        this.$message.error('登录失败: ' + error.info);
       }
       throw e;
     }

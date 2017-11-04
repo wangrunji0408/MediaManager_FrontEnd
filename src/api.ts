@@ -35,7 +35,9 @@ export class BaseAPI {
         this.basePath = basePath;
         this.fetch = (url: string, init?: any): Promise<any> => {
           // Add auth header
-          return fetch(url, assign(init, store.state.authOpt));
+          if (store.state.authOpt)
+            init.headers.Authorization = store.state.authOpt.headers.Authorization;
+          return fetch(url, init);
         };
     }
 }
@@ -69,7 +71,7 @@ export class Comment {
 
 export type CommentTypeEnum = 'star' | 'score' | 'comment';
 export class ErrorInfo {
-    'infos'?: Array<string>;
+    'info'?: string;
 }
 
 export class Event {

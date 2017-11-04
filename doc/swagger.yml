@@ -1034,10 +1034,8 @@ definitions:
   ErrorInfo:
     type: "object"
     properties:
-      infos:
-        type: "array"
-        items:
-          type: "string"
+      info:
+        type: "string"
     xml:
       name: "ErrorInfo"
 externalDocs:

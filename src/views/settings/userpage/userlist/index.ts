@@ -20,8 +20,6 @@ export class UserList extends Vue {
 
   get filter() {
     let gf = this.groupFilter;
-    if (gf.length === 0)    // null is all
-      gf = this.allGroups;
     let nf = this.nameFilter;
     return (user: User) =>
       inGroups(user, gf) && testString(user.username, nf);

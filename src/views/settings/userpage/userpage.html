@@ -1,6 +1,6 @@
 <div class="container-fluid">
   <!-- 创建用户 -->
-  <AddUserBar :allGroups="allGroups"></AddUserBar>
+  <AddUserBar :allGroups="allGroups" v-on:fetch="fetchData"></AddUserBar>
 
   <!-- 创建用户组 -->
   <b-form inline @submit="addGroup">
