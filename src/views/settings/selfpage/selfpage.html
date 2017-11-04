@@ -15,7 +15,7 @@
       <b-form-input id="usernameInput" type="text" v-model="user.username" readonly></b-form-input>
     </b-form-group>
     <b-form-group label="姓名" label-for="nameInput">
-      <b-form-input id="nameInput" type="text" v-model="user.firstname" required placeholder="姓名"></b-form-input>
+      <b-form-input id="nameInput" type="text" v-model="user.firstname" placeholder="姓名"></b-form-input>
     </b-form-group>
     <b-form-group label="电子邮箱" label-for="emailInput">
       <b-form-input id="emailInput" type="email" v-model="user.email" required></b-form-input>
@@ -26,7 +26,7 @@
 
     <b-button variant="primary" v-b-modal.password-modal>修改密码</b-button>
     <b-button type="submit" variant="primary">修改</b-button>
-    <b-button type="reset" @click="fetchData" variant="secondary">重置</b-button>
+    <b-button @click="fetchData" variant="secondary">重置</b-button>
   </b-form>
 
   <!-- 修改密码弹窗 -->

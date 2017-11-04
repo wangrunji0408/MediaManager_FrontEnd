@@ -1,8 +1,8 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import {GroupApi, User, UserApi, UserGroup} from '../../../../api';
+import {User, UserApi, UserGroup} from '../../../../api';
 import {GroupDropdown} from '../../../../components/group_dropdown';
-import {testString, inGroup} from '../util';
+import {testString, inGroups} from '../util';
 
 class UserModel extends User {
   renaming: boolean = false;
@@ -22,7 +22,7 @@ export class UserList extends Vue {
     let gf = this.groupFilter;
     let nf = this.nameFilter;
     return (user: User) =>
-      inGroup(user, gf) && testString(user.username, nf);
+      inGroups(user, gf) && testString(user.username, nf);
   }
 
   sortBy: string = '';
@@ -36,10 +36,10 @@ export class UserList extends Vue {
 
   modalDetails: { index, data } = {index: '', data: ''};
 
-  get groupFilter() {
-    return this.$route.query['group'];
-  }
+  groupFilter: UserGroup[] = [];
   nameFilter: string = '';
+
+  selectAll: boolean = false;
 
   ////////// Data //////////
 
@@ -54,7 +54,8 @@ export class UserList extends Vue {
     'select',
     'icon',
     {key: 'username', sortable: true},
-    {key: 'groups'},
+    'password',
+    'groups',
   ];
 
   ////////// Rename //////////
@@ -70,14 +71,7 @@ export class UserList extends Vue {
   async renameDone() {
     let item = this.renameTarget;
     item.username = this.newName;
-    try {
-      let rsp = await new UserApi().updateUser({id: item.id, body: item});
-      (this as any).$message({message: '重命名成功', type: 'success'});
-    } catch (e) {
-      (this as any).$message({message: '重命名失败', type: 'error'});
-      return;
-    }
-    await this.$emit('fetch');
+    await this.updateUser(item);
   }
 
   ////////// Delete //////////
@@ -110,4 +104,46 @@ export class UserList extends Vue {
     }
     await this.$emit('fetch');
   }
+
+  ////////// Change Password //////////
+
+  target: User;
+  newPassword: string = '';
+
+  changePassword(item: User) {
+    this.target = item;
+    this.$root.$emit('bv::show::modal', 'password-modal');
+  }
+
+  async changePasswordDone() {
+    let item = this.target;
+    item.password = this.newPassword;
+    await this.updateUser(item);
+  }
+
+  ////////// Update User //////////
+
+  async updateUser(user: User) {
+    try {
+      let rsp = await new UserApi().updateUser({id: user.id, body: user});
+      this.$message.success('修改信息成功');
+    } catch (e) {
+      this.$message.error('修改信息失败');
+      return;
+    }
+    this.$emit('fetch');
+  }
+
+  async updateAll() {
+    try {
+      for (let user of this.users)
+        await new UserApi().updateUser({id: user.id, body: user});
+      this.$message.success('修改信息成功');
+    } catch (e) {
+      this.$message.error('修改信息失败');
+      return;
+    }
+    this.$emit('fetch');
+  }
+
 }

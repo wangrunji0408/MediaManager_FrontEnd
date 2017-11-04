@@ -7,15 +7,12 @@ import './style.css';
   template: require('./selfpage.html'),
 })
 export class SelfPage extends Vue {
-  user: User = {
-    id: 123,
-    username: 'Username',
-    password: 'Password',
-    firstName: 'Firstname',
-    lastName: 'Lastname',
-    email: 'email@a.com',
-    phone: '13000000000'
-  };
+  user: User = {};
+
+  constructor() {
+    super();
+    this.fetchData();
+  }
 
   get uploadImageUrl(): string {
     return new UserApi().basePath + `/user/${this.user.id}/avatar`;
@@ -69,6 +66,7 @@ export class SelfPage extends Vue {
 
   async onSubmit() {
     try {
+      this.user.password = '';
       await new UserApi().updateUser({id: this.user.id, body: this.user});
       this.$message.success('修改用户信息成功');
     } catch (e) {
@@ -102,7 +100,8 @@ export class SelfPage extends Vue {
 
   async fetchData () {
     try {
-      let rsp = await new UserApi().getUser({name: '...'});
+      let username = this.$store.state.username;
+      let rsp = await new UserApi().getUser({name: username});
       this.user = rsp[0];
       this.$message.success('获取用户信息成功');
     } catch (e) {

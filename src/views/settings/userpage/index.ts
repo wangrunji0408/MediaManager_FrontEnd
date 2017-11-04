@@ -32,38 +32,30 @@ export class UserPage extends Vue {
     return ret;
   }
 
-  newGroupName: string = 'Add Group';
-  addingNewGroup: boolean = false;
+  newGroupName: string = '';
 
-  addGroup () {
-    this.addingNewGroup = true;
-    this.newGroupName = '';
-  }
+  async addGroup () {
+    // if (this.newGroupName === '') {
+    //   this.$message.error('组名不能为空');
+    //   return;
+    // }
 
-  async addGroupDone () {
-    let newName = this.newGroupName;
-    this.addingNewGroup = false;
-    this.newGroupName = 'Add Group';
     try {
       let rsp = await new GroupApi().createUserGroup({body: {
         id: 0,
         name: this.newGroupName
       }});
-      (this as any).$message({message: '新建用户组成功', type: 'success'});
+      this.$message.success('新建用户组成功');
+      this.newGroupName = '';
     } catch (e) {
-      (this as any).$message.error('新建用户组失败');
+      this.$message.error('新建用户组失败');
       return;
     }
     await this.fetchData();
   }
 
   async fetchData() {
-    this.users = await new UserApi().getUser({group: 0});
+    this.users = await new UserApi().getUser({});
     this.allGroups = await new GroupApi().getUserGroups();
   }
 }
-
-export const UserPageRoute = [
-    { path: '', component: UserList },
-    { path: 'all', component: UserList}
-];

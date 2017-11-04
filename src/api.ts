@@ -15,6 +15,7 @@ import * as url from 'url';
 
 import * as isomorphicFetch from 'isomorphic-fetch';
 import * as assign from 'core-js/library/fn/object/assign';
+import {store} from './store';
 
 interface Dictionary<T> { [index: string]: T; }
 export interface FetchAPI { (url: string, init?: any): Promise<any>; }
@@ -32,7 +33,12 @@ export class BaseAPI {
 
     constructor(fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) {
         this.basePath = basePath;
-        this.fetch = fetch;
+        this.fetch = (url: string, init?: any): Promise<any> => {
+          // Add auth header
+          if (store.state.authOpt)
+            init.headers.Authorization = store.state.authOpt.headers.Authorization;
+          return fetch(url, init);
+        };
     }
 }
 
@@ -65,7 +71,7 @@ export class Comment {
 
 export type CommentTypeEnum = 'star' | 'score' | 'comment';
 export class ErrorInfo {
-    'infos'?: Array<string>;
+    'info'?: string;
 }
 
 export class Event {
@@ -1601,13 +1607,14 @@ export const UserApiFetchParamCreator = {
         }
         const baseUrl = `/user/login`;
         let urlObj = url.parse(baseUrl, true);
-        urlObj.query = assign({}, urlObj.query, {
-            'username': params['username'],
-            'password': params['password'],
-        });
         let fetchOptions: RequestInit = assign({}, { method: 'POST' }, options);
 
         let contentTypeHeader: Dictionary<string> = {};
+        contentTypeHeader = { 'Content-Type': 'application/x-www-form-urlencoded' };
+        fetchOptions.body = querystring.stringify({
+            'username': params['username'],
+            'password': params['password'],
+        });
         if (contentTypeHeader) {
             fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
         }
