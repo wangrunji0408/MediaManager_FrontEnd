@@ -45,11 +45,12 @@
       <b-img thumbnail fluid v-bind:src="row.item.thumbnails" width="50" height="50" alt="Thumbnail"></b-img>
     </template>
     <template slot="star" scope="row">
-      <span v-bind:class="row.item.star? 'fa fa-star' : 'fa fa-star-o'"
+      <span :class="row.item.star? 'fa fa-star' : 'fa fa-star-o'"
             @click.stop="row.item.star = !row.item.star"></span>
     </template>
     <template slot="name" scope="row">
-      <span class="fa fa-file" aria-hidden="true"></span>
+      <i class="fa fa-file" v-if="!row.item.isDir"></i>
+      <i class="fa fa-folder" v-if="row.item.isDir" @click="open(row.item)"></i>
       <b-form-input v-model="row.item.name" type="text" placeholder="File name"
                     :plaintext="!row.item.renaming" @change="rename_done(row.item)"></b-form-input>
     </template>

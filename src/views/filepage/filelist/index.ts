@@ -1,8 +1,9 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import moment from 'moment';
-import {File, FileApi} from '../../../api';
+import {ErrorInfo, File, FileApi} from '../../../api';
 import {UploadStatus} from '../../../components/upload_status';
+import {Watch} from 'vue-property-decorator';
 
 class FileModel extends File {
   choice: boolean = false;
@@ -39,15 +40,16 @@ export class FileList extends Vue {
     return value ? value : '/';
   }
 
+  @Watch('path')
   get pathItems() {
-    let items = [];
+    let items = [{text: 'root', to: '/file/all?path=%2F'}];
     let lastPos = 0;
     for (let i = 1; i < this.path.length; ++i) {
       if (this.path[i] !== '/')
         continue;
       items.push({
         text: this.path.substring(lastPos + 1, i),
-        href: '#file/all?path=' + this.path.substring(0, i + 1)
+        to: '/file/all?path=' + this.path.substring(0, i + 1).replace('/', '%2F')
       });
       lastPos = i;
     }
@@ -61,6 +63,20 @@ export class FileList extends Vue {
 
   filesToUpload: any[] = [];
 
+  async handleError(e, title: string) {
+    if (e instanceof Response) {
+      try {
+        let error: ErrorInfo = await e.json();
+        this.$message.error(title + '失败: ' + error.info);
+      } catch (ee) {
+        this.$message.error(title + '失败: ' + '解析错误失败');
+      }
+    } else {
+      this.$message.error(title + '失败: ' + '未知错误');
+      throw e;
+    }
+  }
+
   async uploadFiles() {
     try {
       if (this.filesToUpload.length === 0)
@@ -70,8 +86,7 @@ export class FileList extends Vue {
       }
       this.showAlert('上传文件成功', 'success');
     } catch (e) {
-      this.showAlert('上传文件失败 ' + e, 'error');
-      throw e;
+      await this.handleError(e, '上传文件');
     }
   }
 
@@ -115,7 +130,7 @@ export class FileList extends Vue {
       let rsp = await new FileApi().updateFiles({body: [item]});
       this.showAlert('重命名成功', 'success');
     } catch (e) {
-      this.showAlert('重命名失败', 'error');
+      await this.handleError(e, '重命名');
       item.name = item.oldName;
       return;
     }
@@ -142,7 +157,7 @@ export class FileList extends Vue {
       }
       this.showAlert('删除成功', 'success');
     } catch (e) {
-      this.showAlert('删除失败', 'error');
+      await this.handleError(e, '删除');
       return;
     }
     await this.fetchData();
@@ -151,7 +166,7 @@ export class FileList extends Vue {
   ensureTargetNotEmpty () {
     if (this.targetFiles.length > 0)
       return;
-      this.showAlert('请先选择文件', 'error');
+    this.showAlert('请先选择文件', 'error');
     throw 'No selected files.';
   }
 
@@ -172,7 +187,7 @@ export class FileList extends Vue {
       await new FileApi().updateFiles({body: files});
       this.showAlert('移动成功', 'success');
     } catch (e) {
-      this.showAlert('移动失败', 'error');
+      await this.handleError(e, '移动');
       return;
     }
     await this.fetchData();
@@ -180,6 +195,7 @@ export class FileList extends Vue {
 
   isLoading: boolean = false;
 
+  @Watch('path')
   async fetchData() {
     this.isLoading = true;
     // TODO 超时判断
@@ -193,9 +209,9 @@ export class FileList extends Vue {
         ff.star = false;
         return ff;
       });
+      // this.$message.success('获取数据成功');
     } catch (e) {
-      this.showAlert('刷新失败' + e, 'error');
-      throw e;
+      await this.handleError(e, '刷新');
     }
     this.isLoading = false;
   }
@@ -221,9 +237,16 @@ export class FileList extends Vue {
       }});
       this.showAlert('新建文件夹成功', 'success');
     } catch (e) {
-      this.showAlert('新建文件夹失败 ' + e, 'error');
+      await this.handleError(e, '新建文件夹');
     }
     await this.fetchData();
+  }
+
+  open(item: FileModel) {
+    if (item.isDir) {
+      let nextPath = item.path + item.name + '/';
+      this.$router.push('/file/all?path=' + nextPath);
+    }
   }
 
   files: FileModel[] = [];
