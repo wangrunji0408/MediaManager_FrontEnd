@@ -87,17 +87,13 @@ export class File {
     'ownerID'?: number;
     'isDir'?: boolean;
     /**
-     * 文件名
+     * File name
      */
     'name'?: string;
     /**
-     * 文件绝对路径，不含文件名
+     * Absolute path, name is not included
      */
     'path'?: string;
-    /**
-     * Download link
-     */
-    'url'?: string;
     'md5'?: string;
     /**
      * image url
@@ -110,12 +106,39 @@ export class File {
     'modifyDate'?: Date;
     'createDate'?: Date;
     'tags'?: Array<FileTag>;
+    /**
+     * Only available when get by admin or owner
+     */
+    'shareToGroups'?: Array<UserGroup>;
+    'videoInfo'?: VideoInfo;
+}
+
+export class FileStat {
+    'previewCount'?: number;
+    'downloadCount'?: number;
+    'chartData'?: Array<FileStatChartData>;
+}
+
+export class FileStatChartData {
+    'date'?: Date;
+    'previewCount'?: number;
+    'downloadCount'?: number;
 }
 
 export class FileTag {
     'id'?: number;
     'name'?: string;
     'color'?: string;
+}
+
+export class InlineResponse200 {
+    'token'?: string;
+    'userID'?: number;
+}
+
+export class SpaceInfo {
+    'totalSize'?: number;
+    'usedSize'?: number;
 }
 
 export class User {
@@ -126,11 +149,8 @@ export class User {
     'lastName'?: string;
     'email'?: string;
     'phone'?: string;
-    /**
-     * 头像图片地址
-     */
-    'image'?: string;
     'groups'?: Array<UserGroup>;
+    'space'?: SpaceInfo;
 }
 
 export class UserGroup {
@@ -140,6 +160,28 @@ export class UserGroup {
      * like: #FF9900
      */
     'color'?: string;
+}
+
+export class UserStat {
+    'uploadCount'?: number;
+    'downloadCount'?: number;
+    'chartData'?: Array<UserStatChartData>;
+}
+
+export class UserStatChartData {
+    'date'?: Date;
+    'uploadCount'?: number;
+    'downloadCount'?: number;
+    'uploadSize'?: number;
+    'downloadSize'?: number;
+}
+
+export class VideoInfo {
+    'duration'?: string;
+    'colorChannel'?: string;
+    'bitRate'?: string;
+    'resolution'?: string;
+    'aspectRatio'?: string;
 }
 
 
@@ -209,7 +251,7 @@ export const FileApiFetchParamCreator = {
         if (params['id'] == null) {
             throw new Error('Missing required parameter id when calling downloadFile');
         }
-        const baseUrl = `/file/download/{id}`
+        const baseUrl = `/file/{id}/data`
             .replace(`{${'id'}}`, `${ params['id'] }`);
         let urlObj = url.parse(baseUrl, true);
         let fetchOptions: RequestInit = assign({}, { method: 'GET' }, options);
@@ -252,9 +294,9 @@ export const FileApiFetchParamCreator = {
      * @summary Get file infos by query
      * @param path File path. Regex.
      * @param name File name. Regex.
-     * @param tags File tags
+     * @param tags File tag IDs
      */
-    getFiles(params: {  'path'?: string; 'name'?: string; 'tags'?: Array<string>; }, options?: any): FetchArgs {
+    getFiles(params: {  'path'?: string; 'name'?: string; 'tags'?: Array<number>; }, options?: any): FetchArgs {
         const baseUrl = `/file`;
         let urlObj = url.parse(baseUrl, true);
         urlObj.query = assign({}, urlObj.query, {
@@ -274,7 +316,7 @@ export const FileApiFetchParamCreator = {
         };
     },
     /**
-     * 这个接口用于对一些文件进行一些操作。  对每个文件， id 属性外   通过提供对应属性的新值来指示进行哪些操作：  * 重命名 name   * 移动位置 path   * 修改标签 tags    后端需逐条判断是否有值，是否变化，然后进行操作。对其它属性的修改均无效。  若全部操作成功，则返回200。否则返回400，描述每个失败操作。
+     * 这个接口用于对一些文件进行一些操作。  权限：仅对管理员及文件所有者有效。  对每个文件，除 id 属性外   通过提供对应属性的新值来指示进行哪些操作：  * 重命名 name   * 移动位置 path   * 修改标签 tags   * 修改分享到组 shareToGroups    后端需逐条判断是否有值，是否变化，然后进行操作。对其它属性的修改均无效。  若全部操作成功，则返回200。否则返回400，描述每个失败操作。  由于微信小程序不支持PATCH，故改为PUT。然而实质上这是个PATCH。
      * @summary Do some commands on files.
      * @param body Updated file object
      */
@@ -285,7 +327,7 @@ export const FileApiFetchParamCreator = {
         }
         const baseUrl = `/file`;
         let urlObj = url.parse(baseUrl, true);
-        let fetchOptions: RequestInit = assign({}, { method: 'PATCH' }, options);
+        let fetchOptions: RequestInit = assign({}, { method: 'PUT' }, options);
 
         let contentTypeHeader: Dictionary<string> = {};
         contentTypeHeader = { 'Content-Type': 'application/json' };
@@ -301,13 +343,19 @@ export const FileApiFetchParamCreator = {
         };
     },
     /**
-     * 上传文件
-     * @summary Upload file
+     * ID = 0 if uploading a new file
+     * @summary Upload file or update file data.
+     * @param id File id
      * @param file The file to upload.
      * @param path Base path
      */
-    uploadFile(params: {  'file'?: any; 'path'?: string; }, options?: any): FetchArgs {
-        const baseUrl = `/file/upload`;
+    uploadFile(params: {  'id': string; 'file'?: any; 'path'?: string; }, options?: any): FetchArgs {
+        // verify required parameter "id" is set
+        if (params['id'] == null) {
+            throw new Error('Missing required parameter id when calling uploadFile');
+        }
+        const baseUrl = `/file/{id}/data`
+            .replace(`{${'id'}}`, `${ params['id'] }`);
         let urlObj = url.parse(baseUrl, true);
         let fetchOptions: RequestInit = assign({}, { method: 'POST' }, options);
 
@@ -336,12 +384,12 @@ export const FileApiFp = {
      * @summary Create file or directory
      * @param body
      */
-    createFile(params: { 'body': Body1;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+    createFile(params: { 'body': Body1;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<File> {
         const fetchArgs = FileApiFetchParamCreator.createFile(params, options);
         return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
             return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
-                    return response;
+                    return response.json();
                 } else {
                     throw response;
                 }
@@ -375,7 +423,7 @@ export const FileApiFp = {
         return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
             return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
-                    return response;
+                    return response.json();
                 } else {
                     throw response;
                 }
@@ -404,9 +452,9 @@ export const FileApiFp = {
      * @summary Get file infos by query
      * @param path File path. Regex.
      * @param name File name. Regex.
-     * @param tags File tags
+     * @param tags File tag IDs
      */
-    getFiles(params: { 'path'?: string; 'name'?: string; 'tags'?: Array<string>;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<File>> {
+    getFiles(params: { 'path'?: string; 'name'?: string; 'tags'?: Array<number>;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<File>> {
         const fetchArgs = FileApiFetchParamCreator.getFiles(params, options);
         return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
             return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
@@ -419,7 +467,7 @@ export const FileApiFp = {
         };
     },
     /**
-     * 这个接口用于对一些文件进行一些操作。  对每个文件， id 属性外   通过提供对应属性的新值来指示进行哪些操作：  * 重命名 name   * 移动位置 path   * 修改标签 tags    后端需逐条判断是否有值，是否变化，然后进行操作。对其它属性的修改均无效。  若全部操作成功，则返回200。否则返回400，描述每个失败操作。
+     * 这个接口用于对一些文件进行一些操作。  权限：仅对管理员及文件所有者有效。  对每个文件，除 id 属性外   通过提供对应属性的新值来指示进行哪些操作：  * 重命名 name   * 移动位置 path   * 修改标签 tags   * 修改分享到组 shareToGroups    后端需逐条判断是否有值，是否变化，然后进行操作。对其它属性的修改均无效。  若全部操作成功，则返回200。否则返回400，描述每个失败操作。  由于微信小程序不支持PATCH，故改为PUT。然而实质上这是个PATCH。
      * @summary Do some commands on files.
      * @param body Updated file object
      */
@@ -436,12 +484,13 @@ export const FileApiFp = {
         };
     },
     /**
-     * 上传文件
-     * @summary Upload file
+     * ID = 0 if uploading a new file
+     * @summary Upload file or update file data.
+     * @param id File id
      * @param file The file to upload.
      * @param path Base path
      */
-    uploadFile(params: { 'file'?: any; 'path'?: string;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<File> {
+    uploadFile(params: { 'id': string; 'file'?: any; 'path'?: string;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<File> {
         const fetchArgs = FileApiFetchParamCreator.uploadFile(params, options);
         return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
             return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
@@ -496,13 +545,13 @@ export class FileApi extends BaseAPI {
      * @summary Get file infos by query
      * @param path File path. Regex.
      * @param name File name. Regex.
-     * @param tags File tags
+     * @param tags File tag IDs
      */
-    getFiles(params: {  'path'?: string; 'name'?: string; 'tags'?: Array<string>; }, options?: any) {
+    getFiles(params: {  'path'?: string; 'name'?: string; 'tags'?: Array<number>; }, options?: any) {
         return FileApiFp.getFiles(params, options)(this.fetch, this.basePath);
     }
     /**
-     * 这个接口用于对一些文件进行一些操作。  对每个文件， id 属性外   通过提供对应属性的新值来指示进行哪些操作：  * 重命名 name   * 移动位置 path   * 修改标签 tags    后端需逐条判断是否有值，是否变化，然后进行操作。对其它属性的修改均无效。  若全部操作成功，则返回200。否则返回400，描述每个失败操作。
+     * 这个接口用于对一些文件进行一些操作。  权限：仅对管理员及文件所有者有效。  对每个文件，除 id 属性外   通过提供对应属性的新值来指示进行哪些操作：  * 重命名 name   * 移动位置 path   * 修改标签 tags   * 修改分享到组 shareToGroups    后端需逐条判断是否有值，是否变化，然后进行操作。对其它属性的修改均无效。  若全部操作成功，则返回200。否则返回400，描述每个失败操作。  由于微信小程序不支持PATCH，故改为PUT。然而实质上这是个PATCH。
      * @summary Do some commands on files.
      * @param body Updated file object
      */
@@ -510,12 +559,13 @@ export class FileApi extends BaseAPI {
         return FileApiFp.updateFiles(params, options)(this.fetch, this.basePath);
     }
     /**
-     * 上传文件
-     * @summary Upload file
+     * ID = 0 if uploading a new file
+     * @summary Upload file or update file data.
+     * @param id File id
      * @param file The file to upload.
      * @param path Base path
      */
-    uploadFile(params: {  'file'?: any; 'path'?: string; }, options?: any) {
+    uploadFile(params: {  'id': string; 'file'?: any; 'path'?: string; }, options?: any) {
         return FileApiFp.uploadFile(params, options)(this.fetch, this.basePath);
     }
 }
@@ -562,13 +612,13 @@ export const FileApiFactory = function (fetch?: FetchAPI, basePath?: string) {
          * @summary Get file infos by query
          * @param path File path. Regex.
          * @param name File name. Regex.
-         * @param tags File tags
+         * @param tags File tag IDs
          */
-        getFiles(params: {  'path'?: string; 'name'?: string; 'tags'?: Array<string>; }, options?: any) {
+        getFiles(params: {  'path'?: string; 'name'?: string; 'tags'?: Array<number>; }, options?: any) {
             return FileApiFp.getFiles(params, options)(fetch, basePath);
         },
         /**
-         * 这个接口用于对一些文件进行一些操作。  对每个文件， id 属性外   通过提供对应属性的新值来指示进行哪些操作：  * 重命名 name   * 移动位置 path   * 修改标签 tags    后端需逐条判断是否有值，是否变化，然后进行操作。对其它属性的修改均无效。  若全部操作成功，则返回200。否则返回400，描述每个失败操作。
+         * 这个接口用于对一些文件进行一些操作。  权限：仅对管理员及文件所有者有效。  对每个文件，除 id 属性外   通过提供对应属性的新值来指示进行哪些操作：  * 重命名 name   * 移动位置 path   * 修改标签 tags   * 修改分享到组 shareToGroups    后端需逐条判断是否有值，是否变化，然后进行操作。对其它属性的修改均无效。  若全部操作成功，则返回200。否则返回400，描述每个失败操作。  由于微信小程序不支持PATCH，故改为PUT。然而实质上这是个PATCH。
          * @summary Do some commands on files.
          * @param body Updated file object
          */
@@ -576,13 +626,332 @@ export const FileApiFactory = function (fetch?: FetchAPI, basePath?: string) {
             return FileApiFp.updateFiles(params, options)(fetch, basePath);
         },
         /**
-         * 上传文件
-         * @summary Upload file
+         * ID = 0 if uploading a new file
+         * @summary Upload file or update file data.
+         * @param id File id
          * @param file The file to upload.
          * @param path Base path
          */
-        uploadFile(params: {  'file'?: any; 'path'?: string; }, options?: any) {
+        uploadFile(params: {  'id': string; 'file'?: any; 'path'?: string; }, options?: any) {
             return FileApiFp.uploadFile(params, options)(fetch, basePath);
+        },
+    };
+};
+
+
+/**
+ * FiletagApi - fetch parameter creator
+ */
+export const FiletagApiFetchParamCreator = {
+    /**
+     *
+     * @summary Create file tag
+     * @param body Created file tag
+     */
+    createFileTag(params: {  'body': FileTag; }, options?: any): FetchArgs {
+        // verify required parameter "body" is set
+        if (params['body'] == null) {
+            throw new Error('Missing required parameter body when calling createFileTag');
+        }
+        const baseUrl = `/filetag`;
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'POST' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        contentTypeHeader = { 'Content-Type': 'application/json' };
+        if (params['body']) {
+            fetchOptions.body = JSON.stringify(params['body'] || {});
+        }
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+    /**
+     * And remove it in all files
+     * @summary Delete file tag
+     * @param id
+     */
+    deleteFileTag(params: {  'id': number; }, options?: any): FetchArgs {
+        // verify required parameter "id" is set
+        if (params['id'] == null) {
+            throw new Error('Missing required parameter id when calling deleteFileTag');
+        }
+        const baseUrl = `/filetag/{id}`
+            .replace(`{${'id'}}`, `${ params['id'] }`);
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'DELETE' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+    /**
+     *
+     * @summary Get file tag by ID
+     * @param id
+     */
+    getFileTagById(params: {  'id': number; }, options?: any): FetchArgs {
+        // verify required parameter "id" is set
+        if (params['id'] == null) {
+            throw new Error('Missing required parameter id when calling getFileTagById');
+        }
+        const baseUrl = `/filetag/{id}`
+            .replace(`{${'id'}}`, `${ params['id'] }`);
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'GET' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+    /**
+     *
+     * @summary Get all file tags
+     */
+    getFileTags(options?: any): FetchArgs {
+        const baseUrl = `/filetag`;
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'GET' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+    /**
+     *
+     * @summary Update file tag
+     * @param id
+     * @param body Updated file tag object
+     */
+    updateFileTag(params: {  'id': number; 'body': FileTag; }, options?: any): FetchArgs {
+        // verify required parameter "id" is set
+        if (params['id'] == null) {
+            throw new Error('Missing required parameter id when calling updateFileTag');
+        }
+        // verify required parameter "body" is set
+        if (params['body'] == null) {
+            throw new Error('Missing required parameter body when calling updateFileTag');
+        }
+        const baseUrl = `/filetag/{id}`
+            .replace(`{${'id'}}`, `${ params['id'] }`);
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'PUT' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        contentTypeHeader = { 'Content-Type': 'application/json' };
+        if (params['body']) {
+            fetchOptions.body = JSON.stringify(params['body'] || {});
+        }
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+};
+
+/**
+ * FiletagApi - functional programming interface
+ */
+export const FiletagApiFp = {
+    /**
+     *
+     * @summary Create file tag
+     * @param body Created file tag
+     */
+    createFileTag(params: { 'body': FileTag;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<FileTag> {
+        const fetchArgs = FiletagApiFetchParamCreator.createFileTag(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json();
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+    /**
+     * And remove it in all files
+     * @summary Delete file tag
+     * @param id
+     */
+    deleteFileTag(params: { 'id': number;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+        const fetchArgs = FiletagApiFetchParamCreator.deleteFileTag(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+    /**
+     *
+     * @summary Get file tag by ID
+     * @param id
+     */
+    getFileTagById(params: { 'id': number;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<FileTag> {
+        const fetchArgs = FiletagApiFetchParamCreator.getFileTagById(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json();
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+    /**
+     *
+     * @summary Get all file tags
+     */
+    getFileTags(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<FileTag>> {
+        const fetchArgs = FiletagApiFetchParamCreator.getFileTags(options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json();
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+    /**
+     *
+     * @summary Update file tag
+     * @param id
+     * @param body Updated file tag object
+     */
+    updateFileTag(params: { 'id': number; 'body': FileTag;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<FileTag> {
+        const fetchArgs = FiletagApiFetchParamCreator.updateFileTag(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json();
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+};
+
+/**
+ * FiletagApi - object-oriented interface
+ */
+export class FiletagApi extends BaseAPI {
+    /**
+     *
+     * @summary Create file tag
+     * @param body Created file tag
+     */
+    createFileTag(params: {  'body': FileTag; }, options?: any) {
+        return FiletagApiFp.createFileTag(params, options)(this.fetch, this.basePath);
+    }
+    /**
+     * And remove it in all files
+     * @summary Delete file tag
+     * @param id
+     */
+    deleteFileTag(params: {  'id': number; }, options?: any) {
+        return FiletagApiFp.deleteFileTag(params, options)(this.fetch, this.basePath);
+    }
+    /**
+     *
+     * @summary Get file tag by ID
+     * @param id
+     */
+    getFileTagById(params: {  'id': number; }, options?: any) {
+        return FiletagApiFp.getFileTagById(params, options)(this.fetch, this.basePath);
+    }
+    /**
+     *
+     * @summary Get all file tags
+     */
+    getFileTags(options?: any) {
+        return FiletagApiFp.getFileTags(options)(this.fetch, this.basePath);
+    }
+    /**
+     *
+     * @summary Update file tag
+     * @param id
+     * @param body Updated file tag object
+     */
+    updateFileTag(params: {  'id': number; 'body': FileTag; }, options?: any) {
+        return FiletagApiFp.updateFileTag(params, options)(this.fetch, this.basePath);
+    }
+}
+
+/**
+ * FiletagApi - factory interface
+ */
+export const FiletagApiFactory = function (fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         *
+         * @summary Create file tag
+         * @param body Created file tag
+         */
+        createFileTag(params: {  'body': FileTag; }, options?: any) {
+            return FiletagApiFp.createFileTag(params, options)(fetch, basePath);
+        },
+        /**
+         * And remove it in all files
+         * @summary Delete file tag
+         * @param id
+         */
+        deleteFileTag(params: {  'id': number; }, options?: any) {
+            return FiletagApiFp.deleteFileTag(params, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @summary Get file tag by ID
+         * @param id
+         */
+        getFileTagById(params: {  'id': number; }, options?: any) {
+            return FiletagApiFp.getFileTagById(params, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @summary Get all file tags
+         */
+        getFileTags(options?: any) {
+            return FiletagApiFp.getFileTags(options)(fetch, basePath);
+        },
+        /**
+         *
+         * @summary Update file tag
+         * @param id
+         * @param body Updated file tag object
+         */
+        updateFileTag(params: {  'id': number; 'body': FileTag; }, options?: any) {
+            return FiletagApiFp.updateFileTag(params, options)(fetch, basePath);
         },
     };
 };
@@ -729,12 +1098,12 @@ export const GroupApiFp = {
      * @summary Create group
      * @param body Created user group
      */
-    createUserGroup(params: { 'body': UserGroup;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+    createUserGroup(params: { 'body': UserGroup;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UserGroup> {
         const fetchArgs = GroupApiFetchParamCreator.createUserGroup(params, options);
         return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
             return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
-                    return response;
+                    return response.json();
                 } else {
                     throw response;
                 }
@@ -797,12 +1166,12 @@ export const GroupApiFp = {
      * @param id
      * @param body Updated group object
      */
-    updateUserGroup(params: { 'id': number; 'body': UserGroup;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+    updateUserGroup(params: { 'id': number; 'body': UserGroup;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UserGroup> {
         const fetchArgs = GroupApiFetchParamCreator.updateUserGroup(params, options);
         return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
             return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
-                    return response;
+                    return response.json();
                 } else {
                     throw response;
                 }
@@ -901,6 +1270,89 @@ export const GroupApiFactory = function (fetch?: FetchAPI, basePath?: string) {
          */
         updateUserGroup(params: {  'id': number; 'body': UserGroup; }, options?: any) {
             return GroupApiFp.updateUserGroup(params, options)(fetch, basePath);
+        },
+    };
+};
+
+
+/**
+ * OtherApi - fetch parameter creator
+ */
+export const OtherApiFetchParamCreator = {
+    /**
+     *
+     * @summary Search similar image by given image
+     * @param imageFile
+     */
+    searchSimilarImage(params: {  'imageFile'?: any; }, options?: any): FetchArgs {
+        const baseUrl = `/image/similar`;
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'POST' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        contentTypeHeader = { 'Content-Type': 'application/x-www-form-urlencoded' };
+        fetchOptions.body = querystring.stringify({
+            'imageFile': params['imageFile'],
+        });
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+};
+
+/**
+ * OtherApi - functional programming interface
+ */
+export const OtherApiFp = {
+    /**
+     *
+     * @summary Search similar image by given image
+     * @param imageFile
+     */
+    searchSimilarImage(params: { 'imageFile'?: any;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<File>> {
+        const fetchArgs = OtherApiFetchParamCreator.searchSimilarImage(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json();
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+};
+
+/**
+ * OtherApi - object-oriented interface
+ */
+export class OtherApi extends BaseAPI {
+    /**
+     *
+     * @summary Search similar image by given image
+     * @param imageFile
+     */
+    searchSimilarImage(params: {  'imageFile'?: any; }, options?: any) {
+        return OtherApiFp.searchSimilarImage(params, options)(this.fetch, this.basePath);
+    }
+}
+
+/**
+ * OtherApi - factory interface
+ */
+export const OtherApiFactory = function (fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         *
+         * @summary Search similar image by given image
+         * @param imageFile
+         */
+        searchSimilarImage(params: {  'imageFile'?: any; }, options?: any) {
+            return OtherApiFp.searchSimilarImage(params, options)(fetch, basePath);
         },
     };
 };
@@ -1125,6 +1577,33 @@ export const SocialApiFetchParamCreator = {
             options: fetchOptions,
         };
     },
+    /**
+     *
+     * @summary Update comment
+     * @param body
+     */
+    updateComment(params: {  'body': Comment; }, options?: any): FetchArgs {
+        // verify required parameter "body" is set
+        if (params['body'] == null) {
+            throw new Error('Missing required parameter body when calling updateComment');
+        }
+        const baseUrl = `/comment`;
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'PUT' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        contentTypeHeader = { 'Content-Type': 'application/json' };
+        if (params['body']) {
+            fetchOptions.body = JSON.stringify(params['body'] || {});
+        }
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
 };
 
 /**
@@ -1241,7 +1720,7 @@ export const SocialApiFp = {
      * @summary Post new comment about the file
      * @param body
      */
-    postComment(params: { 'body': Comment;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Comment>> {
+    postComment(params: { 'body': Comment;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Comment> {
         const fetchArgs = SocialApiFetchParamCreator.postComment(params, options);
         return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
             return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
@@ -1265,6 +1744,23 @@ export const SocialApiFp = {
             return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
                     return response;
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+    /**
+     *
+     * @summary Update comment
+     * @param body
+     */
+    updateComment(params: { 'body': Comment;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Comment> {
+        const fetchArgs = SocialApiFetchParamCreator.updateComment(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json();
                 } else {
                     throw response;
                 }
@@ -1345,6 +1841,14 @@ export class SocialApi extends BaseAPI {
     unfollowUser(params: {  'id': number; 'othersID': number; }, options?: any) {
         return SocialApiFp.unfollowUser(params, options)(this.fetch, this.basePath);
     }
+    /**
+     *
+     * @summary Update comment
+     * @param body
+     */
+    updateComment(params: {  'body': Comment; }, options?: any) {
+        return SocialApiFp.updateComment(params, options)(this.fetch, this.basePath);
+    }
 }
 
 /**
@@ -1419,6 +1923,155 @@ export const SocialApiFactory = function (fetch?: FetchAPI, basePath?: string) {
          */
         unfollowUser(params: {  'id': number; 'othersID': number; }, options?: any) {
             return SocialApiFp.unfollowUser(params, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @summary Update comment
+         * @param body
+         */
+        updateComment(params: {  'body': Comment; }, options?: any) {
+            return SocialApiFp.updateComment(params, options)(fetch, basePath);
+        },
+    };
+};
+
+
+/**
+ * StatisticApi - fetch parameter creator
+ */
+export const StatisticApiFetchParamCreator = {
+    /**
+     *
+     * @summary Get file statistic info
+     * @param id
+     */
+    getFileStatistic(params: {  'id': string; }, options?: any): FetchArgs {
+        // verify required parameter "id" is set
+        if (params['id'] == null) {
+            throw new Error('Missing required parameter id when calling getFileStatistic');
+        }
+        const baseUrl = `/statistic/file/{id}`
+            .replace(`{${'id'}}`, `${ params['id'] }`);
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'GET' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+    /**
+     *
+     * @summary Get user statistic info
+     * @param id
+     */
+    getUserStatistic(params: {  'id': number; }, options?: any): FetchArgs {
+        // verify required parameter "id" is set
+        if (params['id'] == null) {
+            throw new Error('Missing required parameter id when calling getUserStatistic');
+        }
+        const baseUrl = `/statistic/user/{id}`
+            .replace(`{${'id'}}`, `${ params['id'] }`);
+        let urlObj = url.parse(baseUrl, true);
+        let fetchOptions: RequestInit = assign({}, { method: 'GET' }, options);
+
+        let contentTypeHeader: Dictionary<string> = {};
+        if (contentTypeHeader) {
+            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+        }
+        return {
+            url: url.format(urlObj),
+            options: fetchOptions,
+        };
+    },
+};
+
+/**
+ * StatisticApi - functional programming interface
+ */
+export const StatisticApiFp = {
+    /**
+     *
+     * @summary Get file statistic info
+     * @param id
+     */
+    getFileStatistic(params: { 'id': string;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<FileStat> {
+        const fetchArgs = StatisticApiFetchParamCreator.getFileStatistic(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json();
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+    /**
+     *
+     * @summary Get user statistic info
+     * @param id
+     */
+    getUserStatistic(params: { 'id': number;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UserStat> {
+        const fetchArgs = StatisticApiFetchParamCreator.getUserStatistic(params, options);
+        return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json();
+                } else {
+                    throw response;
+                }
+            });
+        };
+    },
+};
+
+/**
+ * StatisticApi - object-oriented interface
+ */
+export class StatisticApi extends BaseAPI {
+    /**
+     *
+     * @summary Get file statistic info
+     * @param id
+     */
+    getFileStatistic(params: {  'id': string; }, options?: any) {
+        return StatisticApiFp.getFileStatistic(params, options)(this.fetch, this.basePath);
+    }
+    /**
+     *
+     * @summary Get user statistic info
+     * @param id
+     */
+    getUserStatistic(params: {  'id': number; }, options?: any) {
+        return StatisticApiFp.getUserStatistic(params, options)(this.fetch, this.basePath);
+    }
+}
+
+/**
+ * StatisticApi - factory interface
+ */
+export const StatisticApiFactory = function (fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         *
+         * @summary Get file statistic info
+         * @param id
+         */
+        getFileStatistic(params: {  'id': string; }, options?: any) {
+            return StatisticApiFp.getFileStatistic(params, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @summary Get user statistic info
+         * @param id
+         */
+        getUserStatistic(params: {  'id': number; }, options?: any) {
+            return StatisticApiFp.getUserStatistic(params, options)(fetch, basePath);
         },
     };
 };
@@ -1760,12 +2413,12 @@ export const UserApiFp = {
      * @summary Create user
      * @param body Created user object (Ignore id)
      */
-    createUser(params: { 'body': User;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+    createUser(params: { 'body': User;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<User> {
         const fetchArgs = UserApiFetchParamCreator.createUser(params, options);
         return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
             return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
-                    return response;
+                    return response.json();
                 } else {
                     throw response;
                 }
@@ -1847,7 +2500,7 @@ export const UserApiFp = {
      * @param username The user name for login
      * @param password The password for login in clear text
      */
-    loginUser(params: { 'username': string; 'password': string;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<string> {
+    loginUser(params: { 'username': string; 'password': string;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<InlineResponse200> {
         const fetchArgs = UserApiFetchParamCreator.loginUser(params, options);
         return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
             return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
@@ -1898,12 +2551,12 @@ export const UserApiFp = {
      * @param id
      * @param body Updated user object
      */
-    updateUser(params: { 'id': number; 'body': User;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+    updateUser(params: { 'id': number; 'body': User;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<User> {
         const fetchArgs = UserApiFetchParamCreator.updateUser(params, options);
         return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
             return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
-                    return response;
+                    return response.json();
                 } else {
                     throw response;
                 }
