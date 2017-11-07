@@ -359,12 +359,11 @@ export const FileApiFetchParamCreator = {
         let urlObj = url.parse(baseUrl, true);
         let fetchOptions: RequestInit = assign({}, { method: 'POST' }, options);
 
-        let contentTypeHeader: Dictionary<string> = {};
-        contentTypeHeader = { 'Content-Type': 'application/x-www-form-urlencoded' };
-        fetchOptions.body = querystring.stringify({
-            'file': params['file'],
-            'path': params['path'],
-        });
+        let body = new FormData();
+        body.append('file', params['file']);
+        body.append('path', params['path']);
+        fetchOptions.body = body;
+        let contentTypeHeader = {};
         if (contentTypeHeader) {
             fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
         }

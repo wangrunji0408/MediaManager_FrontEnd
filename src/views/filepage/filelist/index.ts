@@ -84,6 +84,8 @@ export class FileList extends Vue {
       } catch (ee) {
         this.$message.error(title + '失败: ' + '解析错误失败');
       }
+    } else if (e instanceof String) {
+      this.$message.error(title + '失败: ' + e);
     } else {
       this.$message.error(title + '失败: ' + '未知错误');
       throw e;
@@ -95,7 +97,9 @@ export class FileList extends Vue {
       if (this.filesToUpload.length === 0)
         throw '没有选择文件';
       for (let file of this.filesToUpload) {
-        let rsp = await new FileApi().uploadFile(file, this.path);
+        let rsp = await new FileApi().uploadFile({
+          id: '0', file: file, path: this.path
+        });
       }
       this.showAlert('上传文件成功', 'success');
     } catch (e) {
