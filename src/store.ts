@@ -25,7 +25,7 @@ export let store = new Vuex.Store({
     },
     setUserID(state, id) {
       state.userID = id;
-      localStorage.setItem('userID', JSON.stringify(id));
+      localStorage.setItem('userID', id);
     },
     logout(state) {
       state.authOpt = null;
@@ -38,7 +38,7 @@ export let store = new Vuex.Store({
       try {
         state.authOpt = JSON.parse(localStorage.getItem('authOpt'));
         state.username = localStorage.getItem('username');
-        state.userID = localStorage.getItem('userID');
+        state.userID = JSON.parse(localStorage.getItem('userID'));
       } catch (e) {
         console.warn('Failed to recover auth');
       }

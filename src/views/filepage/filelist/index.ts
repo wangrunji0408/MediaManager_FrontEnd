@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import moment from 'moment';
-import {ErrorInfo, File, FileApi} from '../../../api';
+import {ErrorInfo, File, FileApi, BASE_PATH} from '../../../api';
 import {UploadStatus} from '../../../components/upload_status';
 import {Watch} from 'vue-property-decorator';
 
@@ -10,19 +10,26 @@ class FileModel extends File {
   star: boolean = true;
   oldName: string = '';
   renaming: boolean = false;
+  url: string = '';
 }
 
+function inSuffixs(str: string, suffixs: string[]): boolean {
+  for (let s of suffixs)
+    if (str.endsWith('.' + s))
+      return true;
+  return false;
+}
 function isVideo(file: File): boolean {
   if (file == null)  return false;
-  return file.name.endsWith('.avi');
+  return inSuffixs(file.name, ['avi', 'mp4']);
 }
 function isImage(file: File): boolean {
   if (file == null)  return false;
-  return file.name.endsWith('.jpg');
+  return inSuffixs(file.name, ['jpg', 'png']);
 }
 function isText(file: File): boolean {
   if (file == null)  return false;
-  return file.name.endsWith('.txt');
+  return inSuffixs(file.name, ['txt']);
 }
 
 function delay(ms: number) {
@@ -198,8 +205,10 @@ export class FileList extends Vue {
   async moveSelected() {
     this.ensureTargetNotEmpty();
     // TODO check invalid path
+    if (!this.targetPath.endsWith('/'))
+      this.targetPath += '/';
     try {
-      let files = this.selectedFiles;
+      let files = this.targetFiles;
       files.forEach(f => f.path = this.targetPath);
       await new FileApi().updateFiles({body: files});
       this.showAlert('移动成功', 'success');
@@ -224,6 +233,7 @@ export class FileList extends Vue {
         ff.oldName = '';
         ff.renaming = false;
         ff.star = false;
+        ff.url = BASE_PATH + `/file/${ff.id}/data`;
         return ff;
       });
       // this.$message.success('获取数据成功');
