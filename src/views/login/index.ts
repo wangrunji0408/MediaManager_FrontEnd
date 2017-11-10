@@ -29,10 +29,11 @@ export class Login extends Vue {
         username: this.username,
         password: this.password
       };
-      let token = await new UserApi().loginUser(up);
+      let rsp = await new UserApi().loginUser(up);
       this.$message.success('登陆成功');
-      this.$store.commit('setToken', token);
+      this.$store.commit('setToken', rsp.token);
       this.$store.commit('setBasicAuth', up);
+      this.$store.commit('setUserID', rsp.userID);
       this.goNext();
     } catch (e) {
       if (e instanceof Response) {
