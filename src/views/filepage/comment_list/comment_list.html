@@ -1,14 +1,35 @@
 <b-modal id="comment-modal" title="评论" v-model="show">
   <b-list-group v-loading="loading">
-    <b-list-group-item v-for="comment in comments">
-      <b-img :src="getAvatarUrl(comment.userID)" rounded width="40" height="40" alt="left image"></b-img>
-      <el-rate v-if="comment.type === 'score'" v-model="comment.score" disabled></el-rate>
-      <p v-if="comment.type === 'comment'">{{comment.comment}}</p>
-      <p v-if="comment.type === 'star'">赞了这个文件</p>
+    <b-list-group-item v-for="comment in comments" class="media">
+      <b-img :src="getAvatarUrl(comment.userID)" class="media-left"
+             rounded width="40" height="40"></b-img>
+      <div class="media-body">
+        <div class="row">
+          <p class="col-6">{{comment.userID}}</p>
+          <p class="col-4">{{comment.date}}</p>
+          <i class="col-1 fa fa-pencil-square-o"
+             v-if="owns(comment) && !comment.editing" @click="editBegin(comment)"></i>
+          <i class="col-1 fa fa-check"
+             v-if="comment.editing" @click="editDone(comment)"></i>
+          <i class="col-1 fa fa-trash"
+             v-if="owns(comment)" @click="remove(comment)"></i>
+        </div>
+        <el-rate v-if="comment.type === 'score'" v-model="comment.score"
+                 :disabled="!comment.editing"></el-rate>
+        <b-form-input v-if="comment.type === 'comment'" v-model="comment.comment"
+                      type="text" placeholder="输入评论"
+                      :plaintext="!comment.editing"></b-form-input>
+        <p v-if="comment.type === 'star'">赞了这个文件</p>
+      </div>
     </b-list-group-item>
   </b-list-group>
   <div slot="modal-footer" class="w-100">
     <b-btn class="float-right" variant="primary" @click="show=false">OK</b-btn>
     <b-btn class="float-right" variant="secondary" @click="fetchData"><i class="fa fa-refresh"></i></b-btn>
+    <b-dropdown class="float-right" dropup text="+" variant="info">
+      <b-dropdown-item-button @click="add('comment')">评论</b-dropdown-item-button>
+      <b-dropdown-item-button @click="add('star')">点赞</b-dropdown-item-button>
+      <b-dropdown-item-button @click="add('score')">打分</b-dropdown-item-button>
+    </b-dropdown>
   </div>
 </b-modal>
