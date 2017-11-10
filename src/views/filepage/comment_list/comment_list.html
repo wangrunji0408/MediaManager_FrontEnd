@@ -1,0 +1,14 @@
+<b-modal id="comment-modal" title="评论" v-model="show">
+  <b-list-group v-loading="loading">
+    <b-list-group-item v-for="comment in comments">
+      <b-img :src="getAvatarUrl(comment.userID)" rounded width="40" height="40" alt="left image"></b-img>
+      <el-rate v-if="comment.type === 'score'" v-model="comment.score" disabled></el-rate>
+      <p v-if="comment.type === 'comment'">{{comment.comment}}</p>
+      <p v-if="comment.type === 'star'">赞了这个文件</p>
+    </b-list-group-item>
+  </b-list-group>
+  <div slot="modal-footer" class="w-100">
+    <b-btn class="float-right" variant="primary" @click="show=false">OK</b-btn>
+    <b-btn class="float-right" variant="secondary" @click="fetchData"><i class="fa fa-refresh"></i></b-btn>
+  </div>
+</b-modal>

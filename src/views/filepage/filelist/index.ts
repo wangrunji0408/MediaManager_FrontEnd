@@ -4,6 +4,7 @@ import moment from 'moment';
 import {ErrorInfo, File, FileApi, BASE_PATH} from '../../../api';
 import {UploadStatus} from '../../../components/upload_status';
 import {Watch} from 'vue-property-decorator';
+import {CommentList} from '../comment_list/index';
 
 class FileModel extends File {
   choice: boolean = false;
@@ -38,7 +39,7 @@ function delay(ms: number) {
 
 @Component({
   template: require('./filelist.html'),
-  components: {UploadStatus}
+  components: {UploadStatus, CommentList}
 })
 export class FileList extends Vue {
 
