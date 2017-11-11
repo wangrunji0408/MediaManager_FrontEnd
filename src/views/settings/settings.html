@@ -1,8 +1,6 @@
 <el-container>
   <el-aside>
-    <el-menu
-      class="el-menu-vertical-demo"
-      router>
+    <el-menu router>
       <el-submenu index="1">
         <template slot="title">
           <i class="el-icon-location"></i>
@@ -11,6 +9,13 @@
         <el-menu-item index="/settings/self">个人信息</el-menu-item>
       </el-submenu>
       <el-submenu index="2">
+        <template slot="title">
+          <i class="el-icon-share"></i>
+          <span>社区设置</span>
+        </template>
+        <el-menu-item index="/settings/follow">关注管理</el-menu-item>
+      </el-submenu>
+      <el-submenu index="3">
         <template slot="title">
           <i class="el-icon-menu"></i>
           <span>管理员设置</span>

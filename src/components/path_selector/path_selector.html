@@ -1,0 +1,5 @@
+<b-list-group v-loading="loading">
+  <b-list-group-item v-for="folder in folders" @click="entry(folder)">
+    <i class="fa fa-folder"></i> {{folder.name}}
+  </b-list-group-item>
+</b-list-group>

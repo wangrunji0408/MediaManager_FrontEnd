@@ -1,0 +1,16 @@
+<div class="row">
+  <div class="col-6">
+    <b-tabs v-model="filterNumber">
+      <b-tab title="全部用户" active></b-tab>
+      <b-tab title="关注我的"></b-tab>
+      <b-tab title="我关注的"></b-tab>
+    </b-tabs>
+    <b-list-group>
+      <b-list-group-item v-for="user in allUsers" v-if="filter(user)" class="media">
+        <p class="media-body">{{user.username}}</p>
+        <b-btn variant="danger" v-if="user.following" @click="unfollow(user)">取关</b-btn>
+        <b-btn variant="primary" v-else @click="follow(user)">关注</b-btn>
+      </b-list-group-item>
+    </b-list-group>
+  </div>
+</div>

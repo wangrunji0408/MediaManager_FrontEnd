@@ -1,0 +1,5 @@
+<b-breadcrumb>
+  <b-breadcrumb-item v-for="item in pathItems"
+                     :text="item.text" :disabled="item.disabled" @click="onClick(item)">
+  </b-breadcrumb-item>
+</b-breadcrumb>
