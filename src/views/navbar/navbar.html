@@ -7,10 +7,25 @@
   <b-collapse is-nav id="nav_collapse">
 
     <b-nav is-nav-bar>
-      <b-nav-item href="#/file">File</b-nav-item>
-      <b-nav-item href="#/settings">Settings</b-nav-item>
-      <b-nav-item @click="logout">Logout</b-nav-item>
+      <b-nav-item to="/file">File</b-nav-item>
+      <b-nav-item to="/settings">Settings</b-nav-item>
     </b-nav>
+
+    <b-navbar-nav class="ml-auto">
+
+      <b-nav-item id="message-box">Message</b-nav-item>
+      <b-popover target="message-box" placement="bottom" title="最近消息">
+        <MessageList></MessageList>
+      </b-popover>
+
+      <b-nav-item-dropdown right>
+        <template slot="button-content">
+          <img :src="userAvatarUrl" class="d-inline-block align-top" alt="IMG">
+          {{username}}
+        </template>
+        <b-dropdown-item @click="logout">Logout</b-dropdown-item>
+      </b-nav-item-dropdown>
+    </b-navbar-nav>
 
   </b-collapse>
 </b-navbar>

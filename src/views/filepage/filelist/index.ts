@@ -1,37 +1,28 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import moment from 'moment';
-import {ErrorInfo, File, FileApi} from '../../../api';
+import {ErrorInfo, File, FileApi, BASE_PATH} from '../../../api';
 import {UploadStatus} from '../../../components/upload_status';
 import {Watch} from 'vue-property-decorator';
+import {CommentList} from '../comment_list/index';
+import {PathBreadcrumb} from '../../../components/path_breadcrumb/index';
+import {PathSelector} from '../../../components/path_selector/index';
+import {PreviewModal} from '../../../components/preview_modal/index';
 
 class FileModel extends File {
   choice: boolean = false;
   star: boolean = true;
   oldName: string = '';
   renaming: boolean = false;
-}
-
-function isVideo(file: File): boolean {
-  if (file == null)  return false;
-  return file.name.endsWith('.avi');
-}
-function isImage(file: File): boolean {
-  if (file == null)  return false;
-  return file.name.endsWith('.jpg');
-}
-function isText(file: File): boolean {
-  if (file == null)  return false;
-  return file.name.endsWith('.txt');
-}
-
-function delay(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  url: string = '';
 }
 
 @Component({
   template: require('./filelist.html'),
-  components: {UploadStatus}
+  components: {UploadStatus, CommentList, PathBreadcrumb, PathSelector, PreviewModal},
+  async mounted() {
+    await this.fetchData();
+  }
 })
 export class FileList extends Vue {
 
@@ -46,33 +37,7 @@ export class FileList extends Vue {
     return this.files.length;
   }
 
-  modalDetails: { index, data } = {index: '', data: ''};
-
-  get path(): string {
-    let value = this.$route.query['path'];
-    return value ? value : '/';
-  }
-
-  @Watch('path')
-  get pathItems() {
-    let items = [{text: 'root', to: '/file/all?path=%2F'}];
-    let lastPos = 0;
-    for (let i = 1; i < this.path.length; ++i) {
-      if (this.path[i] !== '/')
-        continue;
-      items.push({
-        text: this.path.substring(lastPos + 1, i),
-        to: '/file/all?path=' + this.path.substring(0, i + 1).replace('/', '%2F')
-      });
-      lastPos = i;
-    }
-    return items;
-  }
-
-  constructor() {
-    super();
-    this.fetchData();
-  }
+  path: string = '/';
 
   filesToUpload: any[] = [];
 
@@ -84,6 +49,8 @@ export class FileList extends Vue {
       } catch (ee) {
         this.$message.error(title + '失败: ' + '解析错误失败');
       }
+    } else if (e instanceof String) {
+      this.$message.error(title + '失败: ' + e);
     } else {
       this.$message.error(title + '失败: ' + '未知错误');
       throw e;
@@ -95,7 +62,9 @@ export class FileList extends Vue {
       if (this.filesToUpload.length === 0)
         throw '没有选择文件';
       for (let file of this.filesToUpload) {
-        let rsp = await new FileApi().uploadFile(file, this.path);
+        let rsp = await new FileApi().uploadFile({
+          id: '0', file: file, path: this.path
+        });
       }
       this.showAlert('上传文件成功', 'success');
     } catch (e) {
@@ -126,10 +95,14 @@ export class FileList extends Vue {
     this.currentPage = 1;
   }
 
-  showDetail (item: File, index: number) {
-    this.modalDetails.data = JSON.stringify(item, null, 2);
-    this.modalDetails.index = index;
+  showDetail (item: FileModel) {
+    this.targetFile = item;
     this.$root.$emit('bv::show::modal', 'detail-modal');
+  }
+
+  showComment (item: FileModel) {
+    this.targetFile = item;
+    this.$root.$emit('bv::show::modal', 'comment-modal');
   }
 
   rename (item: FileModel) {
@@ -147,11 +120,6 @@ export class FileList extends Vue {
       item.name = item.oldName;
       return;
     }
-  }
-
-  resetModal() {
-    this.modalDetails.data = '';
-    this.modalDetails.index = '';
   }
 
   targetFiles: FileModel[] = [];
@@ -194,8 +162,10 @@ export class FileList extends Vue {
   async moveSelected() {
     this.ensureTargetNotEmpty();
     // TODO check invalid path
+    if (!this.targetPath.endsWith('/'))
+      this.targetPath += '/';
     try {
-      let files = this.selectedFiles;
+      let files = this.targetFiles;
       files.forEach(f => f.path = this.targetPath);
       await new FileApi().updateFiles({body: files});
       this.showAlert('移动成功', 'success');
@@ -220,6 +190,7 @@ export class FileList extends Vue {
         ff.oldName = '';
         ff.renaming = false;
         ff.star = false;
+        ff.url = BASE_PATH + `/file/${ff.id}/data`;
         return ff;
       });
       // this.$message.success('获取数据成功');
@@ -272,23 +243,13 @@ export class FileList extends Vue {
 
   open(item: FileModel) {
     if (item.isDir) {
-      let nextPath = item.path + item.name + '/';
-      this.$router.push('/file/all?path=' + nextPath);
+      this.path = item.path + item.name + '/';
     } else {
       this.targetFile = item;
       this.$root.$emit('bv::show::modal', 'preview-modal');
     }
   }
 
-  get isVideo() {
-    return isVideo(this.targetFile);
-  }
-  get isImage() {
-    return isImage(this.targetFile);
-  }
-  get isText() {
-    return isText(this.targetFile);
-  }
   targetFile: FileModel = null;
 
   files: FileModel[] = [];

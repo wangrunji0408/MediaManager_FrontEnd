@@ -5,14 +5,12 @@ import './style.css';
 
 @Component({
   template: require('./selfpage.html'),
+  async mounted() {
+    await this.fetchData();
+  }
 })
 export class SelfPage extends Vue {
   user: User = {};
-
-  constructor() {
-    super();
-    this.fetchData();
-  }
 
   get uploadImageUrl(): string {
     return new UserApi().basePath + `/user/${this.user.id}/avatar`;
@@ -100,12 +98,11 @@ export class SelfPage extends Vue {
 
   async fetchData () {
     try {
-      let username = this.$store.state.username;
-      let rsp = await new UserApi().getUser({name: username});
-      this.user = rsp[0];
-      this.$message.success('获取用户信息成功');
+      this.user = await new UserApi().getUserByName(
+        {id: this.$store.state.userID});
     } catch (e) {
       this.$message.error('获取用户信息失败');
+      throw e;
     }
   }
 }

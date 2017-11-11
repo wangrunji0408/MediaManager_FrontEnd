@@ -8,6 +8,7 @@ export let store = new Vuex.Store({
     token: null,
     authOpt: null,
     username: null,
+    userID: null,
   },
   mutations: {
     setBasicAuth(state, payload: {username, password}) {
@@ -22,16 +23,22 @@ export let store = new Vuex.Store({
       state.authOpt = {headers: {Authorization: `Token ${state.token}`}};
       localStorage.setItem('authOpt', JSON.stringify(state.authOpt));
     },
+    setUserID(state, id) {
+      state.userID = id;
+      localStorage.setItem('userID', id);
+    },
     logout(state) {
       state.authOpt = null;
       state.username = null;
       localStorage.removeItem('authOpt');
       localStorage.removeItem('username');
+      localStorage.removeItem('userID');
     },
     recoverAuth(state) {
       try {
         state.authOpt = JSON.parse(localStorage.getItem('authOpt'));
         state.username = localStorage.getItem('username');
+        state.userID = JSON.parse(localStorage.getItem('userID'));
       } catch (e) {
         console.warn('Failed to recover auth');
       }

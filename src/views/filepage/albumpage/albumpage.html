@@ -1,0 +1,32 @@
+<div>
+
+  <PathBreadcrumb v-model="path"></PathBreadcrumb>
+
+  <div class="row">
+    <!-- 按钮组 -->
+    <div class="col-md-5">
+      <b-button id="more-btn"><i class="el-icon-more"></i></b-button>
+      <b-button @click="fetchData"><i class="fa fa-refresh"></i></b-button>
+    </div>
+  </div>
+
+  <b-popover target="more-btn" title="切换路径" placement="bottom">
+    <PathSelector v-model="path"></PathSelector>
+  </b-popover>
+
+  <b-card-group v-for="filesInRow in filesInGrid">
+    <b-card v-for="file in filesInRow"
+            :img-src="getUrl(file)"
+            img-alt="Img" img-top
+            @click="preview(file)"
+    >
+      <div v-if="file">
+        <small class="text-muted">{{file.name}}</small>
+        <i class="fa fa-info-circle"
+           v-b-popover.hover.bottom="'More info'"></i>
+      </div>
+    </b-card>
+  </b-card-group>
+
+  <PreviewModal :file="targetFile"></PreviewModal>
+</div>

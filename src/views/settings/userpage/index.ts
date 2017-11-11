@@ -9,13 +9,11 @@ import VueRouter from 'vue-router';
 @Component({
   template: require('./userpage.html'),
   components: {UserList, AddUserBar},
+  async mounted() {
+    await this.fetchData();
+  }
 })
 export class UserPage extends Vue {
-
-  constructor() {
-    super();
-    this.fetchData();
-  }
 
   users: User[] = [];
   allGroups: UserGroup[] = [];
