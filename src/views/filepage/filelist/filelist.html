@@ -1,6 +1,6 @@
 <div>
   <!-- 路径 -->
-  <b-breadcrumb :items="pathItems"/>
+  <PathBreadcrumb v-model="path"></PathBreadcrumb>
 
   <div class="row">
     <!-- 搜索框 -->
@@ -98,6 +98,7 @@
 
   <!-- 选择路径弹窗 -->
   <b-modal id="move-modal" title="选择路径" @ok="moveSelected">
+    <PathBreadcrumb v-model="targetPath" routeBase=""></PathBreadcrumb>
     <b-form-input v-model="targetPath" type="text" placeholder="Enter target path"></b-form-input>
   </b-modal>
 

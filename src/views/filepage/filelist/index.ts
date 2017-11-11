@@ -5,6 +5,7 @@ import {ErrorInfo, File, FileApi, BASE_PATH} from '../../../api';
 import {UploadStatus} from '../../../components/upload_status';
 import {Watch} from 'vue-property-decorator';
 import {CommentList} from '../comment_list/index';
+import {PathBreadcrumb} from '../../../components/path_breadcrumb/index';
 
 class FileModel extends File {
   choice: boolean = false;
@@ -39,7 +40,7 @@ function delay(ms: number) {
 
 @Component({
   template: require('./filelist.html'),
-  components: {UploadStatus, CommentList}
+  components: {UploadStatus, CommentList, PathBreadcrumb}
 })
 export class FileList extends Vue {
 
@@ -54,26 +55,7 @@ export class FileList extends Vue {
     return this.files.length;
   }
 
-  get path(): string {
-    let value = this.$route.query['path'];
-    return value ? value : '/';
-  }
-
-  @Watch('path')
-  get pathItems() {
-    let items = [{text: 'root', to: '/file/all?path=%2F'}];
-    let lastPos = 0;
-    for (let i = 1; i < this.path.length; ++i) {
-      if (this.path[i] !== '/')
-        continue;
-      items.push({
-        text: this.path.substring(lastPos + 1, i),
-        to: '/file/all?path=' + this.path.substring(0, i + 1).replace('/', '%2F')
-      });
-      lastPos = i;
-    }
-    return items;
-  }
+  path: string = '/';
 
   constructor() {
     super();
@@ -284,8 +266,7 @@ export class FileList extends Vue {
 
   open(item: FileModel) {
     if (item.isDir) {
-      let nextPath = item.path + item.name + '/';
-      this.$router.push('/file/all?path=' + nextPath);
+      this.path = item.path + item.name + '/';
     } else {
       this.targetFile = item;
       this.$root.$emit('bv::show::modal', 'preview-modal');
