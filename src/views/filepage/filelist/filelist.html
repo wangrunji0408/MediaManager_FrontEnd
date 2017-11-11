@@ -2,8 +2,6 @@
   <!-- 路径 -->
   <b-breadcrumb :items="pathItems"/>
 
-  <UploadStatus></UploadStatus>
-
   <div class="row">
     <!-- 搜索框 -->
     <div class="col-md-5">
@@ -59,8 +57,11 @@
     <template slot="modifyDate" scope="row">{{dateToString(row.value)}}</template>
     <template slot="detail" scope="row">
       <b-dropdown id="ddown1" text="..." variant="primary" class="m-md-2">
-        <b-dropdown-item aria-describedby="details" @click.stop="showDetail(row.item, row.index)">
+        <b-dropdown-item aria-describedby="details" @click.stop="showDetail(row.item)">
           <i class="fa fa-info-circle" aria-hidden="true"></i>Details
+        </b-dropdown-item>
+        <b-dropdown-item aria-describedby="comment" @click.stop="showComment(row.item)">
+          <i class="fa fa-comment" aria-hidden="true"></i>Comment
         </b-dropdown-item>
         <b-dropdown-item aria-describedby="rename" @click.stop="rename(row.item)">
           <i class="fa fa-pencil" aria-hidden="true"></i>Rename
@@ -86,9 +87,8 @@
   </div>
 
   <!-- 详细信息弹窗 -->
-  <b-modal id="detail-modal" @hide="resetModal" ok-only>
-    <h4 class="my-1 py-1" slot="modal-header">Index: {{ modalDetails.index }}</h4>
-    <pre>{{ modalDetails.data }}</pre>
+  <b-modal id="detail-modal" title="详细信息" ok-only>
+    <pre>{{ JSON.stringify(targetFile, null, 2) }}</pre>
   </b-modal>
 
   <!-- 确认删除弹窗 -->

@@ -12,7 +12,7 @@ class CommentModel extends Comment {
   props: ['fileID']
 })
 export class CommentList extends Vue {
-  show: boolean = true;
+  show: boolean = false;
   loading: boolean = false;
   fileID: string = '';
   comments: CommentModel[] = [

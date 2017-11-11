@@ -54,8 +54,6 @@ export class FileList extends Vue {
     return this.files.length;
   }
 
-  modalDetails: { index, data } = {index: '', data: ''};
-
   get path(): string {
     let value = this.$route.query['path'];
     return value ? value : '/';
@@ -138,10 +136,14 @@ export class FileList extends Vue {
     this.currentPage = 1;
   }
 
-  showDetail (item: File, index: number) {
-    this.modalDetails.data = JSON.stringify(item, null, 2);
-    this.modalDetails.index = index;
+  showDetail (item: FileModel) {
+    this.targetFile = item;
     this.$root.$emit('bv::show::modal', 'detail-modal');
+  }
+
+  showComment (item: FileModel) {
+    this.targetFile = item;
+    this.$root.$emit('bv::show::modal', 'comment-modal');
   }
 
   rename (item: FileModel) {
@@ -159,11 +161,6 @@ export class FileList extends Vue {
       item.name = item.oldName;
       return;
     }
-  }
-
-  resetModal() {
-    this.modalDetails.data = '';
-    this.modalDetails.index = '';
   }
 
   targetFiles: FileModel[] = [];
