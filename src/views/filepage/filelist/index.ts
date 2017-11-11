@@ -7,6 +7,7 @@ import {Watch} from 'vue-property-decorator';
 import {CommentList} from '../comment_list/index';
 import {PathBreadcrumb} from '../../../components/path_breadcrumb/index';
 import {PathSelector} from '../../../components/path_selector/index';
+import {PreviewModal} from '../../../components/preview_modal/index';
 
 class FileModel extends File {
   choice: boolean = false;
@@ -16,32 +17,9 @@ class FileModel extends File {
   url: string = '';
 }
 
-function inSuffixs(str: string, suffixs: string[]): boolean {
-  for (let s of suffixs)
-    if (str.endsWith('.' + s))
-      return true;
-  return false;
-}
-function isVideo(file: File): boolean {
-  if (file == null)  return false;
-  return inSuffixs(file.name, ['avi', 'mp4']);
-}
-function isImage(file: File): boolean {
-  if (file == null)  return false;
-  return inSuffixs(file.name, ['jpg', 'png']);
-}
-function isText(file: File): boolean {
-  if (file == null)  return false;
-  return inSuffixs(file.name, ['txt']);
-}
-
-function delay(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 @Component({
   template: require('./filelist.html'),
-  components: {UploadStatus, CommentList, PathBreadcrumb, PathSelector},
+  components: {UploadStatus, CommentList, PathBreadcrumb, PathSelector, PreviewModal},
   async mounted() {
     await this.fetchData();
   }
@@ -277,15 +255,6 @@ export class FileList extends Vue {
     }
   }
 
-  get isVideo() {
-    return isVideo(this.targetFile);
-  }
-  get isImage() {
-    return isImage(this.targetFile);
-  }
-  get isText() {
-    return isText(this.targetFile);
-  }
   targetFile: FileModel = null;
 
   files: FileModel[] = [];
