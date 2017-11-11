@@ -1,0 +1,11 @@
+<div>
+  <b-card-group v-for="filesInRow in filesInGrid">
+    <b-card v-for="file in filesInRow"
+            :img-src="getUrl(file)"
+            img-alt="Img" img-top>
+      <small class="text-muted">Last updated 3 mins ago</small>
+      <i class="fa fa-info-circle"
+         v-b-popover.hover.bottom="'More info'"></i>
+    </b-card>
+  </b-card-group>
+</div>
