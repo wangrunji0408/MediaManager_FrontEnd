@@ -1,0 +1,8 @@
+<b-list-group>
+  <b-list-group-item v-for="event in events">
+    <b-row>
+      <b-col cols="8">{{event.content}}</b-col>
+      <b-col cols="4">{{showTime(event.date)}}</b-col>
+    </b-row>
+  </b-list-group-item>
+</b-list-group>

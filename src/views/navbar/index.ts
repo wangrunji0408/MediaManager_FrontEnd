@@ -1,11 +1,21 @@
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
-import {ErrorInfo, UserApi} from '../../api';
+import {BASE_PATH, ErrorInfo, UserApi} from '../../api';
+import {MessageList} from './message_list/index';
 
 @Component({
-  template: require('./navbar.html')
+  template: require('./navbar.html'),
+  components: {MessageList}
 })
 export class NavbarComponent extends Vue {
+
+  get userAvatarUrl(): string {
+    return `${BASE_PATH}/user/${this.$store.state.userID}/avatar`;
+  }
+
+  get username(): string {
+    return this.$store.state.username;
+  }
 
   async logout() {
     try {
