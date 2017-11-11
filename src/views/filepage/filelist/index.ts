@@ -6,6 +6,7 @@ import {UploadStatus} from '../../../components/upload_status';
 import {Watch} from 'vue-property-decorator';
 import {CommentList} from '../comment_list/index';
 import {PathBreadcrumb} from '../../../components/path_breadcrumb/index';
+import {PathSelector} from '../../../components/path_selector/index';
 
 class FileModel extends File {
   choice: boolean = false;
@@ -40,7 +41,10 @@ function delay(ms: number) {
 
 @Component({
   template: require('./filelist.html'),
-  components: {UploadStatus, CommentList, PathBreadcrumb}
+  components: {UploadStatus, CommentList, PathBreadcrumb, PathSelector},
+  async mounted() {
+    await this.fetchData();
+  }
 })
 export class FileList extends Vue {
 
