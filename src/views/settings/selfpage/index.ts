@@ -5,14 +5,12 @@ import './style.css';
 
 @Component({
   template: require('./selfpage.html'),
+  async mounted() {
+    await this.fetchData();
+  }
 })
 export class SelfPage extends Vue {
   user: User = {};
-
-  constructor() {
-    super();
-    this.fetchData();
-  }
 
   get uploadImageUrl(): string {
     return new UserApi().basePath + `/user/${this.user.id}/avatar`;

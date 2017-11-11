@@ -31,7 +31,9 @@ function delay(ms: number) {
 
 @Component({
   template: require('./filelist.html'),
-  components: {UploadStatus}
+  async mounted() {
+    await this.fetchData();
+  }
 })
 export class FileList extends Vue {
 
@@ -67,11 +69,6 @@ export class FileList extends Vue {
       lastPos = i;
     }
     return items;
-  }
-
-  constructor() {
-    super();
-    this.fetchData();
   }
 
   filesToUpload: any[] = [];
