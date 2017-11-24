@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import moment from 'moment';
-import {ErrorInfo, File, FileApi, BASE_PATH, FileTag, FiletagApi} from '../../../api';
+import {ErrorInfo, File, FileApi, BASE_PATH, FileTag, FiletagApi, UserGroup, UserApi} from '../../../api';
 import {UploadStatus} from '../../../components/upload_status';
 import {Watch} from 'vue-property-decorator';
 import {CommentList} from '../comment_list/index';
@@ -204,6 +204,8 @@ export class FileList extends Vue {
         url: BASE_PATH + `/file/${f.id}/data`,
       }));
       this.allTags = await new FiletagApi().getFileTags();
+      let self = await new UserApi().getUserByName({id: this.$store.state.userID});
+      this.allUserGroups = self.groups;
     } catch (e) {
       await this.handleError(e, '刷新');
     }
@@ -266,11 +268,11 @@ export class FileList extends Vue {
   addTagBegin() {
     this.newTagName = '';
   }
-  async updateTag() {
+  async updateTargetFile() {
     try {
       let rsp = await new FileApi().updateFiles({body: [this.targetFile]});
     } catch (e) {
-      await this.handleError(e, '修改标签');
+      await this.handleError(e, '修改文件信息');
     } finally {
       await this.fetchData();
     }
@@ -287,6 +289,8 @@ export class FileList extends Vue {
       await this.fetchData();
     }
   }
+
+  allUserGroups: UserGroup[] = [];
 
   targetFile: FileModel = nullFile;
 

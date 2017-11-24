@@ -53,6 +53,7 @@
       <span v-if="!row.item.renaming">{{row.item.name}}</span>
       <b-form-input v-model="row.item.name" type="text" placeholder="File name"
                     v-else @change="rename_done(row.item)"></b-form-input>
+      <i class="fa fa-pencil" @click.stop="rename(row.item)"></i>
       <div>
         <b-badge v-for="tag in row.item.tags">{{tag.name}}</b-badge>
         <!--<b-badge :id="'add-tag'+row.index" variant="success">+</b-badge>-->
@@ -65,26 +66,21 @@
     <template slot="size" scope="row">{{fileSizeToString(row.value)}}</template>
     <template slot="modifyDate" scope="row">{{dateToString(row.value)}}</template>
     <template slot="detail" scope="row">
-      <b-dropdown id="ddown1" text="..." variant="primary" size="sm" class="m-md-2">
-        <b-dropdown-item aria-describedby="details" @click.stop="showDetail(row.item)">
-          <i class="fa fa-info-circle" aria-hidden="true"></i>Details
-        </b-dropdown-item>
-        <b-dropdown-item aria-describedby="comment" @click.stop="showComment(row.item)">
-          <i class="fa fa-comment" aria-hidden="true"></i>Comment
-        </b-dropdown-item>
-        <b-dropdown-item aria-describedby="rename" @click.stop="rename(row.item)">
-          <i class="fa fa-pencil" aria-hidden="true"></i>Rename
-        </b-dropdown-item>
-        <b-dropdown-item aria-describedby="move" @click.stop="moveBegin([row.item])">
-          <i class="fa fa-exchange" aria-hidden="true"></i>Move
-        </b-dropdown-item>
-        <b-dropdown-item aria-describedby="download" v-bind:href="row.item.url">
-          <i class="fa fa-download" aria-hidden="true"></i>Download
-        </b-dropdown-item>
-        <b-dropdown-item aria-describedby="delete" @click.stop="deleteBegin([row.item])">
-          <i class="fa fa-trash" aria-hidden="true"></i></i>Delete
-        </b-dropdown-item>
-      </b-dropdown>
+      <b-btn variant="primary" size="sm" @click.stop="showDetail(row.item)">
+        <i class="fa fa-info-circle"></i>
+      </b-btn>
+      <b-btn variant="primary" size="sm" @click.stop="showComment(row.item)">
+        <i class="fa fa-comment"></i>
+      </b-btn>
+      <b-btn variant="primary" size="sm" @click.stop="moveBegin([row.item])">
+        <i class="fa fa-exchange"></i>
+      </b-btn>
+      <b-btn variant="primary" size="sm" v-bind:href="row.item.url">
+        <i class="fa fa-download"></i>
+      </b-btn>
+      <b-btn variant="danger" size="sm" @click.stop="deleteBegin([row.item])">
+        <i class="fa fa-trash"></i>
+      </b-btn>
     </template>
   </b-table>
 
@@ -97,16 +93,35 @@
 
   <!-- 详细信息弹窗 -->
   <b-modal id="detail-modal" title="详细信息" ok-only>
-    <multiselect v-model="targetFile.tags"
-                 placeholder="文件标签"
-                 label="name"
-                 :taggable="true" @tag="newTag"
-                 @select="updateTag"
-                 @remove="updateTag"
-                 :options="allTags"
-                 :multiple="true">
-    </multiselect>
-    <pre>{{ JSON.stringify(targetFile, null, 2) }}</pre>
+
+    <b-form-group horizontal label="文件名">{{targetFile.name}}</b-form-group>
+
+    <b-form-group horizontal label="文件标签">
+      <multiselect v-model="targetFile.tags"
+                   placeholder="文件标签"
+                   label="name"
+                   :taggable="true" @tag="newTag"
+                   @input="updateTargetFile"
+                   :options="allTags"
+                   :multiple="true">
+      </multiselect>
+    </b-form-group>
+
+    <b-form-group horizontal label="分享到组">
+      <multiselect v-model="targetFile.shareToGroups"
+                   placeholder="分享到用户组"
+                   label="name"
+                   @input="updateTargetFile"
+                   :options="allUserGroups"
+                   :multiple="true">
+      </multiselect>
+    </b-form-group>
+
+    <b-btn v-b-toggle.collapse1 variant="primary">JSON</b-btn>
+    <b-collapse id="collapse1" class="mt-2">
+      <pre>{{ JSON.stringify(targetFile, null, 2) }}</pre>
+    </b-collapse>
+
   </b-modal>
 
   <!-- 确认删除弹窗 -->
