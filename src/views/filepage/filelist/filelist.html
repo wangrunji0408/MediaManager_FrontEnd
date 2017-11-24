@@ -50,13 +50,22 @@
     <template slot="name" scope="row">
       <i class="fa fa-file" v-if="!row.item.isDir" @click="open(row.item)"></i>
       <i class="fa fa-folder" v-if="row.item.isDir" @click="open(row.item)"></i>
+      <span v-if="!row.item.renaming">{{row.item.name}}</span>
       <b-form-input v-model="row.item.name" type="text" placeholder="File name"
-                    :plaintext="!row.item.renaming" @change="rename_done(row.item)"></b-form-input>
+                    v-else @change="rename_done(row.item)"></b-form-input>
+      <div>
+        <b-badge v-for="tag in row.item.tags">{{tag.name}}</b-badge>
+        <!--<b-badge :id="'add-tag'+row.index" variant="success">+</b-badge>-->
+        <!--<b-popover :target="'add-tag'+row.index" placement="bottom" title="添加标签" @show="addTagBegin">-->
+          <!--<b-input v-model="newTagName" placeholder="新标签名" @input="addTag(row.item)"></b-input>-->
+          <!--&lt;!&ndash;<i class="fa fa-check" @click="addTag"></i>&ndash;&gt;-->
+        <!--</b-popover>-->
+      </div>
     </template>
     <template slot="size" scope="row">{{fileSizeToString(row.value)}}</template>
     <template slot="modifyDate" scope="row">{{dateToString(row.value)}}</template>
     <template slot="detail" scope="row">
-      <b-dropdown id="ddown1" text="..." variant="primary" class="m-md-2">
+      <b-dropdown id="ddown1" text="..." variant="primary" size="sm" class="m-md-2">
         <b-dropdown-item aria-describedby="details" @click.stop="showDetail(row.item)">
           <i class="fa fa-info-circle" aria-hidden="true"></i>Details
         </b-dropdown-item>
@@ -88,6 +97,15 @@
 
   <!-- 详细信息弹窗 -->
   <b-modal id="detail-modal" title="详细信息" ok-only>
+    <multiselect v-model="targetFile.tags"
+                 placeholder="文件标签"
+                 label="name"
+                 :taggable="true" @tag="newTag"
+                 @select="updateTag"
+                 @remove="updateTag"
+                 :options="allTags"
+                 :multiple="true">
+    </multiselect>
     <pre>{{ JSON.stringify(targetFile, null, 2) }}</pre>
   </b-modal>
 

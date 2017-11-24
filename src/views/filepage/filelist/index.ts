@@ -1,13 +1,15 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import moment from 'moment';
-import {ErrorInfo, File, FileApi, BASE_PATH} from '../../../api';
+import {ErrorInfo, File, FileApi, BASE_PATH, FileTag, FiletagApi} from '../../../api';
 import {UploadStatus} from '../../../components/upload_status';
 import {Watch} from 'vue-property-decorator';
 import {CommentList} from '../comment_list/index';
 import {PathBreadcrumb} from '../../../components/path_breadcrumb/index';
 import {PathSelector} from '../../../components/path_selector/index';
 import {PreviewModal} from '../../../components/preview_modal/index';
+import Multiselect from 'vue-multiselect';
+
 
 class FileModel extends File {
   choice: boolean = false;
@@ -17,9 +19,18 @@ class FileModel extends File {
   url: string = '';
 }
 
+const nullFile: FileModel = {
+  ...new File(),
+  choice: null,
+  star: null,
+  oldName: null,
+  renaming: null,
+  url: null
+};
+
 @Component({
   template: require('./filelist.html'),
-  components: {UploadStatus, CommentList, PathBreadcrumb, PathSelector, PreviewModal},
+  components: {Multiselect, UploadStatus, CommentList, PathBreadcrumb, PathSelector, PreviewModal},
   async mounted() {
     await this.fetchData();
   }
@@ -184,16 +195,15 @@ export class FileList extends Vue {
     // TODO 超时判断
     try {
       let files = await new FileApi().getFiles({path: this.path});
-      this.files = files.map(f => {
-        let ff = f as FileModel;  // 扩展为子类，补全属性
-        ff.choice = false;
-        ff.oldName = '';
-        ff.renaming = false;
-        ff.star = false;
-        ff.url = BASE_PATH + `/file/${ff.id}/data`;
-        return ff;
-      });
-      // this.$message.success('获取数据成功');
+      this.files = files.map(f => ({
+        ...f,
+        choice: false,
+        oldName: '',
+        renaming: false,
+        star: false,
+        url: BASE_PATH + `/file/${f.id}/data`,
+      }));
+      this.allTags = await new FiletagApi().getFileTags();
     } catch (e) {
       await this.handleError(e, '刷新');
     }
@@ -250,7 +260,35 @@ export class FileList extends Vue {
     }
   }
 
-  targetFile: FileModel = null;
+  allTags: FileTag[] = [];
+
+  newTagName: string = '';
+  addTagBegin() {
+    this.newTagName = '';
+  }
+  async updateTag() {
+    try {
+      let rsp = await new FileApi().updateFiles({body: [this.targetFile]});
+    } catch (e) {
+      await this.handleError(e, '修改标签');
+    } finally {
+      await this.fetchData();
+    }
+  }
+  async newTag(tagName: string) {
+    try {
+      let tag = await new FiletagApi().createFileTag({body:
+        {id: 0, name: tagName, color: '#FFFFFF'}});
+      this.targetFile.tags.push(tag);
+      let rsp = await new FileApi().updateFiles({body: [this.targetFile]});
+    } catch (e) {
+      await this.handleError(e, '新建标签');
+    } finally {
+      await this.fetchData();
+    }
+  }
+
+  targetFile: FileModel = nullFile;
 
   files: FileModel[] = [];
 
