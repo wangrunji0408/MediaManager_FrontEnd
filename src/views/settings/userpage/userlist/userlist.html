@@ -37,8 +37,8 @@
     <template slot="select" scope="row">
       <b-form-checkbox v-model="row.item.selected"></b-form-checkbox>
     </template>
-    <template slot="icon" scope="row">
-      <b-img thumbnail fluid v-bind:src="row.item.image" width="50" height="50" alt="Thumbnail"></b-img>
+    <template slot="avatar" scope="row">
+      <b-img fluid :src="row.item.image" width="50" height="50" alt="IMG"></b-img>
     </template>
     <template slot="username" scope="row">
       <i class="fa fa-user"></i>

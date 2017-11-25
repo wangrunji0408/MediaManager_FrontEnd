@@ -2,11 +2,11 @@
   <!-- 用户头像 -->
   <el-upload
     class="avatar-uploader"
-    :action="uploadImageUrl"
+    action=""
+    http-request="httpRequest"
     :show-file-list="false"
-    :on-success="onImageUploadSuccess"
     :before-upload="beforeImageUpload">
-    <img v-if="imageUrl" :src="imageUrl" class="avatar">
+    <img v-if="userAvatarUrl" :src="userAvatarUrl" class="avatar">
     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
   </el-upload>
 

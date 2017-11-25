@@ -2369,13 +2369,12 @@ export const UserApiFetchParamCreator = {
         let urlObj = url.parse(baseUrl, true);
         let fetchOptions: RequestInit = assign({}, { method: 'POST' }, options);
 
-        let contentTypeHeader: Dictionary<string> = {};
-        contentTypeHeader = { 'Content-Type': 'application/x-www-form-urlencoded' };
-        fetchOptions.body = querystring.stringify({
-            'file': params['file'],
-        });
+        let body = new FormData();
+        body.append('file', params['file']);
+        fetchOptions.body = body;
+        let contentTypeHeader = {};
         if (contentTypeHeader) {
-            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+          fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
         }
         return {
             url: url.format(urlObj),

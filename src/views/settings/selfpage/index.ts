@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import {User, UserApi} from '../../../api';
+import {BASE_PATH, User, UserApi} from '../../../api';
 import './style.css';
 
 @Component({
@@ -12,15 +12,21 @@ import './style.css';
 export class SelfPage extends Vue {
   user: User = {};
 
-  get uploadImageUrl(): string {
+  get userAvatarUrl(): string {
     return new UserApi().basePath + `/user/${this.user.id}/avatar`;
   }
-  imageUrl: string = '';
-  beforeImageUpload() {
-    this.$message.info('beforeImageUpload');
+  httpRequest() {
+
   }
-  onImageUploadSuccess() {
-    this.$message.info('onImageUploadSuccess');
+  async beforeImageUpload(file) {
+    try {
+      await new UserApi().uploadUserAvatar({id: this.user.id, file: file} );
+      this.$message.success('上传头像成功');
+    } catch (e) {
+      this.$message.error('上传头像失败');
+      return false;
+    }
+    return true;
   }
 
 

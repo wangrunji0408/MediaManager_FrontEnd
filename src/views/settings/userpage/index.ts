@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import {UserList} from './userlist';
 import {AddUserBar} from './adduserbar';
-import {GroupApi, User, UserApi, UserGroup} from '../../../api';
+import {BASE_PATH, GroupApi, User, UserApi, UserGroup} from '../../../api';
 import {inGroup} from './util';
 import VueRouter from 'vue-router';
 
@@ -53,8 +53,13 @@ export class UserPage extends Vue {
     await this.fetchData();
   }
 
+  userAvatarUrl(user: User): string {
+    return `${BASE_PATH}/user/${user.id}/avatar`;
+  }
+
   async fetchData() {
-    this.users = await new UserApi().getUser({});
+    let users = await new UserApi().getUser({});
+    this.users = users.map(u => ({...u, image: this.userAvatarUrl(u)}));
     this.allGroups = await new GroupApi().getUserGroups();
   }
 }
