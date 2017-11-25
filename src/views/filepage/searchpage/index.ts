@@ -27,9 +27,11 @@ export class SearchPage extends Vue {
   }
 
   @Watch('searchTags')
+  @Watch('searchName')
   async search() {
     try {
       this.files = await new FileApi().getFiles({
+        name: this.searchName,
         tags: this.searchTags.map(t => t.id)
       });
     } catch (e) {

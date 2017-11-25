@@ -55,6 +55,12 @@
     </template>
   </b-table>
 
+  <div class="row">
+    <div class="offset-md-4 col-md-3">
+      <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" />
+    </div>
+  </div>
+
   <!-- 重命名弹窗 -->
   <b-modal id="rename-modal" title="重命名" @ok="renameDone" @show="newName = ''">
     <b-form-input v-model="newName" type="text" placeholder="新用户名"></b-form-input>

@@ -17,7 +17,19 @@ export class Signup extends Vue {
     this.show_password = !this.show_password;
   }
 
+  validate_email(email: string): string {
+    if (!email.endsWith('tsinghua.edu.cn'))
+      return '必须是清华邮箱';
+    return null;
+  }
+
   async signup () {
+    let error = this.validate_email(this.email);
+    if (error) {
+      this.$message.error(error);
+      return;
+    }
+
     try {
       let body = {
         username: this.username,
