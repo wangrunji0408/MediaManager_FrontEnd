@@ -9,6 +9,10 @@ interface TransferData {
   label: string;
 }
 
+class GroupModel extends UserGroup {
+  renaming: boolean = false;
+}
+
 function removeGroup(user: User, group: UserGroup) {
   user.groups = user.groups.filter(g => g.id !== group.id);
 }
@@ -21,8 +25,8 @@ function removeGroup(user: User, group: UserGroup) {
 })
 export class GroupPage extends Vue {
 
-  nowGroup: UserGroup = null;
-  groups: UserGroup[] = [];
+  nowGroup: GroupModel = null;
+  groups: GroupModel[] = [];
   users: User[] = [];
 
   // transfer data
@@ -65,6 +69,10 @@ export class GroupPage extends Vue {
 
   newGroup: UserGroup = {id: 0, name: '', color: '#FFFFFF'};
   async addGroup () {
+    if (this.newGroup.name === '') {
+      this.$message.error('组名不能为空');
+      return;
+    }
     try {
       let rsp = await new GroupApi().createUserGroup({body: this.newGroup});
       this.$message.success('新建用户组成功');
@@ -76,10 +84,26 @@ export class GroupPage extends Vue {
     await this.fetchData();
   }
 
+  async deleteGroup (g: UserGroup) {
+    try {
+      let rsp = await new GroupApi().deleteUserGroup({id: g.id});
+    } catch (e) {
+      this.$message.error('删除用户组失败');
+      return;
+    }
+    await this.fetchData();
+  }
+
+  async rename (g: GroupModel) {
+    g.renaming = false;
+    await this.updateGroup(g);
+  }
+
   async fetchData () {
     try {
       this.users = await new UserApi().getUser({});
-      this.groups = await new GroupApi().getUserGroups();
+      let groups = await new GroupApi().getUserGroups();
+      this.groups = groups.map(g => ({...g, renaming: false}));
       this.allList = this.users.map(u => ({key: u.id, label: u.username}));
       this.updateList();
     } catch (e) {

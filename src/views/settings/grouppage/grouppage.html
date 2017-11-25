@@ -13,8 +13,12 @@
           <b-col cols="2">
             <el-color-picker v-model="g.color" @change="updateGroup(g)"></el-color-picker>
           </b-col>
-          <b-col cols="8">
-            <b-form-input v-model="g.name" plaintext></b-form-input>
+          <b-col cols="6">
+            <b-form-input v-model="g.name" :plaintext="!g.renaming"></b-form-input>
+          </b-col>
+          <b-col cols="1">
+            <i class="fa fa-pencil-square-o" v-if="!g.renaming" @click="g.renaming = true"></i>
+            <i class="fa fa-check" v-if="g.renaming" @click="rename(g)"></i>
           </b-col>
           <b-col cols="2">
             <b-btn variant="danger" size="sm" @click="deleteGroup(g)">
