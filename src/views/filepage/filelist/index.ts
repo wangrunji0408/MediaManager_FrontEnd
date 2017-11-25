@@ -85,11 +85,11 @@ export class FileList extends Vue {
 
   fileSizeToString(size: number): string {
     if (size < 1024)
-      return `${size}KB`;
+      return `${size}B`;
     if (size < 1024 * 1024)
-      return `${size / 1024}MB`;
+      return `${size / 1024}KB`;
     if (size < 1024 * 1024 * 1024)
-      return `${size / 1024 / 1024}GB`;
+      return `${size / 1024 / 1024}MB`;
     return `HUGE`;
   }
 
