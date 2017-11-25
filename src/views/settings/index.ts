@@ -3,6 +3,7 @@ import Component from 'vue-class-component';
 import {UserPage} from './userpage';
 import {SelfPage} from './selfpage';
 import {FollowPage} from './followpage/index';
+import {GroupPage} from './grouppage/index';
 
 @Component({
   template: require('./settings.html'),
@@ -16,4 +17,5 @@ export let SettingsRoute = [
   { path: 'user', component: UserPage },
   { path: 'self', component: SelfPage },
   { path: 'follow', component: FollowPage },
+  { path: 'group', component: GroupPage },
 ];

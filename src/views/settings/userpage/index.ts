@@ -41,7 +41,8 @@ export class UserPage extends Vue {
     try {
       let rsp = await new GroupApi().createUserGroup({body: {
         id: 0,
-        name: this.newGroupName
+        name: this.newGroupName,
+        color: '#FFFFFF'
       }});
       this.$message.success('新建用户组成功');
       this.newGroupName = '';

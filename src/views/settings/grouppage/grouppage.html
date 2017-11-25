@@ -1,0 +1,35 @@
+<b-row>
+  <b-col cols="4">
+    <b-list-group>
+      <b-list-group-item>
+        <b-row>
+          <b-col cols="2"><el-color-picker v-model="newGroup.color"></el-color-picker></b-col>
+          <b-col cols="8"><b-form-input v-model="newGroup.name" placeholder="新组名"></b-form-input></b-col>
+          <b-col cols="2"><b-btn variant="primary" size="sm" @click="addGroup">+</b-btn></b-col>
+        </b-row>
+      </b-list-group-item>
+      <b-list-group-item v-for="g in groups" :active="g == nowGroup" @click="nowGroup = g">
+        <b-row>
+          <b-col cols="2">
+            <el-color-picker v-model="g.color" @change="updateGroup(g)"></el-color-picker>
+          </b-col>
+          <b-col cols="8">
+            <b-form-input v-model="g.name" plaintext></b-form-input>
+          </b-col>
+          <b-col cols="2">
+            <b-btn variant="danger" size="sm" @click="deleteGroup(g)">
+              <i class="fa fa-trash"></i>
+            </b-btn>
+          </b-col>
+        </b-row>
+      </b-list-group-item>
+    </b-list-group>
+  </b-col>
+  <b-col cols="8">
+    <el-transfer v-model="selectedList" :data="allList"
+                 @change="updateUser"
+                 :titles="['组外用户', '组内用户']">
+    </el-transfer>
+  </b-col>
+</b-row>
+
