@@ -14,6 +14,9 @@
     <b-form-group label="用户名" label-for="usernameInput" description="用户名不可修改">
       <b-form-input id="usernameInput" type="text" v-model="user.username" readonly></b-form-input>
     </b-form-group>
+    <b-form-group label="所在组" label-for="groups">
+      <h4><b-badge v-for="group in user.groups">{{group.name}}</b-badge></h4>
+    </b-form-group>
     <b-form-group label="姓名" label-for="nameInput">
       <b-form-input id="nameInput" type="text" v-model="user.firstname" placeholder="姓名"></b-form-input>
     </b-form-group>

@@ -16,6 +16,7 @@ import * as url from 'url';
 import * as isomorphicFetch from 'isomorphic-fetch';
 import * as assign from 'core-js/library/fn/object/assign';
 import {store} from './store';
+import moment from 'moment';
 
 interface Dictionary<T> { [index: string]: T; }
 export interface FetchAPI { (url: string, init?: any): Promise<any>; }
@@ -1454,11 +1455,13 @@ export const SocialApiFetchParamCreator = {
         if (params['userID'] == null) {
             throw new Error('Missing required parameter userID when calling getUserEvents');
         }
+
+        let timeStr = moment(params['afterTime']).format('YYYY-MM-DDThh:mm:ss');
         const baseUrl = `/event`;
         let urlObj = url.parse(baseUrl, true);
         urlObj.query = assign({}, urlObj.query, {
             'userID': params['userID'],
-            'afterTime': params['afterTime'],
+            'afterTime': timeStr,
         });
         let fetchOptions: RequestInit = assign({}, { method: 'GET' }, options);
 

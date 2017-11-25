@@ -36,6 +36,7 @@ export class FollowPage extends Vue {
         id: this.$store.state.userID,
         othersID: user.id
       });
+      await this.fetchData();
     } catch (e) {
       this.$message.error('关注失败');
       throw e;
@@ -48,6 +49,7 @@ export class FollowPage extends Vue {
           id: this.$store.state.userID,
           othersID: user.id
       });
+      await this.fetchData();
     } catch (e) {
       this.$message.error('取消关注失败');
       throw e;
