@@ -9,6 +9,7 @@ export let store = new Vuex.Store({
     authOpt: null,
     username: null,
     userID: null,
+    allUsers: null,
   },
   mutations: {
     setBasicAuth(state, payload: {username, password}) {
@@ -26,6 +27,9 @@ export let store = new Vuex.Store({
     setUserID(state, id) {
       state.userID = id;
       localStorage.setItem('userID', id);
+    },
+    setAllUsers(state, allUsers) {
+      state.allUsers = allUsers;
     },
     logout(state) {
       state.authOpt = null;

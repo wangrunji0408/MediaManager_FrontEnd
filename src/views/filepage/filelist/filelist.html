@@ -96,6 +96,8 @@
 
     <b-form-group horizontal label="文件名">{{targetFile.name}}</b-form-group>
 
+    <b-form-group horizontal label="所有者">{{targetFile.ownerName}}</b-form-group>
+
     <b-form-group horizontal label="文件标签">
       <multiselect v-model="targetFile.tags"
                    placeholder="文件标签"

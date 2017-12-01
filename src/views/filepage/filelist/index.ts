@@ -17,6 +17,7 @@ class FileModel extends File {
   oldName: string = '';
   renaming: boolean = false;
   url: string = '';
+  ownerName: string = '';
 }
 
 const nullFile: FileModel = {
@@ -25,7 +26,8 @@ const nullFile: FileModel = {
   star: null,
   oldName: null,
   renaming: null,
-  url: null
+  url: null,
+  ownerName: null,
 };
 
 @Component({
@@ -202,7 +204,12 @@ export class FileList extends Vue {
         renaming: false,
         star: false,
         url: BASE_PATH + `/file/${f.id}/data`,
+        ownerName: `User ${f.ownerID}`
       }));
+      this.files.forEach(async f => {
+        let owner = await new UserApi().getUserByName({id: f.ownerID});
+        f.ownerName = owner.username;
+      });
       this.allTags = await new FiletagApi().getFileTags();
       let self = await new UserApi().getUserByName({id: this.$store.state.userID});
       this.allUserGroups = self.groups;

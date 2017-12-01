@@ -6,7 +6,7 @@
              rounded width="40" height="40"></b-img>
       <div class="media-body">
         <div class="row">
-          <p class="col-6">{{comment.userID}}</p>
+          <p class="col-6">{{comment.username}}</p>
           <p class="col-4">{{formatDate(comment.date)}}</p>
           <i class="col-1 fa fa-pencil-square-o"
              v-if="owns(comment) && !comment.editing" @click="editBegin(comment)"></i>

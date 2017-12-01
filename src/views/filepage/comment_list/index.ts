@@ -1,12 +1,13 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import {BASE_PATH, Comment, CommentTypeEnum, SocialApi} from '../../../api';
+import {BASE_PATH, Comment, CommentTypeEnum, SocialApi, UserApi} from '../../../api';
 import {Watch} from 'vue-property-decorator';
 import moment from 'moment';
 
 class CommentModel extends Comment {
   editing: boolean = false;
   isNew: boolean = false;
+  username: string = '';
 }
 
 @Component({
@@ -37,7 +38,8 @@ export class CommentList extends Vue {
       userID: this.$store.state.userID,
       type: type,
       editing: true,
-      isNew: true
+      isNew: true,
+      username: this.$store.state.username,
     };
     this.comments.push(comment);
     if (comment.type === 'star') {
@@ -81,13 +83,22 @@ export class CommentList extends Vue {
 
   @Watch('fileID')
   async fetchData() {
-    if (this.fileID === '')
+    if (!this.fileID || this.fileID === '0')
       return;
     try {
       this.loading = true;
       let list = await new SocialApi().getFileComments(
         {fileID: this.fileID});
-      this.comments = list.map(c => ({...c, editing: false, isNew: false}));
+      this.comments = list.map(c => ({
+        ...c,
+        editing: false,
+        isNew: false,
+        username: `User ${c.userID}`,
+      }));
+      this.comments.forEach(async f => {
+        let user = await new UserApi().getUserByName({id: f.userID});
+        f.username = user.username;
+      });
     } catch (e) {
       this.$message.error('获取评论失败');
     } finally {
