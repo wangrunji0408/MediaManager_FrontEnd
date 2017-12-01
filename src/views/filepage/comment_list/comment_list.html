@@ -1,12 +1,13 @@
 <b-modal id="comment-modal" title="评论" v-model="show">
-  <b-list-group v-loading="loading">
+  <span v-if="comments.length === 0">目前还没有评论</span>
+  <b-list-group v-else v-loading="loading">
     <b-list-group-item v-for="comment in comments" class="media">
       <b-img :src="getAvatarUrl(comment.userID)" class="media-left"
              rounded width="40" height="40"></b-img>
       <div class="media-body">
         <div class="row">
           <p class="col-6">{{comment.userID}}</p>
-          <p class="col-4">{{comment.date}}</p>
+          <p class="col-4">{{formatDate(comment.date)}}</p>
           <i class="col-1 fa fa-pencil-square-o"
              v-if="owns(comment) && !comment.editing" @click="editBegin(comment)"></i>
           <i class="col-1 fa fa-check"

@@ -21,7 +21,7 @@ import moment from 'moment';
 interface Dictionary<T> { [index: string]: T; }
 export interface FetchAPI { (url: string, init?: any): Promise<any>; }
 
-export const BASE_PATH = 'http://pan.zhangyn.me'.replace(/\/+$/, '');
+export const BASE_PATH = 'http://localhost:8000'.replace(/\/+$/, '');
 
 export interface FetchArgs {
     url: string;
