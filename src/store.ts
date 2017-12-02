@@ -39,6 +39,7 @@ export let store = new Vuex.Store({
     logout(state) {
       state.authOpt = null;
       state.username = null;
+      state.userID = null;
       localStorage.removeItem('authOpt');
       localStorage.removeItem('username');
       localStorage.removeItem('userID');

@@ -8,7 +8,7 @@
 
     <b-nav is-nav-bar>
       <b-nav-item to="/file">File</b-nav-item>
-      <b-nav-item to="/settings">Settings</b-nav-item>
+      <b-nav-item to="/settings" v-if="!isGuest">Settings</b-nav-item>
     </b-nav>
 
     <b-navbar-nav class="ml-auto">
@@ -18,7 +18,7 @@
         <MessageList></MessageList>
       </b-popover>
 
-      <b-nav-item-dropdown right>
+      <b-nav-item-dropdown right v-if="isLogin">
         <template slot="button-content">
           <img :src="userAvatarUrl" width="30" height="30" class="d-inline-block align-top" alt="IMG">
           {{username}}

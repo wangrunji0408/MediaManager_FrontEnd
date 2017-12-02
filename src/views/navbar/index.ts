@@ -17,6 +17,14 @@ export class NavbarComponent extends Vue {
     return this.$store.state.username;
   }
 
+  get isLogin() {
+    return this.$store.state.userID != null;
+  }
+
+  get isGuest() {
+    return this.$store.state.username === 'youke';
+  }
+
   async logout() {
     try {
       this.$store.commit('logout');

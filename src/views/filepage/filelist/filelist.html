@@ -147,7 +147,7 @@
   </b-modal>
 
   <!-- 选择路径弹窗 -->
-  <b-modal id="move-modal" title="选择路径" @ok="moveSelected">
+  <b-modal id="move-modal" title="选择路径" @ok="moveSelected" @show="targetPath = '/'" @hide="targetPath = ''">
     <PathBreadcrumb v-model="targetPath" routeBase=""></PathBreadcrumb>
     <PathSelector v-model="targetPath"></PathSelector>
   </b-modal>

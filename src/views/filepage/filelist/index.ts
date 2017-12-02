@@ -90,6 +90,7 @@ export class FileList extends Vue {
         });
       }
       this.showAlert('上传文件成功', 'success');
+      await this.fetchData();
     } catch (e) {
       await this.handleError(e, '上传文件');
     }
@@ -188,7 +189,7 @@ export class FileList extends Vue {
     this.$root.$emit('bv::show::modal', 'move-modal');
   }
 
-  targetPath: string = '/';
+  targetPath: string = '';
 
   async moveSelected() {
     this.ensureTargetNotEmpty();

@@ -23,6 +23,8 @@ export class PathSelector extends Vue {
 
   @Watch('value')
   async fetchData() {
+    if (this.value === '')
+      return;
     try {
       this.loading = true;
       let files = await new FileApi().getFiles({path: this.value});
