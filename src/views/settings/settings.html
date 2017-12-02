@@ -13,7 +13,7 @@
         </template>
         <el-menu-item index="/settings/follow">关注管理</el-menu-item>
       </el-submenu>
-      <el-submenu index="3">
+      <el-submenu index="3" v-if="isAdmin">
         <template slot="title">
           <i class="el-icon-menu"></i><span>管理员设置</span>
         </template>

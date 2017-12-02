@@ -2534,12 +2534,12 @@ export const UserApiFp = {
      * @summary Signup user. Return a token.
      * @param body
      */
-    signupUser(params: { 'body': Body;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<string> {
+    signupUser(params: { 'body': Body;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
         const fetchArgs = UserApiFetchParamCreator.signupUser(params, options);
         return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
             return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
-                    return response.json();
+                    return response;
                 } else {
                     throw response;
                 }

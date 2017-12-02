@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import {BASE_PATH, File} from '../../api';
+import {BASE_PATH, File, FileApi} from '../../api';
 import util from '../../views/filepage/util';
 import {Watch} from 'vue-property-decorator';
 
