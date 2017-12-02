@@ -76,6 +76,9 @@
       <b-btn variant="primary" size="sm" v-bind:href="row.item.url">
         <i class="fa fa-download"></i>
       </b-btn>
+      <b-btn variant="primary" size="sm" @click.stop="showShare(row.item)">
+        <i class="fa fa-share"></i>
+      </b-btn>
       <b-btn variant="danger" size="sm" @click.stop="deleteBegin([row.item])">
         <i class="fa fa-trash"></i>
       </b-btn>
@@ -122,6 +125,20 @@
       <pre>{{ JSON.stringify(targetFile, null, 2) }}</pre>
     </b-collapse>
 
+    <b-btn v-b-toggle.collapse2 variant="primary" v-if="targetFile.videoInfo">视频信息</b-btn>
+    <b-collapse id="collapse2" class="mt-2" v-if="targetFile.videoInfo">
+      <strong>长度：</strong> {{targetFile.videoInfo.duration}} <br>
+      <strong>色彩通道：</strong> {{targetFile.videoInfo.colorChannel}} <br>
+      <strong>比特率：</strong> {{targetFile.videoInfo.bitRate}} <br>
+      <strong>分辨率：</strong> {{targetFile.videoInfo.resolution}} <br>
+      <strong>宽高比：</strong> {{targetFile.videoInfo.aspectRatio}} <br>
+    </b-collapse>
+
+  </b-modal>
+
+  <!-- 分享弹窗 -->
+  <b-modal id="share-modal" size="sm" title="分享文件">
+    <b-img fluid :src="shareQRUrl"></b-img>
   </b-modal>
 
   <!-- 确认删除弹窗 -->

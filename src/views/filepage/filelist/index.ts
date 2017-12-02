@@ -130,6 +130,12 @@ export class FileList extends Vue {
     this.$root.$emit('bv::show::modal', 'comment-modal');
   }
 
+  shareQRUrl: string = '';
+  showShare (item: FileModel) {
+    this.shareQRUrl = 'http://qr.liantu.com/api.php?text=' + `http://pan.zhangyn.me/file/${item.id}/data`;
+    this.$root.$emit('bv::show::modal', 'share-modal');
+  }
+
   rename (item: FileModel) {
     item.renaming = true;
     item.oldName = item.name;

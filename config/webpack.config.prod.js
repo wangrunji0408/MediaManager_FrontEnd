@@ -57,7 +57,11 @@ webpackConfig.module.rules = [...webpackConfig.module.rules,
     })
   },
   {
-    test: /\.(jpg|png|gif)$/,
+    test: /\.css$/,
+    loader: ['style-loader', 'css-loader']
+  },
+  {
+    test: /\.(ico|jpg|png|gif)$/,
     loader: 'file-loader?name=assets/img/[name].[ext]'
   },
   {
