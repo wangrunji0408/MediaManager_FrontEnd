@@ -23,11 +23,19 @@ export class Login extends Vue {
     this.$router.push({path: next});
   }
 
-  async login () {
+  async login_visitor() {
+    await this.login('youke', 'youke');
+  }
+
+  async login_input() {
+    await this.login(this.username, this.password);
+  }
+
+  async login (username: string, password: string) {
     try {
       let up = {
-        username: this.username,
-        password: this.password
+        username: username,
+        password: password
       };
       let rsp = await new UserApi().loginUser(up);
       this.$message.success('登陆成功');
