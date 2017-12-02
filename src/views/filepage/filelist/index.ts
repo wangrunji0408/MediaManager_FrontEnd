@@ -10,6 +10,16 @@ import {PathSelector} from '../../../components/path_selector/index';
 import {PreviewModal} from '../../../components/preview_modal/index';
 import Multiselect from 'vue-multiselect';
 
+function getFileIcon(file: File): string {
+  if (file.isDir)
+    return `https://cdn3.iconfinder.com/data/icons/tango-icon-library/48/folder-128.png`;
+  if (file.name.indexOf('.') < 0)
+    return `http://cdn.webiconset.com/file-type-icons/images/icons/blank.png`;
+  let ss = file.name.split('.');
+  let type = ss[ss.length - 1];
+  return `http://cdn.webiconset.com/file-type-icons/images/icons/${type}.png`;
+  // return `https://cdn0.iconfinder.com/data/icons/FileTypesIcons/128/${type}.png`;
+}
 
 class FileModel extends File {
   choice: boolean = false;
@@ -89,9 +99,11 @@ export class FileList extends Vue {
     if (size < 1024)
       return `${size}B`;
     if (size < 1024 * 1024)
-      return `${size / 1024}KB`;
+      return `${Math.floor(size / 1024)}KB`;
     if (size < 1024 * 1024 * 1024)
-      return `${size / 1024 / 1024}MB`;
+      return `${Math.floor(size / 1024 / 1024)}MB`;
+    if (size < 1024 * 1024 * 1024 * 1024)
+      return `${Math.floor(size / 1024 / 1024 / 1024)}MB`;
     return `HUGE`;
   }
 
@@ -204,7 +216,8 @@ export class FileList extends Vue {
         renaming: false,
         star: false,
         url: BASE_PATH + `/file/${f.id}/data`,
-        ownerName: `User ${f.ownerID}`
+        ownerName: `User ${f.ownerID}`,
+        thumbnails: getFileIcon(f)
       }));
       this.files.forEach(async f => {
         let owner = await new UserApi().getUserByName({id: f.ownerID});
@@ -224,7 +237,7 @@ export class FileList extends Vue {
   }
 
   // TODO 实现全部选中/取消选中
-  selectAll: boolean = true;
+  selectAll: boolean = false;
   switchSelectAll() {
     this.selectAll = !this.selectAll;
     this.files.forEach(f => f.choice = this.selectAll);
@@ -306,7 +319,7 @@ export class FileList extends Vue {
   fields = [
     'select',
     // 'star',
-    {key: 'thumbnails', label: ''},
+    {key: 'icon', label: ''},
     {key: 'name', sortable: true},
     {key: 'size', sortable: true},
     {key: 'modifyDate', sortable: true},

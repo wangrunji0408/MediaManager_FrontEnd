@@ -40,16 +40,14 @@
     <template slot="select" scope="row">
       <b-form-checkbox v-model="row.item.choice"></b-form-checkbox>
     </template>
-    <template slot="thumbnails" scope="row">
-      <b-img fluid :src="row.item.thumbnails" width="50" height="50"></b-img>
+    <template slot="icon" scope="row">
+      <b-img fluid :src="row.item.thumbnails" width="40" height="40" @click.stop="open(row.item)"></b-img>
     </template>
     <template slot="star" scope="row">
       <span :class="row.item.star? 'fa fa-star' : 'fa fa-star-o'"
             @click.stop="row.item.star = !row.item.star"></span>
     </template>
     <template slot="name" scope="row">
-      <i class="fa fa-file" v-if="!row.item.isDir" @click="open(row.item)"></i>
-      <i class="fa fa-folder" v-if="row.item.isDir" @click="open(row.item)"></i>
       <span v-if="!row.item.renaming">{{row.item.name}}</span>
       <b-form-input v-model="row.item.name" type="text" placeholder="File name"
                     v-else @change="rename_done(row.item)"></b-form-input>
