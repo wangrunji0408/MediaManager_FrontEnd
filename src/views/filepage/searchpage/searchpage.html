@@ -1,0 +1,20 @@
+<div>
+  <b-form-group horizontal label="文件名">
+    <b-form-input v-model="searchName" placeholder="文件名"></b-form-input>
+  </b-form-group>
+  <b-form-group horizontal label="文件标签">
+    <multiselect v-model="searchTags"
+                 placeholder="文件标签"
+                 label="name"
+                 :options="allTags"
+                 :multiple="true">
+    </multiselect>
+  </b-form-group>
+
+  <b-list-group>
+    <b-list-group-item v-for="file in filteredFiles">
+      <i class="fa fa-file"></i>
+      {{file.path}}<strong>{{file.name}}</strong>
+    </b-list-group-item>
+  </b-list-group>
+</div>

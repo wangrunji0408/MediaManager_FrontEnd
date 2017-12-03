@@ -40,42 +40,48 @@
     <template slot="select" scope="row">
       <b-form-checkbox v-model="row.item.choice"></b-form-checkbox>
     </template>
-    <template slot="thumbnails" scope="row">
-      <b-img fluid :src="row.item.thumbnails" width="50" height="50"></b-img>
+    <template slot="icon" scope="row">
+      <b-img fluid :src="row.item.thumbnails" width="40" height="40" @click.stop="open(row.item)"></b-img>
     </template>
     <template slot="star" scope="row">
       <span :class="row.item.star? 'fa fa-star' : 'fa fa-star-o'"
             @click.stop="row.item.star = !row.item.star"></span>
     </template>
     <template slot="name" scope="row">
-      <i class="fa fa-file" v-if="!row.item.isDir" @click="open(row.item)"></i>
-      <i class="fa fa-folder" v-if="row.item.isDir" @click="open(row.item)"></i>
+      <span v-if="!row.item.renaming">{{row.item.name}}</span>
       <b-form-input v-model="row.item.name" type="text" placeholder="File name"
-                    :plaintext="!row.item.renaming" @change="rename_done(row.item)"></b-form-input>
+                    v-else @change="rename_done(row.item)"></b-form-input>
+      <i class="fa fa-pencil" @click.stop="rename(row.item)"></i>
+      <div>
+        <b-badge v-for="tag in row.item.tags">{{tag.name}}</b-badge>
+        <!--<b-badge :id="'add-tag'+row.index" variant="success">+</b-badge>-->
+        <!--<b-popover :target="'add-tag'+row.index" placement="bottom" title="添加标签" @show="addTagBegin">-->
+          <!--<b-input v-model="newTagName" placeholder="新标签名" @input="addTag(row.item)"></b-input>-->
+          <!--&lt;!&ndash;<i class="fa fa-check" @click="addTag"></i>&ndash;&gt;-->
+        <!--</b-popover>-->
+      </div>
     </template>
     <template slot="size" scope="row">{{fileSizeToString(row.value)}}</template>
     <template slot="modifyDate" scope="row">{{dateToString(row.value)}}</template>
     <template slot="detail" scope="row">
-      <b-dropdown id="ddown1" text="..." variant="primary" class="m-md-2">
-        <b-dropdown-item aria-describedby="details" @click.stop="showDetail(row.item)">
-          <i class="fa fa-info-circle" aria-hidden="true"></i>Details
-        </b-dropdown-item>
-        <b-dropdown-item aria-describedby="comment" @click.stop="showComment(row.item)">
-          <i class="fa fa-comment" aria-hidden="true"></i>Comment
-        </b-dropdown-item>
-        <b-dropdown-item aria-describedby="rename" @click.stop="rename(row.item)">
-          <i class="fa fa-pencil" aria-hidden="true"></i>Rename
-        </b-dropdown-item>
-        <b-dropdown-item aria-describedby="move" @click.stop="moveBegin([row.item])">
-          <i class="fa fa-exchange" aria-hidden="true"></i>Move
-        </b-dropdown-item>
-        <b-dropdown-item aria-describedby="download" v-bind:href="row.item.url">
-          <i class="fa fa-download" aria-hidden="true"></i>Download
-        </b-dropdown-item>
-        <b-dropdown-item aria-describedby="delete" @click.stop="deleteBegin([row.item])">
-          <i class="fa fa-trash" aria-hidden="true"></i></i>Delete
-        </b-dropdown-item>
-      </b-dropdown>
+      <b-btn variant="primary" size="sm" @click.stop="showDetail(row.item)">
+        <i class="fa fa-info-circle"></i>
+      </b-btn>
+      <b-btn variant="primary" size="sm" @click.stop="showComment(row.item)">
+        <i class="fa fa-comment"></i>
+      </b-btn>
+      <b-btn variant="primary" size="sm" @click.stop="moveBegin([row.item])">
+        <i class="fa fa-exchange"></i>
+      </b-btn>
+      <b-btn variant="primary" size="sm" v-bind:href="row.item.url">
+        <i class="fa fa-download"></i>
+      </b-btn>
+      <b-btn variant="primary" size="sm" @click.stop="showShare(row.item)">
+        <i class="fa fa-share"></i>
+      </b-btn>
+      <b-btn variant="danger" size="sm" @click.stop="deleteBegin([row.item])">
+        <i class="fa fa-trash"></i>
+      </b-btn>
     </template>
   </b-table>
 
@@ -88,7 +94,51 @@
 
   <!-- 详细信息弹窗 -->
   <b-modal id="detail-modal" title="详细信息" ok-only>
-    <pre>{{ JSON.stringify(targetFile, null, 2) }}</pre>
+
+    <b-form-group horizontal label="文件名">{{targetFile.name}}</b-form-group>
+
+    <b-form-group horizontal label="所有者">{{targetFile.ownerName}}</b-form-group>
+
+    <b-form-group horizontal label="文件标签">
+      <multiselect v-model="targetFile.tags"
+                   placeholder="文件标签"
+                   label="name"
+                   :taggable="true" @tag="newTag"
+                   @input="updateTargetFile"
+                   :options="allTags"
+                   :multiple="true">
+      </multiselect>
+    </b-form-group>
+
+    <b-form-group horizontal label="分享到组">
+      <multiselect v-model="targetFile.shareToGroups"
+                   placeholder="分享到用户组"
+                   label="name"
+                   @input="updateTargetFile"
+                   :options="allUserGroups"
+                   :multiple="true">
+      </multiselect>
+    </b-form-group>
+
+    <b-btn v-b-toggle.collapse1 variant="primary">JSON</b-btn>
+    <b-collapse id="collapse1" class="mt-2">
+      <pre>{{ JSON.stringify(targetFile, null, 2) }}</pre>
+    </b-collapse>
+
+    <b-btn v-b-toggle.collapse2 variant="primary" v-if="targetFile.videoInfo">视频信息</b-btn>
+    <b-collapse id="collapse2" class="mt-2" v-if="targetFile.videoInfo">
+      <strong>长度：</strong> {{targetFile.videoInfo.duration}} <br>
+      <strong>色彩通道：</strong> {{targetFile.videoInfo.colorChannel}} <br>
+      <strong>比特率：</strong> {{targetFile.videoInfo.bitRate}} <br>
+      <strong>分辨率：</strong> {{targetFile.videoInfo.resolution}} <br>
+      <strong>宽高比：</strong> {{targetFile.videoInfo.aspectRatio}} <br>
+    </b-collapse>
+
+  </b-modal>
+
+  <!-- 分享弹窗 -->
+  <b-modal id="share-modal" size="sm" title="分享文件">
+    <b-img fluid :src="shareQRUrl"></b-img>
   </b-modal>
 
   <!-- 确认删除弹窗 -->
@@ -97,7 +147,7 @@
   </b-modal>
 
   <!-- 选择路径弹窗 -->
-  <b-modal id="move-modal" title="选择路径" @ok="moveSelected">
+  <b-modal id="move-modal" title="选择路径" @ok="moveSelected" @show="targetPath = '/'" @hide="targetPath = ''">
     <PathBreadcrumb v-model="targetPath" routeBase=""></PathBreadcrumb>
     <PathSelector v-model="targetPath"></PathSelector>
   </b-modal>

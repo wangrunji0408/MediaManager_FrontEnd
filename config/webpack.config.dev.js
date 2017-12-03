@@ -41,6 +41,7 @@ webpackConfig.plugins = [...webpackConfig.plugins,
 
 webpackConfig.devServer = {
   port: 8080,
+  disableHostCheck: true,
   host: 'localhost',
   historyApiFallback: true,
   watchOptions: {

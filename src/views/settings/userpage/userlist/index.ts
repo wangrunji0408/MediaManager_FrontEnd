@@ -52,7 +52,7 @@ export class UserList extends Vue {
 
   fields = [
     'select',
-    'icon',
+    'avatar',
     {key: 'username', sortable: true},
     'password',
     'groups',

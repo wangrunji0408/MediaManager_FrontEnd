@@ -1,13 +1,25 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import moment from 'moment';
-import {ErrorInfo, File, FileApi, BASE_PATH} from '../../../api';
+import {ErrorInfo, File, FileApi, BASE_PATH, FileTag, FiletagApi, UserGroup, UserApi} from '../../../api';
 import {UploadStatus} from '../../../components/upload_status';
 import {Watch} from 'vue-property-decorator';
 import {CommentList} from '../comment_list/index';
 import {PathBreadcrumb} from '../../../components/path_breadcrumb/index';
 import {PathSelector} from '../../../components/path_selector/index';
 import {PreviewModal} from '../../../components/preview_modal/index';
+import Multiselect from 'vue-multiselect';
+
+function getFileIcon(file: File): string {
+  if (file.isDir)
+    return `https://cdn3.iconfinder.com/data/icons/tango-icon-library/48/folder-128.png`;
+  if (file.name.indexOf('.') < 0)
+    return `http://cdn.webiconset.com/file-type-icons/images/icons/blank.png`;
+  let ss = file.name.split('.');
+  let type = ss[ss.length - 1];
+  return `http://cdn.webiconset.com/file-type-icons/images/icons/${type}.png`;
+  // return `https://cdn0.iconfinder.com/data/icons/FileTypesIcons/128/${type}.png`;
+}
 
 class FileModel extends File {
   choice: boolean = false;
@@ -15,11 +27,22 @@ class FileModel extends File {
   oldName: string = '';
   renaming: boolean = false;
   url: string = '';
+  ownerName: string = '';
 }
+
+const nullFile: FileModel = {
+  ...new File(),
+  choice: null,
+  star: null,
+  oldName: null,
+  renaming: null,
+  url: null,
+  ownerName: null,
+};
 
 @Component({
   template: require('./filelist.html'),
-  components: {UploadStatus, CommentList, PathBreadcrumb, PathSelector, PreviewModal},
+  components: {Multiselect, UploadStatus, CommentList, PathBreadcrumb, PathSelector, PreviewModal},
   async mounted() {
     await this.fetchData();
   }
@@ -67,6 +90,7 @@ export class FileList extends Vue {
         });
       }
       this.showAlert('上传文件成功', 'success');
+      await this.fetchData();
     } catch (e) {
       await this.handleError(e, '上传文件');
     }
@@ -74,11 +98,13 @@ export class FileList extends Vue {
 
   fileSizeToString(size: number): string {
     if (size < 1024)
-      return `${size}KB`;
+      return `${size}B`;
     if (size < 1024 * 1024)
-      return `${size / 1024}MB`;
+      return `${Math.floor(size / 1024)}KB`;
     if (size < 1024 * 1024 * 1024)
-      return `${size / 1024 / 1024}GB`;
+      return `${Math.floor(size / 1024 / 1024)}MB`;
+    if (size < 1024 * 1024 * 1024 * 1024)
+      return `${Math.floor(size / 1024 / 1024 / 1024)}MB`;
     return `HUGE`;
   }
 
@@ -103,6 +129,12 @@ export class FileList extends Vue {
   showComment (item: FileModel) {
     this.targetFile = item;
     this.$root.$emit('bv::show::modal', 'comment-modal');
+  }
+
+  shareQRUrl: string = '';
+  showShare (item: FileModel) {
+    this.shareQRUrl = 'http://qr.liantu.com/api.php?text=' + `http://pan.zhangyn.me/file/${item.id}/data`;
+    this.$root.$emit('bv::show::modal', 'share-modal');
   }
 
   rename (item: FileModel) {
@@ -157,7 +189,7 @@ export class FileList extends Vue {
     this.$root.$emit('bv::show::modal', 'move-modal');
   }
 
-  targetPath: string = '/';
+  targetPath: string = '';
 
   async moveSelected() {
     this.ensureTargetNotEmpty();
@@ -184,16 +216,23 @@ export class FileList extends Vue {
     // TODO 超时判断
     try {
       let files = await new FileApi().getFiles({path: this.path});
-      this.files = files.map(f => {
-        let ff = f as FileModel;  // 扩展为子类，补全属性
-        ff.choice = false;
-        ff.oldName = '';
-        ff.renaming = false;
-        ff.star = false;
-        ff.url = BASE_PATH + `/file/${ff.id}/data`;
-        return ff;
+      this.files = files.map(f => ({
+        ...f,
+        choice: false,
+        oldName: '',
+        renaming: false,
+        star: false,
+        url: BASE_PATH + `/file/${f.id}/data`,
+        ownerName: `User ${f.ownerID}`,
+        thumbnails: getFileIcon(f)
+      }));
+      this.files.forEach(async f => {
+        let owner = await new UserApi().getUserByName({id: f.ownerID});
+        f.ownerName = owner.username;
       });
-      // this.$message.success('获取数据成功');
+      this.allTags = await new FiletagApi().getFileTags();
+      let self = await new UserApi().getUserByName({id: this.$store.state.userID});
+      this.allUserGroups = self.groups;
     } catch (e) {
       await this.handleError(e, '刷新');
     }
@@ -205,7 +244,7 @@ export class FileList extends Vue {
   }
 
   // TODO 实现全部选中/取消选中
-  selectAll: boolean = true;
+  selectAll: boolean = false;
   switchSelectAll() {
     this.selectAll = !this.selectAll;
     this.files.forEach(f => f.choice = this.selectAll);
@@ -250,14 +289,44 @@ export class FileList extends Vue {
     }
   }
 
-  targetFile: FileModel = null;
+  allTags: FileTag[] = [];
+
+  newTagName: string = '';
+  addTagBegin() {
+    this.newTagName = '';
+  }
+  async updateTargetFile() {
+    try {
+      let rsp = await new FileApi().updateFiles({body: [this.targetFile]});
+    } catch (e) {
+      await this.handleError(e, '修改文件信息');
+    } finally {
+      await this.fetchData();
+    }
+  }
+  async newTag(tagName: string) {
+    try {
+      let tag = await new FiletagApi().createFileTag({body:
+        {id: 0, name: tagName, color: '#FFFFFF'}});
+      this.targetFile.tags.push(tag);
+      let rsp = await new FileApi().updateFiles({body: [this.targetFile]});
+    } catch (e) {
+      await this.handleError(e, '新建标签');
+    } finally {
+      await this.fetchData();
+    }
+  }
+
+  allUserGroups: UserGroup[] = [];
+
+  targetFile: FileModel = nullFile;
 
   files: FileModel[] = [];
 
   fields = [
     'select',
     // 'star',
-    {key: 'thumbnails', label: ''},
+    {key: 'icon', label: ''},
     {key: 'name', sortable: true},
     {key: 'size', sortable: true},
     {key: 'modifyDate', sortable: true},

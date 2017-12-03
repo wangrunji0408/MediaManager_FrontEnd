@@ -37,8 +37,8 @@
     <template slot="select" scope="row">
       <b-form-checkbox v-model="row.item.selected"></b-form-checkbox>
     </template>
-    <template slot="icon" scope="row">
-      <b-img thumbnail fluid v-bind:src="row.item.image" width="50" height="50" alt="Thumbnail"></b-img>
+    <template slot="avatar" scope="row">
+      <b-img fluid :src="row.item.image" width="50" height="50" alt="IMG"></b-img>
     </template>
     <template slot="username" scope="row">
       <i class="fa fa-user"></i>
@@ -54,6 +54,12 @@
       <GroupDropdown :all="allGroups" v-model="row.item.groups"></GroupDropdown>
     </template>
   </b-table>
+
+  <div class="row">
+    <div class="offset-md-4 col-md-3">
+      <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" />
+    </div>
+  </div>
 
   <!-- 重命名弹窗 -->
   <b-modal id="rename-modal" title="重命名" @ok="renameDone" @show="newName = ''">

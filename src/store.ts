@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import {User} from './api';
 Vue.use(Vuex);
 
 export let store = new Vuex.Store({
@@ -9,6 +10,7 @@ export let store = new Vuex.Store({
     authOpt: null,
     username: null,
     userID: null,
+    user: null,
   },
   mutations: {
     setBasicAuth(state, payload: {username, password}) {
@@ -27,9 +29,17 @@ export let store = new Vuex.Store({
       state.userID = id;
       localStorage.setItem('userID', id);
     },
+    setUser(state, user: User) {
+      state.user = user;
+      state.userID = user.id;
+      state.username = user.username;
+      localStorage.setItem('userID', user.id.toString());
+      localStorage.setItem('username', user.username);
+    },
     logout(state) {
       state.authOpt = null;
       state.username = null;
+      state.userID = null;
       localStorage.removeItem('authOpt');
       localStorage.removeItem('username');
       localStorage.removeItem('userID');

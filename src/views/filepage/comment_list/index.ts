@@ -1,10 +1,13 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import {BASE_PATH, Comment, CommentTypeEnum, SocialApi} from '../../../api';
+import {BASE_PATH, Comment, CommentTypeEnum, SocialApi, UserApi} from '../../../api';
+import {Watch} from 'vue-property-decorator';
+import moment from 'moment';
 
 class CommentModel extends Comment {
   editing: boolean = false;
   isNew: boolean = false;
+  username: string = '';
 }
 
 @Component({
@@ -15,61 +18,34 @@ export class CommentList extends Vue {
   show: boolean = false;
   loading: boolean = false;
   fileID: string = '';
-  comments: CommentModel[] = [
-    {
-      id: 1,
-      fileID: '20',
-      userID: 1,
-      date: new Date(),
-      type: 'comment',
-      comment: 'Good',
-      editing: false,
-      isNew: false,
-    },
-    {
-      id: 2,
-      fileID: '20',
-      userID: 2,
-      date: new Date(),
-      type: 'star',
-      editing: false,
-      isNew: false,
-    },
-    {
-      id: 3,
-      fileID: '20',
-      userID: 3,
-      date: new Date(),
-      type: 'score',
-      score: 5,
-      editing: false,
-      isNew: false,
-    },
-  ];
+  comments: CommentModel[] = [];
 
   getAvatarUrl(id: number): string {
-    return 'https://lorempixel.com/125/125/technics/8/'; // TODO temp
-    // return `${BASE_PATH}/user/${id}/avatar`;
+    return `${BASE_PATH}/user/${id}/avatar`;
   }
 
   owns(comment: Comment): boolean {
     return comment.userID === this.$store.state.userID;
   }
 
-  add(type: CommentTypeEnum) {
-    // switch (type) {
-    //   case 'comment':
-    //   case 'star':
-    //   case 'score':
-    // }
-    this.comments.push({
+  formatDate(date: Date): string {
+    return moment(date).format('YYYY-MM-DD hh:mm');
+  }
+
+  async add(type: CommentTypeEnum) {
+    let comment = {
       fileID: this.fileID,
       userID: this.$store.state.userID,
       type: type,
       editing: true,
-      isNew: true
-    });
-
+      isNew: true,
+      username: this.$store.state.username,
+    };
+    this.comments.push(comment);
+    if (comment.type === 'star') {
+      comment.editing = false;
+      await this.editDone(comment);
+    }
   }
 
   editBegin(comment: CommentModel) {
@@ -78,14 +54,18 @@ export class CommentList extends Vue {
 
   async editDone(comment: CommentModel) {
     try {
-      if (comment.isNew)
-        await new SocialApi().postComment({body: comment});
+      comment.date = new Date();
+      if (comment.isNew) {
+        let rsp = await new SocialApi().postComment({body: comment});
+        comment.id = rsp.id;
+      }
       else
         await new SocialApi().updateComment({body: comment});
       comment.isNew = false;
       comment.editing = false;
     } catch (e) {
       this.$message.error('更新失败');
+      throw e;
     }
   }
 
@@ -95,18 +75,30 @@ export class CommentList extends Vue {
         await new SocialApi().deleteComment({id: comment.id});
       } catch (e) {
         this.$message.error('删除失败');
-        return;
+        throw e;
       }
     }
     this.comments.splice(this.comments.indexOf(comment));
   }
 
+  @Watch('fileID')
   async fetchData() {
+    if (!this.fileID || this.fileID === '0')
+      return;
     try {
       this.loading = true;
       let list = await new SocialApi().getFileComments(
         {fileID: this.fileID});
-      this.comments = list.map(c => ({...c, editing: false, isNew: false}));
+      this.comments = list.map(c => ({
+        ...c,
+        editing: false,
+        isNew: false,
+        username: `User ${c.userID}`,
+      }));
+      this.comments.forEach(async f => {
+        let user = await new UserApi().getUserByName({id: f.userID});
+        f.username = user.username;
+      });
     } catch (e) {
       this.$message.error('获取评论失败');
     } finally {

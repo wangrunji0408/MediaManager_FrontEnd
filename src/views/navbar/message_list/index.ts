@@ -4,7 +4,10 @@ import {Event, SocialApi} from '../../../api';
 import moment from 'moment';
 
 @Component({
-  template: require('./message_list.html')
+  template: require('./message_list.html'),
+  async mounted() {
+    await this.fetchData();
+  }
 })
 export class MessageList extends Vue {
 

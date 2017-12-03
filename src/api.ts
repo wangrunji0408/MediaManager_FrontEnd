@@ -16,11 +16,12 @@ import * as url from 'url';
 import * as isomorphicFetch from 'isomorphic-fetch';
 import * as assign from 'core-js/library/fn/object/assign';
 import {store} from './store';
+import moment from 'moment';
 
 interface Dictionary<T> { [index: string]: T; }
 export interface FetchAPI { (url: string, init?: any): Promise<any>; }
 
-export const BASE_PATH = 'http://localhost:8000'.replace(/\/+$/, '');
+export const BASE_PATH = 'http://pan.zhangyn.me'.replace(/\/+$/, '');
 
 export interface FetchArgs {
     url: string;
@@ -1454,11 +1455,13 @@ export const SocialApiFetchParamCreator = {
         if (params['userID'] == null) {
             throw new Error('Missing required parameter userID when calling getUserEvents');
         }
+
+        let timeStr = moment(params['afterTime']).format('YYYY-MM-DDThh:mm:ss');
         const baseUrl = `/event`;
         let urlObj = url.parse(baseUrl, true);
         urlObj.query = assign({}, urlObj.query, {
             'userID': params['userID'],
-            'afterTime': params['afterTime'],
+            'afterTime': timeStr,
         });
         let fetchOptions: RequestInit = assign({}, { method: 'GET' }, options);
 
@@ -2369,13 +2372,12 @@ export const UserApiFetchParamCreator = {
         let urlObj = url.parse(baseUrl, true);
         let fetchOptions: RequestInit = assign({}, { method: 'POST' }, options);
 
-        let contentTypeHeader: Dictionary<string> = {};
-        contentTypeHeader = { 'Content-Type': 'application/x-www-form-urlencoded' };
-        fetchOptions.body = querystring.stringify({
-            'file': params['file'],
-        });
+        let body = new FormData();
+        body.append('file', params['file']);
+        fetchOptions.body = body;
+        let contentTypeHeader = {};
         if (contentTypeHeader) {
-            fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
+          fetchOptions.headers = assign({}, contentTypeHeader, fetchOptions.headers);
         }
         return {
             url: url.format(urlObj),
@@ -2532,12 +2534,12 @@ export const UserApiFp = {
      * @summary Signup user. Return a token.
      * @param body
      */
-    signupUser(params: { 'body': Body;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<string> {
+    signupUser(params: { 'body': Body;  }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
         const fetchArgs = UserApiFetchParamCreator.signupUser(params, options);
         return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
             return fetch(basePath + fetchArgs.url, fetchArgs.options).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
-                    return response.json();
+                    return response;
                 } else {
                     throw response;
                 }
